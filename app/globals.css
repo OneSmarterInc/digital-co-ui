@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+/* Light theme: a daytime engineering readout. Cool paper ground, slate ink,
+   and the sim's red/amber/green gate signals darkened to read on white.
+   Exposed as Tailwind utilities (bg-go, text-caution, border-line, ...). */
+@theme {
+  --color-bg: #f4f6f9;
+  --color-panel: #ffffff;
+  --color-panel2: #edf1f5;
+  --color-ink: #18232f;
+  --color-muted: #566674;
+  --color-faint: #8a97a5;
+  --color-line: #e2e7ed;
+  --color-linestrong: #c9d2db;
+
+  --color-go: #1a804f;
+  --color-caution: #b07a0c;
+  --color-alarm: #c63d30;
+  --color-neutral: #6e7a87;
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+
+  --animate-flash: flash 2.4s ease-in-out infinite;
+}
+
+@keyframes flash {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@layer base {
+  body {
+    background:
+      radial-gradient(1100px 560px at 72% -12%, #e7edf4 0%, rgba(231, 237, 244, 0) 55%),
+      var(--color-bg);
+    background-attachment: fixed;
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+}

@@ -1,0 +1,115 @@
+// Pure helpers and shared constants for the instructor simulation detail views.
+// No React and no API calls here, just formatting and shaping the detail payload.
+// The frontend speaks "rounds" and "firms"; the backend maps those to weeks and teams.
+
+export const FIRM_COLORS = ["#3b6ea5", "#1a804f", "#b7791f", "#7c3aed", "#c026d3", "#0891b2"];
+
+export const SCORE_LABELS = {
+  strategic_judgment: "Strategic judgment",
+  execution_consequence: "Execution consequence",
+  coherence: "Coherence",
+  deliverable_quality: "Deliverable quality",
+};
+
+// Compact labels for tight rows (the grading list chips).
+export const SCORE_SHORT = {
+  strategic_judgment: "Judgment",
+  execution_consequence: "Execution",
+  coherence: "Coherence",
+  deliverable_quality: "Deliverable",
+};
+
+export const ANCHOR_OPTIONS = ["strong", "adequate", "weak"];
+
+export function initials(name) {
+  const p = String(name || "").trim().split(/\s+/);
+  return ((p[0]?.[0] ?? "") + (p[1]?.[0] ?? "")).toUpperCase() || "?";
+}
+
+export function instructorName(i) {
+  const full = [i.first_name, i.last_name].filter(Boolean).join(" ");
+  return full || i.username || i.email || `#${i.id}`;
+}
+
+export function fmtMoney(n) {
+  const v = Number(n) || 0;
+  return v >= 1000 ? `$${(v / 1000).toFixed(v % 1000 ? 1 : 0)}K` : `$${v}`;
+}
+
+export function fmtDate(d) {
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+}
+
+export function deriveRounds(detail) {
+  const total = detail.total_rounds || 0;
+  const current = detail.current_round || 1;
+  const days = detail.days_per_round || 7;
+  const base = detail.start_date ? new Date(`${detail.start_date}T00:00:00Z`) : null;
+  const rows = [];
+  for (let n = 1; n <= total; n++) {
+    let start = "—";
+    let end = "—";
+    if (base) {
+      const s = new Date(base);
+      s.setUTCDate(s.getUTCDate() + (n - 1) * days);
+      const e = new Date(s);
+      e.setUTCDate(e.getUTCDate() + days);
+      start = fmtDate(s);
+      end = fmtDate(e);
+    }
+    rows.push({ n, start, end, status: n < current ? "Completed" : n === current ? "Active" : "Upcoming", extended_days: 0 });
+  }
+  return rows;
+}
+
+export function closesIn(endStr) {
+  if (!endStr || endStr === "—") return null;
+  const end = new Date(endStr);
+  if (Number.isNaN(end.getTime())) return null;
+  const ms = end.getTime() - Date.now();
+  if (ms <= 0) return "deadline passed";
+  const d = Math.floor(ms / 86400000);
+  const h = Math.floor((ms % 86400000) / 3600000);
+  return `closes in ${d}d ${h}h`;
+}
+
+export function statusOf(detail) {
+  if (detail.current_round >= detail.total_rounds) return { label: "Completed", tone: "var(--color-muted)" };
+  if (detail.deployment_status === "students") return { label: "In progress", tone: "var(--color-go)" };
+  if (detail.deployment_status === "faculty") return { label: "Ready", tone: "#3b6ea5" };
+  return { label: "Draft", tone: "var(--color-muted)" };
+}
+
+export function billingOf(detail) {
+  const students = detail.students ?? [];
+  const price = detail.billing?.price_per_student ?? detail.price_per_student ?? 0;
+  const paid = students.filter((s) => s.paid).length;
+  return (
+    detail.billing ?? {
+      price_per_student: price,
+      total_billed: students.length * price,
+      received: paid * price,
+      pending: (students.length - paid) * price,
+      paid_count: paid,
+      total_count: students.length,
+    }
+  );
+}
+
+export function groupsOf(detail) {
+  const students = detail.students ?? [];
+  const map = new Map();
+  for (const s of students) {
+    const key = s.firm ?? "Unassigned";
+    if (!map.has(key)) map.set(key, { name: key, index: s.firm_index ?? 0, members: [] });
+    map.get(key).members.push(s);
+  }
+  for (const grp of map.values()) grp.members.sort((a, b) => a.name.localeCompare(b.name));
+  return [...map.values()].sort((a, b) => a.index - b.index);
+}
+
+// Turn a trap flag (string or object) into something readable in a chip.
+export function flagText(f) {
+  if (typeof f === "string") return f.replace(/_/g, " ");
+  return String(f?.code || f?.name || f?.label || "flag").replace(/_/g, " ");
+}
