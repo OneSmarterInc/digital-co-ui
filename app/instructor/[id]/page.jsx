@@ -14,6 +14,7 @@ import InviteesView from "./_components/InviteesView";
 import StudentsView from "./_components/StudentsView";
 import ScheduleView from "./_components/ScheduleView";
 import InsightsView from "./_components/InsightsView";
+import TeachingNoteView from "./_components/TeachingNoteView";
 import { IconBack } from "./_components/icons";
 
 /* ================================================================== *
@@ -78,7 +79,7 @@ const THEME = {
 const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
 const DISPLAY = "font-['Saira_Condensed',sans-serif]";
 
-const VALID_SECTIONS = new Set(["overview", "grading", "firms", "invitees", "students", "schedule", "insights"]);
+const VALID_SECTIONS = new Set(["overview", "grading", "firms", "invitees", "students", "schedule", "insights", "teaching"]);
 
 export default function SimulationDetailPage() {
   const router = useRouter();
@@ -265,6 +266,7 @@ export default function SimulationDetailPage() {
             {section === "students" && <StudentsView {...viewProps} />}
             {section === "schedule" && <ScheduleView {...viewProps} />}
             {section === "insights" && <InsightsView {...viewProps} />}
+            {section === "teaching" && <TeachingNoteView {...viewProps} />}
           </div>
         </main>
       </div>

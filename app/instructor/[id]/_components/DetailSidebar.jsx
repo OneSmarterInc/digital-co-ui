@@ -69,6 +69,7 @@ export default function DetailSidebar({ section, setSection, queueCount, deploym
     ["invitees", "Invitees", null],
     ["students", "Students", null],
     ["schedule", "Schedule", null],
+    ["teaching", "Teaching Note", null],
   ];
   const insightsChildren = [
     ["Performance", `/instructor/${gameId}/performance`],
