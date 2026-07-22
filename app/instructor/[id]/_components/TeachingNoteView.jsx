@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { ViewHeader } from "./ui";
 
 /* Teaching Note — the faculty pack's third document, rendered in-app.
@@ -268,20 +269,25 @@ const WEEKS = [
   },
 ];
 
-function ExhibitKey({ text }) {
+function ExhibitKey({ text, weekNumber, onOpen }) {
   return (
-    <div className="mt-4 rounded-[2px] border border-[var(--steel-line,#2C323A)] border-l-[3px] border-l-[var(--amber,#E8A13C)] bg-[var(--graphite,#16191D)] px-4 py-3.5">
+    <button
+      onClick={() => onOpen(weekNumber)}
+      className="mt-4 w-full text-left rounded-[2px] border border-[var(--steel-line,#2C323A)] border-l-[3px] border-l-[var(--amber,#E8A13C)] bg-[var(--graphite,#16191D)] px-4 py-3.5 transition hover:bg-[var(--graphite-raised,#1E2228)] hover:border-[var(--amber-deep,#C4791F)]"
+    >
       <p className={`mb-2 ${MONO} text-[8.5px] uppercase tracking-[0.16em] text-[var(--amber,#E8A13C)]`}>
-        Exhibit key · which numbers are load-bearing
+        Exhibit key · click to view full exhibit
       </p>
       <p className="text-[0.9rem] leading-[1.65] text-[var(--muted,#8A94A0)]">
         <Rich text={text} />
       </p>
-    </div>
+    </button>
   );
 }
 
 export default function TeachingNoteView() {
+  const [openExhibit, setOpenExhibit] = useState(null);
+
   return (
     <div className="space-y-7 text-[var(--paper,#ECEFF2)]">
       <ViewHeader
@@ -385,7 +391,7 @@ export default function TeachingNoteView() {
                   <Rich text={p} />
                 </p>
               ))}
-              {w.exhibitKey && <ExhibitKey text={w.exhibitKey} />}
+              {w.exhibitKey && <ExhibitKey text={w.exhibitKey} weekNumber={w.n} onOpen={setOpenExhibit} />}
               {w.rest.map((p, i) => (
                 <p key={`r${i}`} className="mt-3.5 text-[0.95rem] leading-[1.7] text-[var(--muted,#8A94A0)]">
                   <Rich text={p} />
@@ -402,6 +408,252 @@ export default function TeachingNoteView() {
         <p className="text-[0.9rem] leading-[1.6] text-[var(--muted,#8A94A0)]">
           The case canon ledger (every number reconciled, plus the exhibit design principle) and the exhibits review copy (all seven rendered as students see them). This note, the ledger, and the review copy together are the faculty pack.
         </p>
+      </div>
+
+      {/* modal for exhibit details */}
+      <ExhibitModal weekNumber={openExhibit} onClose={() => setOpenExhibit(null)} />
+    </div>
+  );
+}
+
+/* Exhibit content data for modal — maps week numbers to full exhibit sections */
+const EXHIBIT_CONTENT = {
+  1: {
+    title: "Week 1 · Exhibit F5 — Industry & Competitive Note",
+    description: "HBS-style industry framing. The bait is the associate's '$12M at Meridian's rate' claim.",
+    sections: [
+      {
+        heading: "Industry Context",
+        content: "The industry sells machines through captive dealer networks and increasingly sells outcomes on top of machines — uptime contracts, predictive maintenance, fleet optimization — priced as subscriptions on connected units. Two economics dominate. First, attach: a connected unit costs roughly the same to serve whether or not it pays, so margin lives in the share of the fleet that subscribes. Second, channel: dealers own the customer relationship and the service bay; every OEM that tried to monetize machine data over the dealer's head has paid for it in orders. Analysts put industry services attach at 55–70% for leaders, with subscription revenue per active unit of $300–$520 a year."
+      },
+      {
+        heading: "Competitive Position",
+        table: {
+          headers: ["Player", "Regional share", "Installed base", "Connected (attach)", "Services ARR"],
+          rows: [
+            ["Meridian Equipment Group", "31%", "142,000", "61,000 (43%)", "$26.8M"],
+            ["DigitalCo", "24%", "96,000", "12,550 (13%)", "$1.9M"],
+            ["Halberd Industrial", "17%", "88,000", "39,000 (44%)", "$14.6M"],
+          ]
+        }
+      },
+      {
+        heading: "Key Calculation",
+        content: "Meridian's ARR per connected unit is $439; Halberd's is $374; DigitalCo's is $151. The associate's note argues DigitalCo could 'close to $12M ARR at Meridian's rate' — check what attach that requires against the 31,400 capable units, and ask which number in this table DigitalCo actually controls."
+      }
+    ]
+  },
+  3: {
+    title: "Week 3 · Case Exhibit — The Integrator's Accelerator Memo",
+    description: "Sunk-cost bait wired to the take_accelerator trap. The memo's arithmetic is correct; the guarantee, the scope exclusion, and the closing paragraph are the lesson.",
+    sections: [
+      {
+        heading: "Proposal Summary",
+        table: {
+          headers: ["Line", "Amount", "Basis (as stated)"],
+          rows: [
+            ["Accelerator fixed fee", "$4.2M", "Dedicated senior team, 'guaranteed' schedule"],
+            ["Schedule improvement", "6 months", "Against current re-baselined plan"],
+            ["Avoided program burn", "$3.66M", "6 mo × $610k current monthly burn"],
+            ["Earlier benefits capture", "$3.0M", "Retirement savings ($6.0M/yr) starting 6 mo sooner"],
+            ["Net position (their total)", "+$2.46M", "'The acceleration pays for itself'"]
+          ]
+        }
+      },
+      {
+        heading: "What the Memo Prices",
+        content: "Three checks separate the readings. The guarantee: schedule credits are capped at 15% of the accelerator fee — $630k — so a six-month guarantee that fails costs them $630k and costs you six more months of $610k burn. The scope: interface remediation (+$11–14M estimate) is excluded — the accelerator speeds up the part that isn't the blocker. The savings: the $6.0M/yr retirement figure only exists after full cutover, which the accelerator doesn't reach. Closing paragraph: '$40.3M investment protection' prices nothing at all — that $40.3M is spent whether you finish, restructure, or stop."
+      }
+    ]
+  },
+  4: {
+    title: "Week 4 · Case Exhibit — The Sweet Deal TCO Workbook",
+    description: "The savings are honest; the exhibit is the missing rows. Wired to the sweet_deal_as_written trap and priced again at Week 12.",
+    sections: [
+      {
+        heading: "Enterprise Agreement",
+        table: {
+          headers: ["Cloud spend (all workloads)", "Yr 1", "Yr 2", "Yr 3", "3-yr total"],
+          rows: [
+            ["Pay-as-you-go projection", "$7.4M", "$8.3M", "$9.3M", "$25.0M"],
+            ["With enterprise agreement", "$6.2M", "$6.2M", "$6.2M + overage", "$18.6M"],
+            ["Headline savings", "", "", "", "$6.4M"]
+          ]
+        }
+      },
+      {
+        heading: "Missing Rows",
+        content: "The workbook doesn't include: Egress at fleet scale ($0.09/GB list — telemetry is 6.1 TB/mo and compounding). Portability layer, built now (~$1.1M one-time). Repatriation later, at scale ($9–14M one-time at Year-3 volumes, against the meter). Renewal leverage: a committed floor is a strong position — for the party you're committed to."
+      },
+      {
+        heading: "The Lesson",
+        content: "Compute 3-year TCO and the agreement saves $6.4M — that number is honest. Compute the cost of changing your mind and the same agreement converts a variable cost into a fixed one and sells your future negotiating position back to you at a discount. What a sweet deal costs is only visible in the years after it ends."
+      }
+    ]
+  },
+  6: {
+    title: "Week 6 · Case Exhibit — Platform Sizing One-Pager",
+    description: "The same NPV model, three assumption sets. The biggest number on the page is computed on the assumptions that produced the last three years.",
+    sections: [
+      {
+        heading: "Five-Year NPV @ 10%",
+        table: {
+          headers: ["Option", "Incremental cost/yr", "NPV on Bryce path", "NPV on current", "NPV realistic-improved"],
+          rows: [
+            ["Minimal — keep the lights on", "$2.0M", "+$3M", "−$6M", "−$2M"],
+            ["Connected services, right-sized", "$6.0M", "+$31M", "−$14M", "+$9M"],
+            ["Grand platform", "$15.0M", "+$48M", "−$31M", "−$7M"]
+          ]
+        }
+      },
+      {
+        heading: "Assumption Sets",
+        content: "Bryce path: $439 ARPU by Y3, 60% attach. Current: $151 ARPU, attach growing 6 points/yr. Realistic-improved: $300 ARPU, 40% attach of capable fleet — earned by fixing pricing and rights, not assumed."
+      },
+      {
+        heading: "The Bait",
+        content: "The +$48M is the biggest number on the page and it's computed on the assumptions that produced the last three years. The defensible case is where the team can say why its ARPU column is the true one — which is a rights-and-pricing argument, not a modeling argument."
+      }
+    ]
+  },
+  8: {
+    title: "Week 8 · Case Exhibit — Data Monetization Pro Formas",
+    description: "Column A wins every comparison ending inside twelve months and loses every one that doesn't. The Week 11 revolt sits in the rows marked 'not modeled'.",
+    sections: [
+      {
+        heading: "Two Postures",
+        table: {
+          headers: ["Line", "A — assert & charge", "B — shared value", "Note"],
+          rows: [
+            ["Year-1 ARR", "$6.8M", "$4.1M", "A charges dealers; B rev-shares 70/30"],
+            ["Year-3 ARR", "$7.9M", "$11.2M", "B compounds through dealer-pushed attach"],
+            ["Dealer churn exposure", "'not modeled'", "0", "A's footnote — 47 access tickets last quarter"],
+            ["Equipment revenue at risk", "up to −$25M/yr", "0", "8% order shift by aggrieved dealers"],
+            ["Trust & governance cost", "'n/a'", "$0.6M/yr", "B funds joint governance"]
+          ]
+        }
+      },
+      {
+        heading: "The Core Insight",
+        content: "Column A wins every comparison that ends inside twelve months and loses every one that doesn't. The rows Column A marks 'not modeled' are not zero — they are the part of the model someone chose not to run. If they come due, they come due all at once."
+      }
+    ]
+  },
+  12: {
+    title: "Week 12 · Case Exhibit — The Bill at Fleet Scale",
+    description: "One exhibit, two documents. A decision memo to portable firms, a hostage note to locked-in ones — the Week 4 decision, priced.",
+    sections: [
+      {
+        heading: "Cloud Bill Trend",
+        table: {
+          headers: ["Posture (set by your Week 4 call)", "Then", "Now", "Next FY", "Driver"],
+          rows: [
+            ["Committed / locked", "$6.2M floor", "$10.9M", "$13.8M", "Floor + overage + egress"],
+            ["Portability protected", "$7.4M", "$9.1M", "$9.9M", "Same volumes; leverage intact"]
+          ]
+        }
+      },
+      {
+        heading: "Options Memo",
+        table: {
+          headers: ["Move", "One-time", "Steady-state/yr", "Note"],
+          rows: [
+            ["Edge + repatriate (portable estate)", "$6.5M", "$5.8M", "Process on-machine; move bulk storage"],
+            ["Edge + repatriate (locked estate)", "$14.2M", "$5.8M", "Plus $4.1M egress + $8.9M re-architecture + $1.2M breakage"],
+            ["Deepen commitment instead", "$0", "$11.6M and rising", "Bigger discount on bigger meter"]
+          ]
+        }
+      },
+      {
+        heading: "The Teaching Line",
+        content: "To a firm that paid ~$1.1M for portability in Week 4, this is a decision memo with an eighteen-month payback. To a locked-in firm it's a hostage note — every exit priced by the party being exited. The cost of changing your mind is set years before you want to change it."
+      }
+    ]
+  },
+};
+
+function ExhibitModal({ weekNumber, onClose }) {
+  if (!weekNumber || !EXHIBIT_CONTENT[weekNumber]) return null;
+
+  const exhibit = EXHIBIT_CONTENT[weekNumber];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.7)] p-4">
+      <div className="max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-[3px] border border-[var(--steel-line,#2C323A)] bg-[var(--graphite-raised,#1E2228)] shadow-[0_20px_60px_-12px_rgba(0,0,0,0.8)]">
+        {/* Header */}
+        <div className="sticky top-0 z-10 border-b border-[var(--steel-line,#2C323A)] bg-[var(--graphite-raised,#1E2228)] px-6 py-5 flex items-center justify-between">
+          <div className="flex-1">
+            <h2 className={`${DISPLAY} text-[20px] font-semibold text-[var(--amber,#E8A13C)]`}>{exhibit.title}</h2>
+            <p className="mt-1 text-[0.85rem] text-[var(--muted,#8A94A0)]">{exhibit.description}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className={`flex-none flex h-9 w-9 items-center justify-center rounded-[2px] border border-[var(--steel-line,#2C323A)] text-[var(--muted,#8A94A0)] transition hover:bg-[var(--graphite,#16191D)] hover:text-[var(--paper,#ECEFF2)] ml-4`}
+            aria-label="Close"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="px-6 py-6 space-y-6">
+          {exhibit.sections.map((section, idx) => (
+            <div key={idx}>
+              <h3 className={`${DISPLAY} text-[16px] font-semibold text-[var(--amber,#E8A13C)] mb-3`}>
+                {section.heading}
+              </h3>
+
+              {section.table && (
+                <div className="overflow-x-auto bg-[var(--graphite,#16191D)] border border-[var(--steel-line,#2C323A)] rounded-[2px]">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-[var(--steel-line,#2C323A)] bg-[#1B1F24]">
+                        {section.table.headers.map((header, i) => (
+                          <th
+                            key={i}
+                            className={`${MONO} text-[9px] uppercase tracking-[0.1em] font-semibold text-[var(--muted-dim,#5C6672)] px-3 py-2 text-left`}
+                          >
+                            {header}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {section.table.rows.map((row, rowIdx) => (
+                        <tr
+                          key={rowIdx}
+                          className={`border-b border-[var(--steel-line,#2C323A)] ${
+                            rowIdx % 2 === 1 ? "bg-[#1E2228]" : ""
+                          }`}
+                        >
+                          {row.map((cell, cellIdx) => (
+                            <td
+                              key={cellIdx}
+                              className={`px-3 py-2.5 text-[0.85rem] text-[var(--muted,#8A94A0)] ${
+                                cellIdx === 0 ? "font-semibold text-[var(--paper,#ECEFF2)]" : MONO
+                              }`}
+                            >
+                              {cell}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {section.content && (
+                <p className="text-[0.9rem] leading-[1.6] text-[var(--muted,#8A94A0)]">
+                  {section.content}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

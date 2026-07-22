@@ -6,6 +6,7 @@ import WeekConsole from "./WeekConsole";
 import DebriefConsole from "./DebriefConsole";
 import AdvisorsConsole from "./AdvisorsConsole";
 import AdvisorAvatar from "./AdvisorAvatar";
+import ExhibitsPage from "./exhibits/page";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 // Adjust to wherever your api client lives.
 import { fetchMe, api, logout } from "../../../lib/api";
@@ -183,6 +184,7 @@ const SECTIONS = [
   ["week", "This Week"],
   ["performance", "Performance"],
   ["advisors", "Advisors"],
+  ["exhibits", "Exhibits"],
   ["schedule", "Schedule"],
   ["debrief", "Debrief"],
 ];
@@ -418,6 +420,7 @@ export default function StudentCohortPage() {
             {displaySection === "week" && <WeekConsole {...sectionProps} />}
             {displaySection === "performance" && <PerformanceView {...sectionProps} />}
             {displaySection === "advisors" && <AdvisorsConsole {...sectionProps} />}
+            {displaySection === "exhibits" && <ExhibitsPage />}
             {displaySection === "schedule" && <ScheduleView {...sectionProps} />}
             {displaySection === "debrief" && <DebriefConsole {...sectionProps} />}
           </div>
