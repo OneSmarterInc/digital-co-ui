@@ -1,5 +1,5 @@
 # DigitalCo — Landing Page
-
+ 
 A single-page Next.js (App Router) landing page for the DigitalCo simulation, styled with Tailwind CSS v4. It's a static page that introduces the sim: the inheritance premise, the fourteen-week arc, the four possible endings, and what makes a run hard.
 
 ## Run it
