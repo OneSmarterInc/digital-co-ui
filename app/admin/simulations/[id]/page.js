@@ -237,13 +237,8 @@ export default function AdminSimulationDetail() {
     >
       <header className="flex items-center justify-between border-b border-[var(--steel-line)] bg-gradient-to-b from-[#1B1F25] to-[#15181C] px-8 py-4">
         <div className="flex items-center gap-3">
-          <span
-            className="grid h-[30px] w-[30px] flex-shrink-0 place-items-center rounded-[2px] border-[1.5px] border-[var(--amber)]"
-            aria-hidden="true"
-          >
-            <span className="h-[10px] w-[10px] rounded-[1px] border-[1.5px] border-[var(--amber)]" />
-          </span>
-          <span className={`${DISPLAY} text-[19px] font-bold leading-none tracking-[0.02em]`}>DIGITALCO</span>
+          <img src="/logo-1x.svg" alt="Flexee" className="h-[30px] w-[30px] flex-shrink-0" />
+          <span className={`${DISPLAY} text-[19px] font-bold leading-none tracking-[0.02em]`}>FLEXEE</span>
           <span className={`ml-1 ${MONO} text-[9.5px] uppercase tracking-[0.2em] text-[var(--muted-dim)]`}>
             Admin console
           </span>

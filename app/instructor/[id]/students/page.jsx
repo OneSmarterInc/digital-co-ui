@@ -167,7 +167,7 @@ export default function CohortStudentsPage() {
           </button>
           <span className="h-2 w-2 rounded-full bg-go shadow-[0_0_0_3px_rgba(26,128,79,0.18)]" aria-hidden="true" />
           <div className="flex min-w-0 items-baseline gap-2">
-            <span className="font-display text-[1.15rem] font-semibold tracking-tight">DigitalCo</span>
+            <span className="font-display text-[1.15rem] font-semibold tracking-tight">Flexee</span>
             <span className="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-faint">Instructor</span>
             <span className="text-faint">/</span>
             <span className="truncate font-display text-[1.05rem] font-semibold">{detail.name}</span>

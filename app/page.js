@@ -74,13 +74,8 @@ export default function Home() {
     >
       <header className="mx-auto flex h-[72px] max-w-[1080px] items-center justify-between border-b border-[var(--steel-line)] px-6">
         <div className="flex items-center gap-3">
-          <span
-            className="grid h-[30px] w-[30px] flex-shrink-0 place-items-center rounded-[2px] border-[1.5px] border-[var(--amber)]"
-            aria-hidden="true"
-          >
-            <span className="h-[10px] w-[10px] rounded-[1px] border-[1.5px] border-[var(--amber)]" />
-          </span>
-          <span className={`${DISPLAY} text-[19px] font-bold leading-none tracking-[0.02em]`}>DIGITALCO</span>
+          <img src="/logo-1x.svg" alt="Flexee" className="h-[30px] w-[30px] flex-shrink-0" />
+          <span className={`${DISPLAY} text-[19px] font-bold leading-none tracking-[0.02em]`}>FLEXEE</span>
         </div>
         <a
           href="/login"
@@ -104,7 +99,7 @@ export default function Home() {
           </Reveal>
           <Reveal delay={220}>
             <p className="mb-[34px] max-w-[62ch] text-[clamp(1.05rem,1.6vw,1.2rem)] leading-[1.6] text-[var(--muted)]">
-              You&rsquo;re the new CIO at DigitalCo, an industrial manufacturer with a stalled core migration, a factory
+              You&rsquo;re the new CIO at Flexee, an industrial manufacturer with a stalled core migration, a factory
               floor no one can see into, and a board that wants a real direction by the next meeting. Fourteen weeks,
               one continuous strategy, and every decision compounds into the next.
             </p>
@@ -220,7 +215,7 @@ export default function Home() {
       </main>
 
       <footer className={`mx-auto flex max-w-[1080px] flex-wrap items-center justify-between gap-4 border-t border-[var(--steel-line)] px-6 pt-[34px] pb-[60px] ${MONO} text-[11px] uppercase tracking-[0.1em] text-[var(--muted-dim)]`}>
-        <span>DigitalCo</span>
+        <span>Flexee</span>
         <span>A strategy simulation in fourteen weeks</span>
       </footer>
     </div>

@@ -1,4 +1,4 @@
-/* DigitalCo dark console — student-facing design system.
+/* Flexee dark console — student-facing design system.
    Scoped under .dc-console so the instructor/admin light theme is untouched. */
 
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -6,7 +6,7 @@
 
 .dc-console{
 /* ============================================================
-   DigitalCo — CIO Console  ·  single stylesheet for all screens
+   Flexee — CIO Console  ·  single stylesheet for all screens
    ============================================================ */
 &{
   --graphite:#16191D; --graphite-raised:#1E2228; --graphite-high:#252B32;

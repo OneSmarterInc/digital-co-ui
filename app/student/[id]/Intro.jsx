@@ -109,8 +109,8 @@ export default function Intro({ onDone }) {
     <div className="dc-console" style={{ minHeight: "100vh" }}>
       <div className="chrome-fixed">
         <div className="brand">
-          <div className="brand__mark" />
-          <div className="brand__name">DIGITALCO</div>
+          <img src="/logo-1x.svg" alt="Flexee" className="brand__mark" />
+          <div className="brand__name">FLEXEE</div>
         </div>
         <div className="right">
           <div className="stepnum mono">
@@ -127,7 +127,7 @@ export default function Intro({ onDone }) {
           <div className="eyebrow" style={{ marginBottom: 22 }}>
             MIS 7000 · Information Systems Strategy
           </div>
-          <h1>DIGITALCO</h1>
+          <h1>FLEXEE</h1>
           <div className="sub">
             A term in the chair. <b>Your team is the Chief Information Officer</b> of a
             company whose last digital bet went sideways — fourteen weeks, one chair,
@@ -182,7 +182,7 @@ export default function Intro({ onDone }) {
         <div className="eyebrow">Scene 02 · The company</div>
         <h2>What you&rsquo;ve inherited a chair in</h2>
         <p className="co__lede">
-          DigitalCo builds heavy industrial equipment, and has for generations.
+          Flexee builds heavy industrial equipment, and has for generations.
           Family-founded, regionally dominant, respected on every factory floor that runs
           its machines. Three years ago it started bolting a <b>digital layer</b> onto that
           heritage &mdash; connected machines, telematics, the promise of data services. The
@@ -227,7 +227,7 @@ export default function Intro({ onDone }) {
         <div className="rule-callout rule-callout--team">
           <div className="eyebrow">The rule that makes this a team game</div>
           <p>
-            DigitalCo gets <b>one CIO, and it&rsquo;s all of you.</b> The firm commits one
+            Flexee gets <b>one CIO, and it&rsquo;s all of you.</b> The firm commits one
             decision each week, and committing is final for the whole team. Split up the
             advisors, bring back what each of them said, and disagree hard in the war room
             &mdash; then find the position you can all sign, because the company only hears

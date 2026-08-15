@@ -223,7 +223,7 @@ export default function FirmPage() {
           </button>
           <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full" style={{ background: color, boxShadow: `0 0 8px -1px ${color}` }} aria-hidden="true" />
           <div className="flex min-w-0 items-baseline gap-2">
-            <span className={`${DISPLAY} text-[17px] font-bold leading-none tracking-[0.02em]`}>DIGITALCO</span>
+            <span className={`${DISPLAY} text-[17px] font-bold leading-none tracking-[0.02em]`}>FLEXEE</span>
             <span className={`${MONO} text-[9px] uppercase tracking-[0.2em] text-[var(--muted-dim)]`}>Instructor</span>
             <span className="text-[var(--muted-dim)]">/</span>
             <span className={`truncate ${DISPLAY} text-[16px] font-semibold text-[var(--amber)]`}>{detail.name}</span>

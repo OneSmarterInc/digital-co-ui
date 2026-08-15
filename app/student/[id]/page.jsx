@@ -320,8 +320,12 @@ export default function StudentCohortPage() {
   const completed = game?.run?.status === "COMPLETE";
   const displaySection = completed ? "debrief" : section;
 
+  // Check if user is explicitly revisiting the tour
+  const revisit = searchParams.get("revisit") === "true";
+
   // A fresh firm gets the narrative rollout before Week 1 — once.
-  if (playable && current === 1 && game?.week && !game.week.submitted && !introDone) {
+  // Or, show it again if the user clicks "Revisit tour" regardless of round.
+  if (playable && game?.week && !introDone && (revisit || (current === 1 && !game.week.submitted))) {
     return (
       <Intro
         onDone={() => {
@@ -347,14 +351,9 @@ export default function StudentCohortPage() {
           >
             <IconBack size={16} />
           </button>
-          <span
-            className="grid h-[26px] w-[26px] flex-shrink-0 place-items-center rounded-[2px] border-[1.5px] border-[var(--amber)]"
-            aria-hidden="true"
-          >
-            <span className="h-[8px] w-[8px] rounded-[1px] border-[1.5px] border-[var(--amber)]" />
-          </span>
+          <img src="/logo-1x.svg" alt="Flexee" className="h-[26px] w-[26px] flex-shrink-0" />
           <div className="flex min-w-0 items-baseline gap-2">
-            <span className={`${DISPLAY} text-[17px] font-bold leading-none tracking-[0.02em]`}>DIGITALCO</span>
+            <span className={`${DISPLAY} text-[17px] font-bold leading-none tracking-[0.02em]`}>FLEXEE</span>
             <span className={`${MONO} text-[9px] uppercase tracking-[0.2em] text-[var(--muted-dim)]`}>Student</span>
             <span className="text-[var(--muted-dim)]">/</span>
             <span className={`truncate ${DISPLAY} text-[16px] font-semibold text-[var(--amber)]`}>{sim.name}</span>

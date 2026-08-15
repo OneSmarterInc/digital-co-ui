@@ -92,13 +92,8 @@ export default function LoginPage() {
     >
       <header className="mx-auto flex h-[72px] w-full max-w-[1080px] items-center justify-between border-b border-[var(--steel-line)] px-6">
         <a href="/" className={`flex items-center gap-3 ${FOCUS}`}>
-          <span
-            className="grid h-[30px] w-[30px] flex-shrink-0 place-items-center rounded-[2px] border-[1.5px] border-[var(--amber)]"
-            aria-hidden="true"
-          >
-            <span className="h-[10px] w-[10px] rounded-[1px] border-[1.5px] border-[var(--amber)]" />
-          </span>
-          <span className={`${DISPLAY} text-[19px] font-bold leading-none tracking-[0.02em]`}>DIGITALCO</span>
+          <img src="/logo-1x.svg" alt="Flexee" className="h-[30px] w-[30px] flex-shrink-0" />
+          <span className={`${DISPLAY} text-[19px] font-bold leading-none tracking-[0.02em]`}>FLEXEE</span>
         </a>
         <a
           href="/"
@@ -112,7 +107,7 @@ export default function LoginPage() {
         <Reveal className="w-full max-w-[400px]">
           <h1 className={`text-center ${DISPLAY} text-[44px] font-bold leading-none`}>Sign in</h1>
           <p className={`mt-1.5 text-center ${MONO} text-[10.5px] uppercase tracking-[0.16em] text-[var(--muted)]`}>
-            DigitalCo &middot; CIO console
+            Flexee &middot; CIO console
           </p>
 
           <div className="mt-[26px] rounded-[3px] border border-[var(--steel-line)] bg-[var(--graphite-raised)] p-6 shadow-[0_1px_0_rgba(0,0,0,0.4),0_8px_24px_-12px_rgba(0,0,0,0.6)]">

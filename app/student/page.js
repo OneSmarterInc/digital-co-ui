@@ -158,6 +158,16 @@ function IconUser({ size = 22 }) {
   );
 }
 
+function IconHelp({ size = 22 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ display: "block" }}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 16v-4" />
+      <path d="M12 8h.01" />
+    </svg>
+  );
+}
+
 /* ---- one-time profile form, shown until a first name is saved ---- */
 
 function ProfileSetup({ profile, onSaved }) {
@@ -320,6 +330,17 @@ export default function StudentHomePage() {
     router.replace("/login");
   }
 
+  function startTour(simId, simName) {
+    // Clear the intro flag so it shows again when entering the simulation
+    try {
+      localStorage.removeItem(`dc_intro_seen_${simId}`);
+    } catch (e) {
+      // Ignore localStorage errors
+    }
+    // Navigate to the simulation to trigger the intro, with revisit flag to bypass round check
+    router.push(`${playPath(simId)}?revisit=true`);
+  }
+
   if (phase === "loading" || phase === "redirect" || phase === "error") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#16191D] px-6 text-[#ECEFF2]" style={THEME}>
@@ -345,14 +366,9 @@ export default function StudentHomePage() {
     >
       <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[var(--steel-line)] bg-gradient-to-b from-[#1B1F25] to-[#15181C] px-7 py-4">
         <div className="flex min-w-0 items-center gap-3">
-          <span
-            className="grid h-[26px] w-[26px] flex-shrink-0 place-items-center rounded-[2px] border-[1.5px] border-[var(--amber)]"
-            aria-hidden="true"
-          >
-            <span className="h-[8px] w-[8px] rounded-[1px] border-[1.5px] border-[var(--amber)]" />
-          </span>
+          <img src="/logo-1x.svg" alt="Flexee" className="h-[26px] w-[26px] flex-shrink-0" />
           <div className="flex min-w-0 items-baseline gap-2">
-            <span className={`${DISPLAY} text-[17px] font-bold leading-none tracking-[0.02em]`}>DIGITALCO</span>
+            <span className={`${DISPLAY} text-[17px] font-bold leading-none tracking-[0.02em]`}>FLEXEE</span>
             <span className={`${MONO} text-[9px] uppercase tracking-[0.2em] text-[var(--muted-dim)]`}>Student</span>
           </div>
         </div>
@@ -423,20 +439,29 @@ export default function StudentHomePage() {
                             {sim.paid === false ? " · payment pending" : ""}
                           </p>
                         </div>
-                        <button
-                          onClick={() => enterable && router.push(playPath(sim.id))}
-                          disabled={!enterable}
-                          className={`flex-none px-4 py-2 text-[13px] ${COMMIT}`}
-                        >
-                          {status.label === "Completed"
-                            ? "View results"
-                            : sim.blocked
-                              ? "Access paused"
-                              : sim.paid === false
-                                ? "Awaiting payment"
-                                : "Continue"}
-                          {enterable && <IconArrow size={14} />}
-                        </button>
+                        <div className="flex flex-col gap-2">
+                          <button
+                            onClick={() => enterable && router.push(playPath(sim.id))}
+                            disabled={!enterable}
+                            className={`flex-none px-4 py-2 text-[13px] ${COMMIT}`}
+                          >
+                            {status.label === "Completed"
+                              ? "View results"
+                              : sim.blocked
+                                ? "Access paused"
+                                : sim.paid === false
+                                  ? "Awaiting payment"
+                                  : "Continue"}
+                            {enterable && <IconArrow size={14} />}
+                          </button>
+                          <button
+                            onClick={() => startTour(sim.id, sim.name)}
+                            className={`flex-none flex items-center justify-center gap-2 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.12em] rounded-[2px] border border-[var(--steel-line)] text-[var(--muted)] transition hover:border-[var(--steel-soft)] hover:bg-[var(--graphite-high)] hover:text-[var(--paper)]`}
+                          >
+                            <IconHelp size={13} />
+                            Revisit tour
+                          </button>
+                        </div>
                       </div>
 
                       <div className="px-6 pb-5 pt-4">
