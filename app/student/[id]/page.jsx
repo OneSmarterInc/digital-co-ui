@@ -366,11 +366,19 @@ export default function StudentCohortPage() {
             <IconBack size={16} />
           </button>
           <img src="/logo-1x.svg" alt="Flexee DigitalCo" className="h-[26px] w-[26px] flex-shrink-0" />
-          <div className="flex min-w-0 items-baseline gap-2">
-            <span className={`${DISPLAY} text-[17px] font-bold leading-none tracking-[0.02em]`}>FLEXEE DIGITALCO</span>
-            <span className={`${MONO} text-[9px] uppercase tracking-[0.2em] text-[var(--muted-dim)]`}>Student</span>
-            <span className="text-[var(--muted-dim)]">/</span>
-            <span className={`truncate ${DISPLAY} text-[16px] font-semibold text-[var(--amber)]`}>{sim.name}</span>
+          {/* Primary lockup — the same platform · sim treatment the opening tour uses. */}
+          <div className={`flex flex-shrink-0 items-baseline gap-2 ${DISPLAY} text-[17px] font-bold leading-none tracking-[0.03em]`}>
+            <span>FLEXEE</span>
+            <span className="font-normal text-[var(--muted-dim)]">·</span>
+            <span className="text-[var(--amber)]">DigitalCo</span>
+          </div>
+          {/* Secondary chrome — your role, your tier, and which cohort you're in. */}
+          <span className="hidden h-[18px] w-px flex-shrink-0 bg-[var(--steel-line)] sm:block" aria-hidden="true" />
+          <div className="hidden min-w-0 items-baseline gap-2 sm:flex">
+            <span className={`flex-shrink-0 ${MONO} text-[9px] uppercase tracking-[0.2em] text-[var(--muted-dim)]`}>
+              Student{sim.tier ? ` · ${sim.tier}` : ""}
+            </span>
+            <span className={`truncate ${DISPLAY} text-[15px] font-semibold text-[var(--paper)]`}>{sim.name}</span>
           </div>
         </div>
         <div className="flex items-center gap-3">

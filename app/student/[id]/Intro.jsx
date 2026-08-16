@@ -1,18 +1,18 @@
 "use client";
 
-/* The opening sequence — the sim's narrative rollout, shown once per firm
- * before Week 1. Seven scenes: title, the appointment (Calloway's mandate
- * typed live), the company, the estate, the rules (including the one-voice
- * team rule), the bench, the stakes. Renders inside the dark console design
- * system (.dc-console in app/console.css); the rest of the app's light
- * instructor theme is untouched. Arrow keys and Enter advance; Skip jumps
- * to the stakes; "Take the chair" calls onDone.
+/* The opening sequence — the sim's narrative rollout, shown before Week 1 and
+ * replayable from "Revisit tour". Seven scenes: title, the appointment
+ * (Calloway's mandate typed live), the company, the estate, the rules
+ * (including the one-voice team rule), the bench, the stakes. Copy and layout
+ * follow the DigitalCo opening-sequence design; styles live in the .dc-console
+ * system in app/console.css. Arrow keys and Enter advance, Skip jumps to the
+ * stakes, and the last scene calls onDone.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const MANDATE =
-  "\u201CTake thirty days. Get me a real read. And come back with a direction I can take to the board.\u201D";
+  "“Take thirty days. Get me a real read. And come back with a direction I can take to the board.”";
 
 const NEXT_LABELS = [
   "Begin",
@@ -37,8 +37,17 @@ const TIERS = [
   ["tier--1", "TRIUMPH", "You managed every thread, earned the board, and built something competitors can't easily copy."],
   ["tier--2", "WIN, WITH SCARS", "The strategy held — but something you neglected detonated along the way, and it cost you the clean win."],
   ["tier--3", "SQUEAK THROUGH", "You survived. Gates closed, trust strained, the ask denied — but the company is still standing."],
-  ["tier--4", "DISASTER", "The private-equity firm gets its argument for a change of direction. That direction is not you."],
+  ["tier--4", "DISASTER", "You lost the thread. The private-equity firm gets its argument for a change of direction — and it isn't you."],
 ];
+
+/* Declared out here on purpose: as a component defined inside Intro it would be a
+ * new type on every render, so each keystroke of the typed mandate remounted the
+ * scene and restarted its fade-in — leaving the memo stuck near opacity 0. */
+const Scene = ({ on, children }) => (
+  <section className={`scene ${on ? "scene--on" : ""}`}>
+    <div className="scene__inner">{children}</div>
+  </section>
+);
 
 export default function Intro({ onDone }) {
   const [at, setAt] = useState(0);
@@ -99,18 +108,16 @@ export default function Intro({ onDone }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [next, back]);
 
-  const Scene = ({ n, children }) => (
-    <section className={`scene ${at === n ? "scene--on" : ""}`}>
-      <div className="scene__inner">{children}</div>
-    </section>
-  );
-
   return (
     <div className="dc-console" style={{ minHeight: "100vh" }}>
       <div className="chrome-fixed">
         <div className="brand">
           <img src="/logo-1x.svg" alt="Flexee" className="brand__mark" />
-          <div className="brand__name">FLEXEE DIGITALCO</div>
+          <div className="brand__name">
+            <span className="chrome__platform">FLEXEE</span>
+            <span className="chrome__sep">·</span>
+            <span className="chrome__sim">DigitalCo</span>
+          </div>
         </div>
         <div className="right">
           <div className="stepnum mono">
@@ -122,27 +129,24 @@ export default function Intro({ onDone }) {
         </div>
       </div>
 
-      <Scene n={0}>
+      <Scene on={at === 0}>
         <div className="title-scene">
-          <div className="eyebrow" style={{ marginBottom: 22 }}>
-            MIS 7000 · Information Systems Strategy
-          </div>
-          <h1>FLEXEE DIGITALCO</h1>
+          <h1>DIGITALCO</h1>
           <div className="sub">
-            A term in the chair. <b>Your team is the Chief Information Officer</b> of a
-            company whose last digital bet went sideways — fourteen weeks, one chair,
-            one voice.
+            You are the CIO. Not an advisor to the CIO, not a member of the committee
+            &mdash; <b>the chair itself</b>, and your team speaks with one voice. The last
+            big bet failed. You have fourteen weeks to decide what comes next.
           </div>
           <div className="title-arc">
             {Array.from({ length: 14 }).map((_, i) => (
-              <div key={i} className="tseg" />
+              <div key={i} className="tseg" style={{ "--i": i }} />
             ))}
           </div>
           <div className="title-arcnote">fourteen decisions · one continuous strategy</div>
         </div>
       </Scene>
 
-      <Scene n={1}>
+      <Scene on={at === 1}>
         <div className="eyebrow" style={{ marginBottom: 14 }}>
           Scene 01 · The appointment
         </div>
@@ -154,10 +158,11 @@ export default function Intro({ onDone }) {
           </div>
           <div className="memo__body">
             <p>
-              The board approved the appointment this morning. Your team is DigitalCo&rsquo;s
-              new Chief Information Officer &mdash; one chair, and all of you in it, hired
-              from outside. Everyone in the building knows why: your predecessor promised a
-              digital transformation, spent heavily, and left before the bill came due.
+              The board approved your appointment this morning. You are DigitalCo&rsquo;s
+              new Chief Information Officer &mdash; one chair, your whole team in it, hired
+              from outside. Everyone in the building knows why you&rsquo;re here: your
+              predecessor promised a digital transformation, spent heavily, and left before
+              the bill came due.
             </p>
             <p>
               The private-equity firm that took a minority stake wants returns. The founding
@@ -178,11 +183,11 @@ export default function Intro({ onDone }) {
         </div>
       </Scene>
 
-      <Scene n={2}>
+      <Scene on={at === 2}>
         <div className="eyebrow">Scene 02 · The company</div>
-        <h2>What you&rsquo;ve inherited a chair in</h2>
+        <h2>The company you&rsquo;ve inherited</h2>
         <p className="co__lede">
-          Flexee builds heavy industrial equipment, and has for generations.
+          DigitalCo builds heavy industrial equipment, and has for generations.
           Family-founded, regionally dominant, respected on every factory floor that runs
           its machines. Three years ago it started bolting a <b>digital layer</b> onto that
           heritage &mdash; connected machines, telematics, the promise of data services. The
@@ -200,9 +205,9 @@ export default function Intro({ onDone }) {
         </p>
       </Scene>
 
-      <Scene n={3}>
+      <Scene on={at === 3}>
         <div className="eyebrow">Scene 03 · The estate</div>
-        <h2>Four problems, one desk</h2>
+        <h2>The four problems on your desk</h2>
         <div className="readouts">
           <div className="readout"><div className="readout__lamp lamp--red" /><div className="readout__name">S/4HANA migration</div><div className="readout__stat"><b>RED</b> · ~2 years late · ~$40M spent against a $25M budget · stalled on dependencies nobody mapped</div></div>
           <div className="readout"><div className="readout__lamp lamp--amber" /><div className="readout__name">Connected products</div><div className="readout__stat"><b>AMBER</b> · 3 years in · shipping telematics, monetizing almost none of it · dealers complaining about data access</div></div>
@@ -216,7 +221,7 @@ export default function Intro({ onDone }) {
         </p>
       </Scene>
 
-      <Scene n={4}>
+      <Scene on={at === 4}>
         <div className="eyebrow">Scene 04 · The rules</div>
         <h2>Every week, three moves</h2>
         <div className="moves-list">
@@ -227,11 +232,11 @@ export default function Intro({ onDone }) {
         <div className="rule-callout rule-callout--team">
           <div className="eyebrow">The rule that makes this a team game</div>
           <p>
-            Flexee gets <b>one CIO, and it&rsquo;s all of you.</b> The firm commits one
-            decision each week, and committing is final for the whole team. Split up the
-            advisors, bring back what each of them said, and disagree hard in the war room
-            &mdash; then find the position you can all sign, because the company only hears
-            one voice.
+            DigitalCo gets <b>one CIO &mdash; and that&rsquo;s your whole team, in one
+            chair.</b> The firm commits one decision each week, and committing is final for
+            all of you. Split the advisors, bring back what each of them said, and disagree
+            hard in the war room &mdash; then find the one position you can all sign,
+            because the company only hears one voice.
           </p>
         </div>
         <div className="rule-callout">
@@ -245,7 +250,7 @@ export default function Intro({ onDone }) {
         </div>
       </Scene>
 
-      <Scene n={5}>
+      <Scene on={at === 5}>
         <div className="eyebrow">Scene 05 · Your bench</div>
         <h2>Six advisors. Six lanes. Six blind spots.</h2>
         <div className="bench">
@@ -268,11 +273,11 @@ export default function Intro({ onDone }) {
           Your real job in that room is never to find the advisor who&rsquo;s right.
           It&rsquo;s to <b>synthesize six biased expert views</b> into a judgment none of
           them would reach alone. Six advisors, one team &mdash; <b>split the bench</b>,
-          then argue about what you each heard.
+          then argue about what each of you heard.
         </p>
       </Scene>
 
-      <Scene n={6}>
+      <Scene on={at === 6}>
         <div className="eyebrow">Scene 06 · The stakes</div>
         <h2>Fourteen weeks from now, this ends one of four ways</h2>
         <div className="tiers">
@@ -292,11 +297,14 @@ export default function Intro({ onDone }) {
       </Scene>
 
       <div className="advance">
-        {at > 0 && (
-          <button className="btn btn--ghost" type="button" onClick={back}>
-            Back
-          </button>
-        )}
+        <button
+          className="btn btn--ghost"
+          type="button"
+          onClick={back}
+          style={{ visibility: at === 0 ? "hidden" : "visible" }}
+        >
+          Back
+        </button>
         <button className="btn" type="button" onClick={next}>
           {NEXT_LABELS[at]}
         </button>

@@ -367,10 +367,17 @@ export default function StudentHomePage() {
       <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[var(--steel-line)] bg-gradient-to-b from-[#1B1F25] to-[#15181C] px-7 py-4">
         <div className="flex min-w-0 items-center gap-3">
           <img src="/logo-1x.svg" alt="Flexee DigitalCo" className="h-[26px] w-[26px] flex-shrink-0" />
-          <div className="flex min-w-0 items-baseline gap-2">
-            <span className={`${DISPLAY} text-[17px] font-bold leading-none tracking-[0.02em]`}>FLEXEE DIGITALCO</span>
-            <span className={`${MONO} text-[9px] uppercase tracking-[0.2em] text-[var(--muted-dim)]`}>Student</span>
+          {/* Primary lockup — the same platform · sim treatment the opening tour uses. */}
+          <div className={`flex flex-shrink-0 items-baseline gap-2 ${DISPLAY} text-[17px] font-bold leading-none tracking-[0.03em]`}>
+            <span>FLEXEE</span>
+            <span className="font-normal text-[var(--muted-dim)]">·</span>
+            <span className="text-[var(--amber)]">DigitalCo</span>
           </div>
+          {/* Secondary chrome — role only here; this page spans every cohort. */}
+          <span className="hidden h-[18px] w-px flex-shrink-0 bg-[var(--steel-line)] sm:block" aria-hidden="true" />
+          <span className={`hidden ${MONO} text-[9px] uppercase tracking-[0.2em] text-[var(--muted-dim)] sm:inline`}>
+            Student
+          </span>
         </div>
         <div className="flex items-center gap-3">
           <span className={`hidden max-w-[220px] truncate ${MONO} text-[10.5px] uppercase tracking-[0.16em] text-[var(--muted)] sm:inline`}>
