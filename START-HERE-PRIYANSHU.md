@@ -1,5 +1,5 @@
 # Flexee — Student Console (start here)
-
+  
 This tree is your flexee-web with the student experience finished. Your backend
 passed full verification untouched — engine, scoring, and weeks are byte-identical to
 the verified build, your API reproduces all four golden runs to the flag, and your
