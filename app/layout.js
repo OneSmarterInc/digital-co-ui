@@ -2,7 +2,7 @@ import "./globals.css";
 import "./console.css";
 
 export const metadata = {
-  title: "Flexee — A fourteen-week strategy simulation",
+  title: "Flexee DigitalCo — A fourteen-week IS/IT strategy simulation",
   description:
     "Take the CIO seat at an industrial manufacturer whose digital transformation has gone sideways. Fourteen weeks, one continuous strategy, four ways it can land.",
 };

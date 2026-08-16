@@ -174,6 +174,7 @@ const IconArrow = (p) => <Svg {...p}><line x1="5" y1="12" x2="19" y2="12" /><pat
 const IconChat = (p) => <Svg {...p}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></Svg>;
 const IconSound = (p) => <Svg {...p}><path d="M11 5L6 9H2v6h4l5 4z" /><path d="M15.5 8.5a5 5 0 0 1 0 7" /><path d="M18.5 5.5a9.5 9.5 0 0 1 0 13" /></Svg>;
 const IconStop = (p) => <Svg {...p}><rect x="6" y="6" width="12" height="12" rx="2" /></Svg>;
+const IconHelp = (p) => <Svg {...p}><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></Svg>;
 
 /* ================================================================== *
  * Page shell
@@ -203,14 +204,28 @@ export default function StudentCohortPage() {
   const [error, setError] = useState(null);
   const [toast, setToast] = useState(null);
 
+  // "Revisit tour" arrives as ?revisit=true, but the URL gets rewritten while the
+  // cohort loads (the debrief auto-redirect below replaces the query string), which
+  // would drop the flag before the intro ever gets a chance to render. Latch it on
+  // the first render that sees it and keep it for the life of this mount.
+  const revisitRef = useRef(false);
+  if (searchParams.get("revisit") === "true") revisitRef.current = true;
+  const revisit = revisitRef.current;
+
   // The opening sequence plays once per firm per browser; the flag survives refreshes.
   const introKey = `dc_intro_seen_${cohortId}`;
   const [introDone, setIntroDone] = useState(false);
+  // Set by the sidebar's "Revisit tour" — replays the intro from inside the console
+  // and drops back onto whatever section was open, rather than restarting at Week 1.
+  const [replayTour, setReplayTour] = useState(false);
   useEffect(() => {
     try {
-      if (localStorage.getItem(introKey)) setIntroDone(true);
+      // If revisiting the tour, ignore localStorage flag and show intro
+      if (!revisit && localStorage.getItem(introKey)) {
+        setIntroDone(true);
+      }
     } catch {}
-  }, [introKey]);
+  }, [introKey, revisit]);
 
   // The active section lives in the URL so refresh and back/forward keep it.
   const VALID = new Set(SECTIONS.map(([k]) => k));
@@ -266,9 +281,9 @@ export default function StudentCohortPage() {
         const run = await load();
         if (alive) {
           // The run is over and the payoff is ready: land on the debrief —
-          // but only when the URL doesn't already name a section. A refresh
-          // on a chosen view stays put.
-          if (run?.debrief_available && !searchParams.get("section")) setSection("debrief");
+          // but only when the URL doesn't already name a section, and never over
+          // a tour revisit. A refresh on a chosen view stays put.
+          if (run?.debrief_available && !revisit && !searchParams.get("section")) setSection("debrief");
           setPhase("ready");
         }
       } catch (e) {
@@ -290,6 +305,15 @@ export default function StudentCohortPage() {
       notify(`Refresh failed: ${e instanceof Error ? e.message : String(e)}`);
     }
   }, [load, notify]);
+
+  const finishTour = useCallback(() => {
+    try { localStorage.setItem(introKey, "1"); } catch {}
+    setIntroDone(true);
+    // A replay came from somewhere inside the console, so put them back there.
+    // The first-run tour hands off to Week 1, which is the point of it.
+    if (replayTour) setReplayTour(false);
+    else setSection("week");
+  }, [introKey, replayTour, setSection]);
 
   function signOut() {
     logout();
@@ -320,21 +344,11 @@ export default function StudentCohortPage() {
   const completed = game?.run?.status === "COMPLETE";
   const displaySection = completed ? "debrief" : section;
 
-  // Check if user is explicitly revisiting the tour
-  const revisit = searchParams.get("revisit") === "true";
-
   // A fresh firm gets the narrative rollout before Week 1 — once.
-  // Or, show it again if the user clicks "Revisit tour" regardless of round.
-  if (playable && game?.week && !introDone && (revisit || (current === 1 && !game.week.submitted))) {
-    return (
-      <Intro
-        onDone={() => {
-          try { localStorage.setItem(introKey, "1"); } catch {}
-          setIntroDone(true);
-          setSection("week");
-        }}
-      />
-    );
+  // Or, show it again on demand — the "Revisit tour" button on the cohorts list
+  // (?revisit=true) or the one in the sidebar — regardless of round or completion.
+  if (game && (replayTour || (!introDone && (revisit || (playable && game?.week && current === 1 && !game.week.submitted))))) {
+    return <Intro onDone={finishTour} />;
   }
 
   return (
@@ -351,9 +365,9 @@ export default function StudentCohortPage() {
           >
             <IconBack size={16} />
           </button>
-          <img src="/logo-1x.svg" alt="Flexee" className="h-[26px] w-[26px] flex-shrink-0" />
+          <img src="/logo-1x.svg" alt="Flexee DigitalCo" className="h-[26px] w-[26px] flex-shrink-0" />
           <div className="flex min-w-0 items-baseline gap-2">
-            <span className={`${DISPLAY} text-[17px] font-bold leading-none tracking-[0.02em]`}>FLEXEE</span>
+            <span className={`${DISPLAY} text-[17px] font-bold leading-none tracking-[0.02em]`}>FLEXEE DIGITALCO</span>
             <span className={`${MONO} text-[9px] uppercase tracking-[0.2em] text-[var(--muted-dim)]`}>Student</span>
             <span className="text-[var(--muted-dim)]">/</span>
             <span className={`truncate ${DISPLAY} text-[16px] font-semibold text-[var(--amber)]`}>{sim.name}</span>
@@ -402,6 +416,16 @@ export default function StudentCohortPage() {
                 </button>
               );
             })}
+            {/* Not a section — replays the opening tour in place, then returns here. */}
+            {game && (
+              <button
+                onClick={() => setReplayTour(true)}
+                className="mt-2 flex items-center gap-2 border-t border-[var(--steel-line)] px-3 pb-2.5 pt-4 text-left text-[0.92rem] text-[var(--muted)] transition-colors hover:text-[var(--paper)]"
+              >
+                <IconHelp size={14} />
+                <span>Revisit tour</span>
+              </button>
+            )}
           </nav>
           <p className={`mb-2 mt-8 px-3 ${MONO} text-[9.5px] uppercase tracking-[0.2em] text-[var(--muted-dim)]`}>Your firm</p>
           <p className={`px-3 ${DISPLAY} text-[17px] font-semibold ${sim.firm ? "text-[var(--amber)]" : "text-[var(--muted-dim)]"}`}>

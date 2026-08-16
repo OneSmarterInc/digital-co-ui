@@ -110,7 +110,7 @@ export default function Intro({ onDone }) {
       <div className="chrome-fixed">
         <div className="brand">
           <img src="/logo-1x.svg" alt="Flexee" className="brand__mark" />
-          <div className="brand__name">FLEXEE</div>
+          <div className="brand__name">FLEXEE DIGITALCO</div>
         </div>
         <div className="right">
           <div className="stepnum mono">
@@ -127,7 +127,7 @@ export default function Intro({ onDone }) {
           <div className="eyebrow" style={{ marginBottom: 22 }}>
             MIS 7000 · Information Systems Strategy
           </div>
-          <h1>FLEXEE</h1>
+          <h1>FLEXEE DIGITALCO</h1>
           <div className="sub">
             A term in the chair. <b>Your team is the Chief Information Officer</b> of a
             company whose last digital bet went sideways — fourteen weeks, one chair,

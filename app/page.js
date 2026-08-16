@@ -74,8 +74,8 @@ export default function Home() {
     >
       <header className="mx-auto flex h-[72px] max-w-[1080px] items-center justify-between border-b border-[var(--steel-line)] px-6">
         <div className="flex items-center gap-3">
-          <img src="/logo-1x.svg" alt="Flexee" className="h-[30px] w-[30px] flex-shrink-0" />
-          <span className={`${DISPLAY} text-[19px] font-bold leading-none tracking-[0.02em]`}>FLEXEE</span>
+          <img src="/logo-1x.svg" alt="Flexee DigitalCo" className="h-[30px] w-[30px] flex-shrink-0" />
+          <span className={`${DISPLAY} text-[19px] font-bold leading-none tracking-[0.02em]`}>FLEXEE DIGITALCO</span>
         </div>
         <a
           href="/login"
@@ -215,8 +215,8 @@ export default function Home() {
       </main>
 
       <footer className={`mx-auto flex max-w-[1080px] flex-wrap items-center justify-between gap-4 border-t border-[var(--steel-line)] px-6 pt-[34px] pb-[60px] ${MONO} text-[11px] uppercase tracking-[0.1em] text-[var(--muted-dim)]`}>
-        <span>Flexee</span>
-        <span>A strategy simulation in fourteen weeks</span>
+        <span>Flexee DigitalCo</span>
+        <span>An IS/IT strategy simulation in fourteen weeks</span>
       </footer>
     </div>
   );
