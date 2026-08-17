@@ -40,6 +40,34 @@ export default function StudentsView({ gameId, detail, reload, notify }) {
   const [payFilter, setPayFilter] = useState("all");
   const [firmFilter, setFirmFilter] = useState("all");
 
+  // Advisor rate is editable mid-run: already-billed hours keep the rate they
+  // were charged at, so this only prices hours from here on.
+  const [rateOpen, setRateOpen] = useState(false);
+  const [rateDraft, setRateDraft] = useState(String(detail.advisor_hourly_rate ?? 0));
+
+  const openRate = () => {
+    setRateDraft(String(detail.advisor_hourly_rate ?? 0));
+    setRateOpen(true);
+  };
+
+  const saveRate = async () => {
+    const next = Number(rateDraft);
+    if (!Number.isInteger(next) || next < 0 || next > 100000) {
+      notify("Enter a whole number between 0 and 100000.");
+      return;
+    }
+    setBusy(true);
+    await runAction({
+      path: `/instructor/simulations/${gameId}/`,
+      opts: { ...jsonPost({ advisor_hourly_rate: next }), method: "PATCH" },
+      label: `Advisor rate set to ${fmtMoney(next)}/hr`,
+      reload,
+      notify,
+    });
+    setBusy(false);
+    setRateOpen(false);
+  };
+
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
     return students
@@ -101,7 +129,11 @@ export default function StudentsView({ gameId, detail, reload, notify }) {
   function exportCsv() {
     const esc = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
     const rows = [
-      ["Name", "Email", "Firm", "Payment", "Advisor hours", "Advisor due"],
+      [
+        "Name", "Email", "Firm", "Payment",
+        "Advisor hours", "Advisor due",
+        "Group hours", "Group due", "1:1 hours", "1:1 due",
+      ],
       ...filtered.map((s) => [
         s.name,
         s.email,
@@ -109,6 +141,10 @@ export default function StudentsView({ gameId, detail, reload, notify }) {
         s.paid ? "Paid" : "Unpaid",
         s.advisor_hours ?? 0,
         s.advisor_due ?? 0,
+        s.group_hours ?? 0,
+        s.group_due ?? 0,
+        (s.advisor_hours ?? 0) - (s.group_hours ?? 0),
+        (s.advisor_due ?? 0) - (s.group_due ?? 0),
       ]),
     ];
     const blob = new Blob([rows.map((r) => r.map(esc).join(",")).join("\n")], { type: "text/csv" });
@@ -180,10 +216,79 @@ export default function StudentsView({ gameId, detail, reload, notify }) {
             />
           </div>
           {hasAdvisorBilling && (
-            <p className={`mt-2 ${MONO} text-[8.5px] uppercase tracking-[0.08em] text-[var(--muted-dim,#5C6672)]`}>
-              incl. advisor time: {billing.advisor_hours ?? 0}h · {fmtMoney(billing.advisor_billed ?? 0)} at {fmtMoney(billing.advisor_hourly_rate ?? 0)}/hr
-            </p>
+            <>
+              <p className={`mt-2 ${MONO} text-[8.5px] uppercase tracking-[0.08em] text-[var(--muted-dim,#5C6672)]`}>
+                incl. advisor time: {billing.advisor_hours ?? 0}h · {fmtMoney(billing.advisor_billed ?? 0)} at {fmtMoney(billing.advisor_hourly_rate ?? 0)}/hr
+              </p>
+              {/* War-room hours bill per advisor seated, so they cost a multiple of
+                  a 1:1 hour — split out rather than buried in the total above. */}
+              <p className={`mt-1 ${MONO} text-[8.5px] uppercase tracking-[0.08em] text-[var(--muted-dim,#5C6672)]`}>
+                of which group chat: {billing.group_hours ?? 0}h · {fmtMoney(billing.group_billed ?? 0)}
+                {" · "}1:1 {(billing.advisor_hours ?? 0) - (billing.group_hours ?? 0)}h ·{" "}
+                {fmtMoney((billing.advisor_billed ?? 0) - (billing.group_billed ?? 0))}
+              </p>
+            </>
           )}
+
+          {/* Always offered, including at rate 0 — turning advisor billing on
+              partway through a term is the same edit as correcting a rate. */}
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {!rateOpen ? (
+              <>
+                <span className={`${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--muted-dim,#5C6672)]`}>
+                  Advisor rate {fmtMoney(detail.advisor_hourly_rate ?? 0)}/hr
+                </span>
+                <button
+                  onClick={openRate}
+                  disabled={busy}
+                  className={`rounded-[2px] border border-[var(--steel-line,#2C323A)] px-2 py-1 ${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--muted,#8A94A0)] transition hover:border-[var(--steel-soft,#363E48)] hover:text-[var(--paper,#ECEFF2)] disabled:opacity-50`}
+                >
+                  Edit rate
+                </button>
+              </>
+            ) : (
+              <>
+                <label
+                  htmlFor="advisor-rate"
+                  className={`${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--muted-dim,#5C6672)]`}
+                >
+                  Advisor rate $
+                </label>
+                <input
+                  id="advisor-rate"
+                  value={rateDraft}
+                  onChange={(e) => setRateDraft(e.target.value.replace(/[^\d]/g, ""))}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") saveRate();
+                    if (e.key === "Escape") setRateOpen(false);
+                  }}
+                  inputMode="numeric"
+                  autoFocus
+                  className={`h-7 w-[90px] px-2 text-[0.8rem] ${INPUT}`}
+                />
+                <span className={`${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--muted-dim,#5C6672)]`}>
+                  / hr
+                </span>
+                <button
+                  onClick={saveRate}
+                  disabled={busy}
+                  className={`rounded-[2px] border border-[var(--amber-deep,#C4791F)] px-2 py-1 ${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--amber,#E8A13C)] transition hover:bg-[var(--graphite-high,#252B32)] disabled:opacity-50`}
+                >
+                  {busy ? "Saving…" : "Save"}
+                </button>
+                <button
+                  onClick={() => setRateOpen(false)}
+                  disabled={busy}
+                  className={`${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--muted-dim,#5C6672)] underline-offset-2 hover:underline disabled:opacity-50`}
+                >
+                  Cancel
+                </button>
+                <span className={`${MONO} text-[8.5px] uppercase tracking-[0.08em] text-[var(--muted-dim,#5C6672)]`}>
+                  Applies to new hours — hours already billed keep their old rate
+                </span>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -287,6 +392,8 @@ export default function StudentsView({ gameId, detail, reload, notify }) {
                   const color = s.firm_index == null ? "var(--muted, #8A94A0)" : FIRM_TONES[s.firm_index % FIRM_TONES.length];
                   const hours = s.advisor_hours ?? 0;
                   const due = s.advisor_due ?? 0;
+                  const groupHours = s.group_hours ?? 0;
+                  const groupDue = s.group_due ?? 0;
                   return (
                     <tr
                       key={s.id}
@@ -336,6 +443,14 @@ export default function StudentsView({ gameId, detail, reload, notify }) {
                         <span className={`${MONO} text-[11px] text-[var(--muted,#8A94A0)]`}>
                           {hours > 0 ? `${hours}h · ${fmtMoney(due)}` : "—"}
                         </span>
+                        {groupHours > 0 && (
+                          <span
+                            className={`block ${MONO} text-[9px] uppercase tracking-[0.08em] text-[var(--muted-dim,#5C6672)]`}
+                            title="War-room hours, billed once per advisor in the room"
+                          >
+                            group {groupHours}h · {fmtMoney(groupDue)}
+                          </span>
+                        )}
                       </td>
                       <td className="py-3 pl-3 pr-6">
                         <button

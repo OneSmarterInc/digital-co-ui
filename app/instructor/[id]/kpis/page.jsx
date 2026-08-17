@@ -518,6 +518,7 @@ export default function FirmDashboardsPage() {
                       </div>
                       <span className={`flex-none ${MONO} text-[9.5px] uppercase tracking-[0.06em] text-[var(--muted-dim)]`}>
                         advisor {m.advisor_hours}h{m.advisor_billed > 0 ? ` · ${fmtMoney(m.advisor_billed)}` : ""}
+                        {(m.group_hours ?? 0) > 0 && ` · group ${m.group_hours}h (${fmtMoney(m.group_billed ?? 0)})`}
                       </span>
                     </div>
                   ))}

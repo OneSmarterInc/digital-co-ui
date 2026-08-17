@@ -44,7 +44,7 @@ function F1() {
       <p className="provenance">
         The estate, system by system. Read the <b>run cost</b> column against what each
         system does, read the <b>IT visibility</b> column against what could go wrong, and
-        notice what the retirement column says about why Flexee pays for two estates at
+        notice what the retirement column says about why DigitalCo pays for two estates at
         once.
       </p>
       <div className="sheet">
@@ -265,7 +265,7 @@ function Slide({ n, at, children }) {
   return (
     <div className={`slide ${at === n ? "slide--on" : ""}`}>
       {children}
-      <span className="slide__brand">Flexee confidential{n === 0 ? " · T. Bryce, CIO" : ""}</span>
+      <span className="slide__brand">DigitalCo confidential{n === 0 ? " · T. Bryce, CIO" : ""}</span>
       <span className="slide__pg">{n + 1} / {SLIDES}</span>
     </div>
   );

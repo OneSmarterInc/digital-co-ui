@@ -326,8 +326,31 @@ export default function AdvisorsConsole({ sim, game, cohortId, playable, notify 
       )}
       {mode === "group" && (
         <div className="notice" style={{ maxWidth: 720 }}>
-          The war room is <b>free</b> — convene 2–4 advisors and let them argue it out.
-          They&rsquo;ll talk to each other, not just to you; who jumps in each beat is up to them.
+          {sim.advisor_hourly_rate > 0 ? (
+            <>
+              A war-room hour bills{" "}
+              <b>{fmtMoney(sim.advisor_hourly_rate)} per advisor in the room</b> — you are
+              paying for every seat at once. {/* live room first, otherwise the pending picks */}
+              {(group?.advisor_count || picks.length) > 0 && (
+                <>
+                  {" "}
+                  {group ? "This room" : "The room you're assembling"} costs{" "}
+                  <b>
+                    {fmtMoney(
+                      sim.advisor_hourly_rate * (group?.advisor_count || picks.length)
+                    )}
+                  </b>{" "}
+                  per started hour ({group?.advisor_count || picks.length} advisors).
+                </>
+              )}{" "}
+              Your first message opens the hour; messages within it are covered.
+            </>
+          ) : (
+            <>
+              Convene 2&ndash;4 advisors and let them argue it out. They&rsquo;ll talk to
+              each other, not just to you; who jumps in each beat is up to them.
+            </>
+          )}
         </div>
       )}
 

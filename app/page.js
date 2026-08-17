@@ -99,7 +99,7 @@ export default function Home() {
           </Reveal>
           <Reveal delay={220}>
             <p className="mb-[34px] max-w-[62ch] text-[clamp(1.05rem,1.6vw,1.2rem)] leading-[1.6] text-[var(--muted)]">
-              You&rsquo;re the new CIO at Flexee, an industrial manufacturer with a stalled core migration, a factory
+              You&rsquo;re the new CIO at DigitalCo, an industrial manufacturer with a stalled core migration, a factory
               floor no one can see into, and a board that wants a real direction by the next meeting. Fourteen weeks,
               one continuous strategy, and every decision compounds into the next.
             </p>

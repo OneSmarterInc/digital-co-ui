@@ -314,6 +314,7 @@ export default function FirmPage() {
                         <p className={`truncate ${MONO} text-[9.5px] text-[var(--muted-dim)]`}>
                           {s.email}
                           {(usage.advisor_hours ?? 0) > 0 && ` · advisor ${usage.advisor_hours}h${usage.advisor_billed > 0 ? ` (${fmtMoney(usage.advisor_billed)})` : ""}`}
+                          {(usage.group_hours ?? 0) > 0 && ` · group ${usage.group_hours}h (${fmtMoney(usage.group_billed ?? 0)})`}
                         </p>
                       </div>
                     </div>

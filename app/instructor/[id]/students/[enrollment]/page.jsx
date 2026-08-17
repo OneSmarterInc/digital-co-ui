@@ -373,7 +373,16 @@ export default function StudentDetailPage() {
               <h3 className={`${DISPLAY} text-[18px] font-semibold leading-tight`}>Advisor sessions</h3>
               <p className="mt-1 text-sm text-[var(--muted)]">
                 Each row is one billed hour — the first message opens it, messages within the hour ride free.
+                A war-room hour is charged once per advisor in the room.
               </p>
+              {(adv.group_hours ?? 0) > 0 && (
+                <p className={`mt-2 ${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--muted-dim)]`}>
+                  Total {adv.hours}h · {fmtMoney(adv.billed)} — of which group chat{" "}
+                  <b className="text-[var(--amber)]">
+                    {adv.group_hours}h · {fmtMoney(adv.group_billed)}
+                  </b>
+                </p>
+              )}
             </div>
             {adv.sessions.length === 0 ? (
               <p className="border-t border-[var(--steel-line)] px-6 py-6 text-sm text-[var(--muted)]">
@@ -389,10 +398,23 @@ export default function StudentDetailPage() {
                       W{s.week}
                     </span>
                     <span className={`${DISPLAY} text-[16px] font-semibold`}>{s.advisor}</span>
+                    {s.mode === "group" && (
+                      <span className={`rounded-[2px] border border-[var(--amber-deep)] px-1.5 py-0.5 ${MONO} text-[8.5px] uppercase tracking-[0.12em] text-[var(--amber)]`}>
+                        Group
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-4">
                     <span className={`${MONO} text-[10px] text-[var(--muted-dim)]`}>{fmtDate(s.started_at)}</span>
-                    <span className={`${MONO} text-[0.72rem] font-bold text-[var(--paper)]`}>{s.rate > 0 ? fmtMoney(s.rate) : "free"}</span>
+                    {/* Show the arithmetic on a room hour, not just the total. */}
+                    {s.mode === "group" && s.rate > 0 && (
+                      <span className={`${MONO} text-[10px] text-[var(--muted-dim)]`}>
+                        {fmtMoney(s.rate)} × {s.advisor_count}
+                      </span>
+                    )}
+                    <span className={`${MONO} text-[0.72rem] font-bold text-[var(--paper)]`}>
+                      {s.billed > 0 ? fmtMoney(s.billed) : "free"}
+                    </span>
                   </div>
                 </div>
               ))

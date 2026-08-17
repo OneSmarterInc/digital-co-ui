@@ -9,7 +9,7 @@ export default function ExhibitsPage() {
         <div className={styles.reviewTitle}>
           <h1>THE QUANTITATIVE LAYER</h1>
           <div className={styles.sub}>
-            Flexee · seven exhibits · review copy — renders exactly as
+            DigitalCo · seven exhibits · review copy — renders exactly as
             students see them
           </div>
         </div>
@@ -29,7 +29,7 @@ export default function ExhibitsPage() {
               Prepared by a strategy associate before your arrival — the
               industry the way a case writer would frame it. The competitive
               table rewards arithmetic: work out what each rival earns{" "}
-              <b>per connected unit</b> before you decide what Flexee's fleet
+              <b>per connected unit</b> before you decide what DigitalCo's fleet
               is worth.
             </p>
             <div className={styles.sheet}>
@@ -91,7 +91,7 @@ export default function ExhibitsPage() {
                       </td>
                     </tr>
                     <tr>
-                      <td className={styles.sysName}>Flexee</td>
+                      <td className={styles.sysName}>DigitalCo</td>
                       <td className={styles.num}>24%</td>
                       <td className={styles.num}>96,000</td>
                       <td className={styles.num}>12,550 (13%)</td>
@@ -463,7 +463,7 @@ export default function ExhibitsPage() {
                 </table>
               </div>
               <div className={styles.tblNote}>
-                Closing paragraph, verbatim: "Flexee has invested $40.3M in
+                Closing paragraph, verbatim: "DigitalCo has invested $40.3M in
                 this program. The fastest way to protect that investment is to
                 finish strong."
               </div>

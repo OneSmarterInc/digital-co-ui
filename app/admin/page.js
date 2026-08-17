@@ -74,7 +74,7 @@ function TrashIcon() {
 
 const fmtMoney = (n) => `$${(Number(n) || 0).toLocaleString("en-US")}`;
 
-function StatCard({ label, value, accent }) {
+function StatCard({ label, value, accent, note }) {
   return (
     <div className="px-6 py-6">
       <p className={`${MONO} text-[9.5px] uppercase tracking-[0.16em] text-[var(--muted-dim)]`}>{label}</p>
@@ -85,6 +85,9 @@ function StatCard({ label, value, accent }) {
       >
         {value}
       </p>
+      {note && (
+        <p className={`mt-1.5 ${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--muted-dim)]`}>{note}</p>
+      )}
     </div>
   );
 }
@@ -268,7 +271,12 @@ function BillingView({ stats, people, billing, simulations }) {
     { label: "Total billed", value: fmtMoney(b.total_billed) },
     { label: "Received", value: fmtMoney(b.received), accent: true },
     { label: "Pending", value: fmtMoney(b.pending) },
-    { label: "Advisor charges", value: fmtMoney(b.advisor_billed) },
+    {
+      label: "Advisor charges",
+      value: fmtMoney(b.advisor_billed),
+      // War-room hours bill per advisor seated, so faculty need them separable.
+      note: (b.group_billed ?? 0) > 0 ? `incl. group ${fmtMoney(b.group_billed)}` : null,
+    },
   ];
   return (
     <>
@@ -293,7 +301,7 @@ function BillingView({ stats, people, billing, simulations }) {
           </p>
           <div className={`grid grid-cols-2 md:grid-cols-4 md:divide-x md:divide-[var(--steel-line)] ${PANEL}`}>
             {charges.map((c) => (
-              <StatCard key={c.label} label={c.label} value={c.value} accent={c.accent} />
+              <StatCard key={c.label} label={c.label} value={c.value} accent={c.accent} note={c.note} />
             ))}
           </div>
 
@@ -324,6 +332,11 @@ function BillingView({ stats, people, billing, simulations }) {
                       </td>
                       <td className="px-3 py-3 text-right tabular-nums text-[var(--muted)]">
                         {sb.advisor_hours}h · {fmtMoney(sb.advisor_billed)}
+                        {(sb.group_hours ?? 0) > 0 && (
+                          <span className="block text-[10px] text-[var(--muted-dim)]">
+                            group {sb.group_hours}h · {fmtMoney(sb.group_billed ?? 0)}
+                          </span>
+                        )}
                       </td>
                       <td className="px-3 py-3 text-right tabular-nums text-[var(--paper)]">
                         {fmtMoney(sb.total_billed)}
