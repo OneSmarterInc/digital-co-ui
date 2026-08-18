@@ -50,7 +50,7 @@ export default function Dashboard({ role, children }) {
       <header className="mx-auto flex h-[72px] max-w-[1080px] items-center justify-between border-b border-line px-6">
         <div className="flex items-center gap-3">
           <a href="/" className="flex items-center gap-2.5 font-mono text-[0.95rem] tracking-[0.02em]">
-            <span className="h-2 w-2 rounded-full bg-go shadow-[0_0_0_3px_rgba(26,128,79,0.18)]" aria-hidden="true" />
+            <img src="/logo-1x.svg" alt="FLEXEE · DigitalCo" className="h-[26px] w-[26px] flex-shrink-0" />
             <span>FLEXEE</span>
             <span className="font-normal text-faint">·</span>
             <span className="text-[var(--amber,#E8A13C)]">DigitalCo</span>

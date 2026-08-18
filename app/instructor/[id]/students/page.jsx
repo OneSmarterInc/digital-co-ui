@@ -165,7 +165,7 @@ export default function CohortStudentsPage() {
           >
             <IconBack size={16} />
           </button>
-          <span className="h-2 w-2 rounded-full bg-go shadow-[0_0_0_3px_rgba(26,128,79,0.18)]" aria-hidden="true" />
+          <img src="/logo-1x.svg" alt="FLEXEE · DigitalCo" className="h-[26px] w-[26px] flex-shrink-0" />
           <div className="flex min-w-0 items-baseline gap-2">
             <span className="flex items-baseline gap-2 font-display text-[1.15rem] font-semibold tracking-[0.03em]">
               <span>FLEXEE</span>

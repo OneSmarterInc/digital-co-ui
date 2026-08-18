@@ -162,7 +162,7 @@ export default function CohortSetupPage() {
           </span>
             <span className={`${MONO} text-[9px] uppercase tracking-[0.2em] text-[var(--muted-dim)]`}>Instructor</span>
             <span className="text-[var(--muted-dim)]">/</span>
-            <span className={`truncate ${DISPLAY} text-[16px] font-semibold text-[var(--amber)]`}>{detail.name}</span>
+            <span className={`truncate ${DISPLAY} text-[16px] font-semibold text-[var(--paper)]`}>{detail.name}</span>
             <span className="text-[var(--muted-dim)]">/</span>
             <span className={`${DISPLAY} text-[16px] font-semibold text-[var(--muted)]`}>Setup</span>
           </div>
