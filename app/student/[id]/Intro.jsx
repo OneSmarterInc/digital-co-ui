@@ -113,7 +113,7 @@ export default function Intro({ onDone }) {
     <div className="dc-console" style={{ minHeight: "100vh" }}>
       <div className="chrome-fixed">
         <div className="brand">
-          <img src="/logo-1x.svg" alt="Flexee" className="brand__mark" />
+          <img src="/logo-1x.svg" alt="FLEXEE · DigitalCo" className="brand__mark" />
           <div className="brand__name">
             <span className="chrome__platform">FLEXEE</span>
             <span className="chrome__sep">·</span>

@@ -51,7 +51,9 @@ export default function Dashboard({ role, children }) {
         <div className="flex items-center gap-3">
           <a href="/" className="flex items-center gap-2.5 font-mono text-[0.95rem] tracking-[0.02em]">
             <span className="h-2 w-2 rounded-full bg-go shadow-[0_0_0_3px_rgba(26,128,79,0.18)]" aria-hidden="true" />
-            Flexee
+            <span>FLEXEE</span>
+            <span className="font-normal text-faint">·</span>
+            <span className="text-[var(--amber,#E8A13C)]">DigitalCo</span>
           </a>
           <span className="rounded-full border border-line bg-panel2 px-2.5 py-1 font-mono text-[0.62rem] uppercase tracking-[0.14em] text-muted">
             {role}

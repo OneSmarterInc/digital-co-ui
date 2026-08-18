@@ -152,7 +152,7 @@ export default function CohortSetupPage() {
           >
             <IconBack size={16} />
           </button>
-          <img src="/logo-1x.svg" alt="Flexee DigitalCo" className="h-[26px] w-[26px] flex-shrink-0" />
+          <img src="/logo-1x.svg" alt="FLEXEE · DigitalCo" className="h-[26px] w-[26px] flex-shrink-0" />
           <div className="flex min-w-0 items-baseline gap-2">
             {/* Primary lockup — the same platform · sim treatment the opening tour uses. */}
           <span className={`flex flex-shrink-0 items-baseline gap-2 ${DISPLAY} text-[17px] font-bold leading-none tracking-[0.03em]`}>

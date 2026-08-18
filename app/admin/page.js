@@ -37,7 +37,7 @@ const NAV = ["Simulations", "Admins", "Faculty", "Students", "Billing"];
 const SECTION_META = {
   Simulations: {
     title: "Simulations",
-    subtitle: "View and manage all Flexee DigitalCo simulations. Open the instructor console to run rounds.",
+    subtitle: "View and manage all FLEXEE · DigitalCo simulations. Open the instructor console to run rounds.",
   },
   Admins: { title: "Admins", subtitle: "Everyone with administrator access to this workspace." },
   Faculty: { title: "Faculty", subtitle: "Instructors and the cohorts they teach." },
@@ -556,7 +556,7 @@ export default function AdminConsole() {
     >
       <header className="flex items-center justify-between border-b border-[var(--steel-line)] bg-gradient-to-b from-[#1B1F25] to-[#15181C] px-8 py-4">
         <div className="flex items-center gap-3">
-          <img src="/logo-1x.svg" alt="Flexee DigitalCo" className="h-[30px] w-[30px] flex-shrink-0" />
+          <img src="/logo-1x.svg" alt="FLEXEE · DigitalCo" className="h-[30px] w-[30px] flex-shrink-0" />
           {/* Primary lockup — the same platform · sim treatment the opening tour uses. */}
           <span className={`flex flex-shrink-0 items-baseline gap-2 ${DISPLAY} text-[19px] font-bold leading-none tracking-[0.03em]`}>
             <span>FLEXEE</span>

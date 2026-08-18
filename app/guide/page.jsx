@@ -33,7 +33,7 @@ export default function GuidePage() {
           <button type="button" onClick={goBack} className="backbtn" aria-label="Back">
             &#8592;
           </button>
-          <img src="/logo-1x.svg" alt="Flexee DigitalCo" className="mark" />
+          <img src="/logo-1x.svg" alt="FLEXEE · DigitalCo" className="mark" />
           <div className="brand__name"><span className="brand__plat">FLEXEE</span><span className="brand__sep">·</span><span className="brand__sim">DigitalCo</span></div>
         </div>
         <div className="top__right">
