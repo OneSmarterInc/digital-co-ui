@@ -4,7 +4,7 @@ A single-page Next.js (App Router) landing page for the Flexee simulation, style
   
 ## Run it      
 
-```bash
+```bash 
 npm install
 npm run dev
 ```
