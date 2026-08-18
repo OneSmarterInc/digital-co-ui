@@ -154,7 +154,12 @@ export default function CohortSetupPage() {
           </button>
           <img src="/logo-1x.svg" alt="Flexee DigitalCo" className="h-[26px] w-[26px] flex-shrink-0" />
           <div className="flex min-w-0 items-baseline gap-2">
-            <span className={`${DISPLAY} text-[17px] font-bold leading-none tracking-[0.02em]`}>FLEXEE DIGITALCO</span>
+            {/* Primary lockup — the same platform · sim treatment the opening tour uses. */}
+          <span className={`flex flex-shrink-0 items-baseline gap-2 ${DISPLAY} text-[17px] font-bold leading-none tracking-[0.03em]`}>
+            <span>FLEXEE</span>
+            <span className="font-normal text-[var(--muted-dim)]">·</span>
+            <span className="text-[var(--amber)]">DigitalCo</span>
+          </span>
             <span className={`${MONO} text-[9px] uppercase tracking-[0.2em] text-[var(--muted-dim)]`}>Instructor</span>
             <span className="text-[var(--muted-dim)]">/</span>
             <span className={`truncate ${DISPLAY} text-[16px] font-semibold text-[var(--amber)]`}>{detail.name}</span>

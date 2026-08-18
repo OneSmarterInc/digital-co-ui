@@ -10,6 +10,7 @@ import ExhibitsPage from "./exhibits/page";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 // Adjust to wherever your api client lives.
 import { fetchMe, api, logout } from "../../../lib/api";
+import HelpButton from "../../_help/HelpButton";
 
 /* ================================================================== *
  * Student cohort area: /student/[id]
@@ -393,6 +394,7 @@ export default function StudentCohortPage() {
           <span className={`hidden max-w-[200px] truncate ${MONO} text-[10.5px] uppercase tracking-[0.16em] text-[var(--muted)] sm:inline`}>
             {headerName}
           </span>
+          <HelpButton exitLabel={displaySection === "advisors" ? "Back to the war room" : "Close"} />
           <button onClick={signOut} className={`px-4 py-2 text-[10.5px] font-semibold tracking-[0.14em] ${GHOST}`}>
             Sign out
           </button>

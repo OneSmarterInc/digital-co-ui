@@ -173,9 +173,14 @@ export function BulkResultModal({ result, onClose }) {
 export function GradingModal({ score, gameId, onClose, onGraded }) {
   const isWeek1 = score.week_number === 1;
   const auto = score.auto_scores || {};
+  // These boxes are the instructor's ADJUSTMENT, which the backend adds on top
+  // of the engine's score (scoring/services.merge_score_components). Pre-filling
+  // them with the engine's own numbers made "agree and save" record auto + auto
+  // — every graded score came out at exactly double. Start at zero: saving
+  // untouched now records the engine's proposal unchanged.
   const [vals, setVals] = useState(() => {
     const init = {};
-    for (const dim of Object.keys(SCORE_LABELS)) init[dim] = Number(auto[dim] ?? 0);
+    for (const dim of Object.keys(SCORE_LABELS)) init[dim] = 0;
     return init;
   });
   const [anchor, setAnchor] = useState("");
@@ -245,6 +250,9 @@ export function GradingModal({ score, gameId, onClose, onGraded }) {
             </p>
           </div>
         )}
+        <p className={`${MONO} text-[9px] uppercase tracking-[0.08em] leading-[1.5] text-[var(--muted-dim,#5C6672)]`}>
+          Enter an adjustment to the engine&rsquo;s score. Leave at 0 to accept it as proposed.
+        </p>
         <div className="space-y-3">
           {Object.entries(SCORE_LABELS).map(([dim, label]) => (
             <div key={dim} className="flex items-center justify-between gap-3">

@@ -10,6 +10,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import HelpButton from "../../_help/HelpButton";
 
 const MANDATE =
   "“Take thirty days. Get me a real read. And come back with a direction I can take to the board.”";
@@ -123,6 +124,7 @@ export default function Intro({ onDone }) {
           <div className="stepnum mono">
             <b>{String(at + 1).padStart(2, "0")}</b> / 07
           </div>
+          <HelpButton />
           <button className="signout" type="button" onClick={() => go(6)}>
             Skip intro
           </button>

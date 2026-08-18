@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 // Adjust to wherever your api client lives.
 import { fetchMe, api, logout } from "../../lib/api";
+import HelpButton from "../_help/HelpButton";
 
 /* ================================================================== *
  * Student home: /student
@@ -383,6 +384,7 @@ export default function StudentHomePage() {
           <span className={`hidden max-w-[220px] truncate ${MONO} text-[10.5px] uppercase tracking-[0.16em] text-[var(--muted)] sm:inline`}>
             {headerName}
           </span>
+          <HelpButton />
           <button onClick={signOut} className={`px-4 py-2 text-[10.5px] font-semibold tracking-[0.14em] ${GHOST}`}>
             Sign out
           </button>

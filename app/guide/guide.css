@@ -1,0 +1,95 @@
+/* The How to Read a Week guide, lifted from the authored standalone HTML.
+ * Every rule is scoped under .guide-doc: the source uses generic class names
+ * (.top, .hero, .move, .note, .team, .foot) that would otherwise collide with
+ * the console stylesheet in app/console.css. */
+.guide-doc{
+    --graphite:#16191D; --graphite-raised:#1E2228; --graphite-high:#252B32;
+    --steel-line:#2C323A; --steel-soft:#363E48;
+    --paper:#ECEFF2; --ink:#14171B; --ink-soft:#3A424C;
+    --muted:#8A94A0; --muted-dim:#5C6672;
+    --amber:#E8A13C; --amber-deep:#C4791F; --signal-red:#D2564B;
+    --blueprint:#5BA3C4; --ok:#7FB08A; --r:4px;
+  }
+.guide-doc *{box-sizing:border-box;margin:0;padding:0}
+.guide-doc{
+    background:var(--graphite);color:var(--paper);
+    font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:15px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;padding:0 0 60px;
+  }
+.guide-doc .mono{font-family:'IBM Plex Mono',monospace}
+.guide-doc .wrap{max-width:940px;margin:0 auto;padding:0 26px}
+.guide-doc /* header */
+  .top{display:flex;align-items:center;justify-content:space-between;padding:20px 26px;border-bottom:1px solid var(--steel-line);max-width:940px;margin:0 auto}
+.guide-doc .brand{display:flex;align-items:center;gap:10px}
+.guide-doc .mark{width:22px;height:22px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2.5px}
+.guide-doc .mark span{background:var(--amber);border-radius:1px}
+.guide-doc .brand__name{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:16px;letter-spacing:.03em;display:flex;gap:8px;align-items:center}
+.guide-doc .brand__plat{color:var(--paper)}
+.guide-doc .brand__sep{color:var(--muted-dim);font-weight:400}
+.guide-doc .brand__sim{color:var(--amber)}
+.guide-doc .top__tag{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-dim)}
+.guide-doc /* hero */
+  .hero{padding:40px 0 8px}
+.guide-doc .hero .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--amber-deep);font-weight:600;margin-bottom:12px}
+.guide-doc .hero h1{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:clamp(34px,6vw,52px);line-height:1;letter-spacing:.01em}
+.guide-doc .hero p{color:var(--muted);font-size:16px;margin-top:16px;max-width:680px;line-height:1.6}
+.guide-doc .hero p b{color:var(--paper);font-weight:600}
+.guide-doc .rule{height:3px;width:54px;background:var(--amber);margin:22px 0 0}
+.guide-doc /* the loop strip */
+  .loop{display:flex;gap:10px;margin:30px 0 6px;flex-wrap:wrap}
+.guide-doc .loop__step{flex:1;min-width:150px;background:var(--graphite-raised);border:1px solid var(--steel-line);border-radius:var(--r);padding:12px 14px}
+.guide-doc .loop__n{font-family:'Saira Condensed',sans-serif;font-weight:700;color:var(--amber);font-size:15px}
+.guide-doc .loop__t{font-family:'Saira Condensed',sans-serif;font-weight:600;font-size:16px;margin-top:2px}
+.guide-doc .loop__s{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+.guide-doc /* move blocks */
+  .move{margin-top:34px;border-top:1px solid var(--steel-line);padding-top:24px}
+.guide-doc .move__head{display:flex;align-items:baseline;gap:14px}
+.guide-doc .move__num{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:34px;color:var(--amber);line-height:.8;min-width:38px}
+.guide-doc .move__title{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:24px;letter-spacing:.01em}
+.guide-doc .move__sub{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-dim);margin-top:2px}
+.guide-doc .move__lead{color:var(--muted);margin:12px 0 16px;max-width:720px}
+.guide-doc .move__lead b{color:var(--paper);font-weight:600}
+.guide-doc .do{list-style:none;display:flex;flex-direction:column;gap:10px}
+.guide-doc .do li{display:flex;gap:13px;align-items:flex-start;background:var(--graphite-raised);border:1px solid var(--steel-line);border-radius:var(--r);padding:13px 16px}
+.guide-doc .do__k{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber-deep);font-weight:600;white-space:nowrap;padding-top:2px;min-width:82px}
+.guide-doc .do__v{font-size:14px;line-height:1.55}
+.guide-doc .do__v b{color:var(--paper);font-weight:600}
+.guide-doc /* callouts */
+  .note{margin-top:16px;border-left:3px solid var(--steel-soft);padding:4px 0 4px 16px;color:var(--muted);font-size:13.5px;line-height:1.6}
+.guide-doc .note b{color:var(--paper)}
+.guide-doc .note--amber{border-color:var(--amber-deep)}
+.guide-doc .note--amber .lab{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);font-weight:600;display:block;margin-bottom:4px}
+.guide-doc /* team panel */
+  .team{margin-top:38px;background:var(--graphite-raised);border:1px solid var(--blueprint);border-radius:var(--r);padding:22px 24px}
+.guide-doc .team .lab{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--blueprint);font-weight:600;margin-bottom:10px}
+.guide-doc .team h3{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:22px;margin-bottom:6px}
+.guide-doc .team p{color:var(--muted);font-size:14px;line-height:1.6;max-width:760px}
+.guide-doc .team p b{color:var(--paper);font-weight:600}
+.guide-doc .team ul{list-style:none;margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.guide-doc .team li{font-size:13.5px;line-height:1.5;color:var(--muted);padding-left:16px;position:relative}
+.guide-doc .team li::before{content:"";position:absolute;left:0;top:8px;width:6px;height:6px;background:var(--blueprint);border-radius:1px}
+.guide-doc .team li b{color:var(--paper);font-weight:600}
+@media(max-width:600px){}
+.guide-doc /* one-line law */
+  .law{margin-top:38px;text-align:center;padding:26px 20px;background:linear-gradient(180deg,var(--graphite-raised),transparent);border-radius:var(--r)}
+.guide-doc .law p{font-family:'Saira Condensed',sans-serif;font-weight:600;font-size:clamp(19px,3.4vw,26px);line-height:1.3;max-width:640px;margin:0 auto;color:var(--paper)}
+.guide-doc .law b{color:var(--amber);font-weight:700}
+.guide-doc .law__note{font-size:13px;color:var(--muted-dim);margin-top:12px;font-family:'IBM Plex Mono',monospace;letter-spacing:.04em}
+.guide-doc .foot{margin-top:34px;padding-top:16px;border-top:1px solid var(--steel-line);font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.06em;color:var(--muted-dim);text-transform:uppercase}
+
+/* Way out of the guide — it's a full page, so it carries its own back control. */
+.guide-doc .top__right{display:flex;align-items:center;gap:16px}
+.guide-doc .backbtn{
+  width:30px;height:30px;flex:none;display:grid;place-items:center;
+  background:var(--graphite-raised);border:1px solid var(--steel-line);border-radius:2px;
+  color:var(--muted);font-size:15px;line-height:1;cursor:pointer;transition:.15s;
+  font-family:'IBM Plex Sans',system-ui,sans-serif;
+}
+.guide-doc .backbtn:hover{border-color:var(--amber-deep);color:var(--paper)}
+.guide-doc .backlink{
+  background:none;border:none;cursor:pointer;
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);transition:.15s;padding:0;
+}
+.guide-doc .backlink:hover{color:var(--amber)}
+@media(max-width:560px){.guide-doc .backlink{display:none}}
