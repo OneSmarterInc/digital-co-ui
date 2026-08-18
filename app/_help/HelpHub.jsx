@@ -15,6 +15,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { api } from "../../lib/api";
 import { FAQ_GROUPS, FAQ_ITEMS } from "./faq";
+import { ADVISOR_DOSSIERS } from "./advisors";
 
 const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
 const DISPLAY = "font-['Saira_Condensed',sans-serif]";
@@ -25,6 +26,8 @@ const SCOPE_LINE =
 // The guide is a full page, so it needs to know where to send the student back
 // to. Passing the current route beats letting it guess from history.
 const guideHref = (from) => (from ? `/guide?from=${encodeURIComponent(from)}` : "/guide");
+const deliverableHref = (from) =>
+  from ? `/deliverable-guide?from=${encodeURIComponent(from)}` : "/deliverable-guide";
 
 /* Renders the ["text", {b:"bold"}] shape from faq.js. */
 function Rich({ parts }) {
@@ -46,7 +49,13 @@ function Rich({ parts }) {
 export default function HelpHub({ open, onClose, exitLabel = "Close" }) {
   const pathname = usePathname();
   const GUIDE_HREF = guideHref(pathname);
-  const [selected, setSelected] = useState(null); // index into FAQ_ITEMS
+  const DELIVERABLE_HREF = deliverableHref(pathname);
+  const ADVISORS_HREF = pathname
+    ? `/advisors-guide?from=${encodeURIComponent(pathname)}`
+    : "/advisors-guide";
+  // One answer panel serves both lists, so the selection names which list it
+  // came from: {kind: "faq" | "advisor", index}.
+  const [selected, setSelected] = useState(null);
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState(null);
   const [asking, setAsking] = useState(false);
@@ -65,7 +74,7 @@ export default function HelpHub({ open, onClose, exitLabel = "Close" }) {
   // that position is below the fold on a laptop, so tapping a question would
   // look like nothing happened. Bring the panel into view without moving it.
   useEffect(() => {
-    if (selected == null) return;
+    if (!selected) return;
     answerRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [selected]);
 
@@ -93,7 +102,9 @@ export default function HelpHub({ open, onClose, exitLabel = "Close" }) {
 
   if (!open) return null;
 
-  const current = selected == null ? null : FAQ_ITEMS[selected];
+  const currentFaq = selected?.kind === "faq" ? FAQ_ITEMS[selected.index] : null;
+  const currentAdvisor = selected?.kind === "advisor" ? ADVISOR_DOSSIERS[selected.index] : null;
+  const hasAnswer = Boolean(currentFaq || currentAdvisor);
 
   return (
     <div
@@ -113,12 +124,20 @@ export default function HelpHub({ open, onClose, exitLabel = "Close" }) {
             Questions about the exercise
           </h2>
           <p className="mt-3 text-[0.9rem] leading-[1.6] text-[var(--muted)]">{SCOPE_LINE}</p>
-          <a
-            href={GUIDE_HREF}
-            className={`mt-3 inline-block ${MONO} text-[10px] uppercase tracking-[0.12em] text-[var(--amber)] underline-offset-4 hover:underline`}
-          >
-            New here? Read the full walkthrough →
-          </a>
+          <div className="mt-3 flex flex-col gap-1.5">
+            <a
+              href={GUIDE_HREF}
+              className={`${MONO} text-[10px] uppercase tracking-[0.12em] text-[var(--amber)] underline-offset-4 hover:underline`}
+            >
+              New here? Read the full walkthrough →
+            </a>
+            <a
+              href={DELIVERABLE_HREF}
+              className={`${MONO} text-[10px] uppercase tracking-[0.12em] text-[var(--amber)] underline-offset-4 hover:underline`}
+            >
+              Not sure what a field is asking for? Understanding Your Deliverable →
+            </a>
+          </div>
         </div>
 
         <div className="max-h-[62vh] overflow-y-auto px-7 py-5">
@@ -132,11 +151,11 @@ export default function HelpHub({ open, onClose, exitLabel = "Close" }) {
                 <div className="space-y-px">
                   {group.items.map((item) => {
                     const index = FAQ_ITEMS.findIndex((f) => f.q === item.q);
-                    const on = selected === index;
+                    const on = selected?.kind === "faq" && selected.index === index;
                     return (
                       <button
                         key={item.q}
-                        onClick={() => setSelected(on ? null : index)}
+                        onClick={() => setSelected(on ? null : { kind: "faq", index })}
                         aria-expanded={on}
                         className={`block w-full border-l-2 px-3 py-2 text-left text-[0.88rem] leading-snug transition ${
                           on
@@ -151,26 +170,92 @@ export default function HelpHub({ open, onClose, exitLabel = "Close" }) {
                 </div>
               </div>
             ))}
+            {/* The advisors, as reference. Consulting costs money, so students
+                need to remember who's who before they spend. Same tappable
+                rows, same answer panel — nothing new to learn. */}
+            <div>
+              <p className={`mb-1.5 ${MONO} text-[9px] uppercase tracking-[0.16em] text-[var(--muted-dim)]`}>
+                The advisors
+              </p>
+              <div className="space-y-px">
+                {ADVISOR_DOSSIERS.map((advisor, index) => {
+                  const on = selected?.kind === "advisor" && selected.index === index;
+                  return (
+                    <button
+                      key={advisor.name}
+                      onClick={() => setSelected(on ? null : { kind: "advisor", index })}
+                      aria-expanded={on}
+                      className={`flex w-full items-baseline gap-2 border-l-2 px-3 py-2 text-left text-[0.88rem] leading-snug transition ${
+                        on
+                          ? "border-l-[var(--amber)] bg-[var(--graphite-high)] text-[var(--paper)]"
+                          : "border-l-transparent text-[var(--muted)] hover:bg-[var(--graphite-high)] hover:text-[var(--paper)]"
+                      }`}
+                    >
+                      <span>{advisor.name}</span>
+                      <span className={`${MONO} text-[8.5px] uppercase tracking-[0.1em] text-[var(--muted-dim)]`}>
+                        {advisor.lane}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <a
+                href={ADVISORS_HREF}
+                className={`mt-1.5 inline-block px-3 ${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--muted-dim)] underline-offset-4 hover:text-[var(--amber)] hover:underline`}
+              >
+                Read all six side by side →
+              </a>
+            </div>
           </div>
 
           {/* Answer panel — fixed position under the whole list, so it lands in
-              the same spot whichever question was tapped. */}
-          {current && (
+              the same spot whichever row was tapped. Serves both lists. */}
+          {hasAnswer && (
             <div
               ref={answerRef}
               className="mt-5 border-l-[3px] border-[var(--amber)] bg-[var(--graphite-high)] px-4 py-3.5"
             >
-              <p className={`mb-1.5 ${DISPLAY} text-[16px] font-semibold leading-tight`}>{current.q}</p>
-              <p className="text-[0.88rem] leading-[1.65] text-[var(--muted)]">
-                <Rich parts={current.a} />
-              </p>
-              {current.guideLink && (
-                <a
-                  href={GUIDE_HREF}
-                  className="mt-2 inline-block text-[0.85rem] text-[var(--amber)] underline-offset-4 hover:underline"
-                >
-                  {current.guideLink} →
-                </a>
+              {currentFaq && (
+                <>
+                  <p className={`mb-1.5 ${DISPLAY} text-[16px] font-semibold leading-tight`}>{currentFaq.q}</p>
+                  <p className="text-[0.88rem] leading-[1.65] text-[var(--muted)]">
+                    <Rich parts={currentFaq.a} />
+                  </p>
+                  {currentFaq.guideLink && (
+                    <a
+                      href={GUIDE_HREF}
+                      className="mt-2 inline-block text-[0.85rem] text-[var(--amber)] underline-offset-4 hover:underline"
+                    >
+                      {currentFaq.guideLink} →
+                    </a>
+                  )}
+                </>
+              )}
+              {currentAdvisor && (
+                <>
+                  <p className={`${DISPLAY} text-[16px] font-semibold leading-tight`}>{currentAdvisor.name}</p>
+                  <p className={`mb-2 ${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--amber-deep)]`}>
+                    {currentAdvisor.lane}
+                  </p>
+                  <p className="text-[0.88rem] leading-[1.65] text-[var(--muted)]">{currentAdvisor.character}</p>
+                  <div className="mt-3 space-y-2">
+                    <p className="text-[0.85rem] leading-[1.6] text-[var(--muted)]">
+                      <span className={`${MONO} text-[9px] uppercase tracking-[0.1em] text-[var(--ok)]`}>
+                        Listen for
+                      </span>{" "}
+                      {currentAdvisor.listen}
+                    </p>
+                    <p className="text-[0.85rem] leading-[1.6] text-[var(--muted)]">
+                      <span className={`${MONO} text-[9px] uppercase tracking-[0.1em] text-[var(--signal-red)]`}>
+                        Discount for
+                      </span>{" "}
+                      {currentAdvisor.discount}
+                    </p>
+                  </div>
+                  <p className="mt-3 text-[0.85rem] leading-[1.6] text-[var(--muted)]">
+                    Tends to ask: <b className="font-semibold text-[var(--paper)]">{currentAdvisor.asks}</b>
+                  </p>
+                </>
               )}
             </div>
           )}

@@ -1,0 +1,57 @@
+/* Understanding Your Deliverable, lifted from the authored standalone HTML. Every rule is scoped
+ * under .deliverable-doc — the source uses generic class names that would otherwise
+ * collide with the console stylesheet in app/console.css. */
+.deliverable-doc{
+    --graphite:#16191D; --graphite-raised:#1E2228; --steel-line:#2C323A; --steel-soft:#363E48;
+    --paper:#ECEFF2; --muted:#8A94A0; --muted-dim:#5C6672;
+    --amber:#E8A13C; --amber-deep:#C4791F; --signal-red:#D2564B; --ok:#7FB08A; --blueprint:#5BA3C4; --r:4px;
+  }
+.deliverable-doc *{box-sizing:border-box;margin:0;padding:0}
+.deliverable-doc{background:var(--graphite);color:var(--paper);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;padding:0 0 60px}
+.deliverable-doc .wrap{max-width:900px;margin:0 auto;padding:0 26px}
+.deliverable-doc .top{display:flex;align-items:center;justify-content:space-between;padding:20px 26px;border-bottom:1px solid var(--steel-line);max-width:900px;margin:0 auto}
+.deliverable-doc .brand{display:flex;align-items:center;gap:10px}
+.deliverable-doc .mark{width:22px;height:22px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2.5px}
+.deliverable-doc .mark span{background:var(--amber);border-radius:1px}
+.deliverable-doc .brand__name{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:16px;letter-spacing:.03em;display:flex;gap:8px;align-items:center}
+.deliverable-doc .brand__plat{color:var(--paper)}
+.deliverable-doc .brand__sep{color:var(--muted-dim);font-weight:400}
+.deliverable-doc .brand__sim{color:var(--amber)}
+.deliverable-doc .top__tag{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-dim)}
+.deliverable-doc .hero{padding:38px 0 6px}
+.deliverable-doc .hero .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--amber-deep);font-weight:600;margin-bottom:12px}
+.deliverable-doc .hero h1{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:clamp(32px,6vw,48px);line-height:1;letter-spacing:.01em}
+.deliverable-doc .hero p{color:var(--muted);font-size:15.5px;margin-top:14px;max-width:700px}
+.deliverable-doc .hero p b{color:var(--paper);font-weight:600}
+.deliverable-doc .rule{height:3px;width:54px;background:var(--amber);margin:20px 0 0}
+.deliverable-doc .whatnot{display:flex;gap:12px;margin:26px 0 6px;flex-wrap:wrap}
+.deliverable-doc .whatnot__cell{flex:1;min-width:260px;border-radius:var(--r);padding:13px 16px}
+.deliverable-doc .whatnot__cell.does{background:var(--graphite-raised);border:1px solid var(--ok)}
+.deliverable-doc .whatnot__cell.doesnt{background:var(--graphite-raised);border:1px solid var(--signal-red)}
+.deliverable-doc .whatnot__k{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:5px}
+.deliverable-doc .does .whatnot__k{color:var(--ok)}
+.deliverable-doc .doesnt .whatnot__k{color:var(--signal-red)}
+.deliverable-doc .whatnot__v{font-size:13.5px;line-height:1.5;color:var(--paper)}
+.deliverable-doc .field{border-top:1px solid var(--steel-line);padding:22px 0}
+.deliverable-doc .field__head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.deliverable-doc .field__name{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:22px;letter-spacing:.01em}
+.deliverable-doc .field__type{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-dim);border:1px solid var(--steel-soft);border-radius:2px;padding:2px 7px}
+.deliverable-doc .field__what{color:var(--muted);font-size:14.5px;margin-top:9px;line-height:1.6;max-width:760px}
+.deliverable-doc .field__what b{color:var(--paper);font-weight:600}
+.deliverable-doc .field__how{font-size:13.5px;color:var(--muted);margin-top:10px;line-height:1.55;background:var(--graphite-raised);border-left:3px solid var(--amber-deep);padding:9px 14px;border-radius:2px;max-width:760px}
+.deliverable-doc .field__how .lab{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);font-weight:600;margin-right:6px}
+.deliverable-doc .field__how b{color:var(--paper);font-weight:600}
+.deliverable-doc .note{margin-top:32px;background:var(--graphite-raised);border:1px solid var(--blueprint);border-radius:var(--r);padding:18px 20px}
+.deliverable-doc .note .lab{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--blueprint);font-weight:600;margin-bottom:8px}
+.deliverable-doc .note h3{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:20px;margin-bottom:6px}
+.deliverable-doc .note p{color:var(--muted);font-size:14px;line-height:1.6}
+.deliverable-doc .note p b{color:var(--paper);font-weight:600}
+.deliverable-doc .foot{margin-top:30px;padding-top:16px;border-top:1px solid var(--steel-line);font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.06em;color:var(--muted-dim);text-transform:uppercase}
+
+/* Way out — these are full pages, so each carries its own back control. */
+.deliverable-doc .top__right{display:flex;align-items:center;gap:16px}
+.deliverable-doc .backbtn{width:30px;height:30px;flex:none;display:grid;place-items:center;background:var(--graphite-raised);border:1px solid var(--steel-line);border-radius:2px;color:var(--muted);font-size:15px;line-height:1;cursor:pointer;transition:.15s;font-family:'IBM Plex Sans',system-ui,sans-serif}
+.deliverable-doc .backbtn:hover{border-color:var(--amber-deep);color:var(--paper)}
+.deliverable-doc .backlink{background:none;border:none;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);transition:.15s;padding:0}
+.deliverable-doc .backlink:hover{color:var(--amber)}
+@media(max-width:560px){.deliverable-doc .backlink{display:none}}

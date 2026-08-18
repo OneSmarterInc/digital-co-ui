@@ -181,11 +181,13 @@ const IconHelp = (p) => <Svg {...p}><circle cx="12" cy="12" r="10" /><path d="M1
  * Page shell
  * ================================================================== */
 
+// Order matters: Advisors is used every week, Performance only occasionally,
+// so Performance sits below it rather than above.
 const SECTIONS = [
   ["dashboard", "Dashboard"],
   ["week", "This Week"],
-  ["performance", "Performance"],
   ["advisors", "Advisors"],
+  ["performance", "Performance"],
   ["exhibits", "Exhibits"],
   ["schedule", "Schedule"],
   ["debrief", "Debrief"],
@@ -233,9 +235,14 @@ export default function StudentCohortPage() {
   const rawSection = searchParams.get("section") ?? "dashboard";
   const section = VALID.has(rawSection) ? rawSection : "dashboard";
   const setSection = useCallback(
-    (key) => {
+    // `move` names a step inside This Week (brief | war | dec). It rides in the
+    // URL so the war-room rail can send a student straight to the Decision.
+    (key, move) => {
       const next = VALID.has(key) ? key : "dashboard";
-      const qs = next === "dashboard" ? "" : `?section=${next}`;
+      const params = [];
+      if (next !== "dashboard") params.push(`section=${next}`);
+      if (move) params.push(`move=${move}`);
+      const qs = params.length ? `?${params.join("&")}` : "";
       router.replace(`/student/${cohortId}${qs}`, { scroll: false });
     },
     // VALID is module-derived and stable
@@ -337,7 +344,8 @@ export default function StudentCohortPage() {
   const playable = status.live && sim.paid !== false && !sim.blocked && !!game;
   const gated = sim.blocked || sim.paid === false;
   const headerName = profile?.first_name?.trim() || profile?.email || "Student";
-  const sectionProps = { sim, game, cohortId, rounds, current, status, playable, gated, reload, notify, setSection };
+  const weekMove = searchParams.get("move") || null;
+  const sectionProps = { sim, game, cohortId, rounds, current, status, playable, gated, reload, notify, setSection, weekMove };
 
   // Once the instructor finalizes the run, the sim is over: the only thing left
   // for the student is the debrief, so the rest of the sidebar is hidden and the

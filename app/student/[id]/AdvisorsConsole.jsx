@@ -26,6 +26,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../../../lib/api";
+import WeekRail from "./WeekRail";
 import AdvisorAvatar from "./AdvisorAvatar";
 
 // Mirrors advisor_agents.turn_cap.DEFAULT_TURN_CAP on the backend. The API
@@ -42,7 +43,7 @@ const fmtMoney = (n) => {
   return v >= 1000 ? `$${(v / 1000).toFixed(v % 1000 ? 1 : 0)}K` : `$${v}`;
 };
 
-export default function AdvisorsConsole({ sim, game, cohortId, playable, notify }) {
+export default function AdvisorsConsole({ sim, game, cohortId, playable, notify, setSection }) {
   const advisors = game?.advisors ?? [];
   const [mode, setMode] = useState("solo"); // "solo" | "group"
 
@@ -300,8 +301,24 @@ export default function AdvisorsConsole({ sim, game, cohortId, playable, notify 
     </button>
   );
 
+  const weekNo = game?.week?.week_number ?? game?.run?.current_week ?? 1;
+  const submitted = Boolean(game?.week?.submitted);
+
   return (
-    <div className="dc-console" style={{ borderRadius: 6, padding: "26px 24px 28px" }}>
+    <div className="dc-console" style={{ borderRadius: 6, overflow: "hidden" }}>
+      <div className="shell" style={{ minHeight: "auto" }}>
+        {/* The week's rail follows the student in here. Without it the war room
+            was a dead end: no sense of where you are in the week, and no route
+            to the Decision, which is the actual deliverable. */}
+        <WeekRail
+          weekNo={weekNo}
+          title={game?.briefing?.title}
+          active="war"
+          submitted={submitted}
+          onMove={(key) => key !== "war" && setSection?.("week", key)}
+        />
+
+        <main className="stage" style={{ padding: "26px 24px 28px" }}>
       <div className="masthead" style={{ marginBottom: 18 }}>
         <div className="eyebrow">Advisory · consult before you commit</div>
         <h1>The War Room</h1>
@@ -312,9 +329,32 @@ export default function AdvisorsConsole({ sim, game, cohortId, playable, notify 
         across your team, then argue about what you each heard.
       </p>
 
-      <div style={{ display: "flex", gap: 8, margin: "6px 0 16px" }}>
+      <div style={{ display: "flex", gap: 8, margin: "6px 0 16px", alignItems: "center", flexWrap: "wrap" }}>
         {modeTab("solo", "1:1 · one advisor")}
         {modeTab("group", "Group · war room")}
+        {/* Consulting is not the deliverable — committing is. This says so once,
+            without hurrying anyone out of the room. */}
+        {!submitted && setSection && (
+          <button
+            type="button"
+            onClick={() => setSection("week", "dec")}
+            className="mono"
+            style={{
+              marginLeft: "auto",
+              fontSize: 10.5,
+              letterSpacing: ".1em",
+              textTransform: "uppercase",
+              color: "var(--muted-dim)",
+              border: "1px solid var(--steel-line)",
+              borderRadius: 2,
+              padding: "6px 11px",
+              background: "none",
+            }}
+            title="The week isn't committed yet"
+          >
+            Ready to commit? → Decision
+          </button>
+        )}
       </div>
 
       {mode === "solo" && sim.advisor_hourly_rate > 0 && (
@@ -475,6 +515,8 @@ export default function AdvisorsConsole({ sim, game, cohortId, playable, notify 
           scrollRef={groupScrollRef}
         />
       )}
+        </main>
+      </div>
     </div>
   );
 }
@@ -600,7 +642,7 @@ function GroupRoom({
         </button>
       </div>
       <div className="cp__note mono">
-        The war room is free. Advisors explore, they don&rsquo;t score
+        Advisors explore, they don&rsquo;t score
         {typeof group.student_turns === "number" ? ` · ${group.student_turns} rounds put to the room` : ""}.
       </div>
     </div>

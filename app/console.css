@@ -661,3 +661,17 @@ select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
   color: var(--ink-faint);
   border-color: #D8DEE4;
 }
+/* Commit guard — the week is final and firm-wide, so the button asks first. */
+.commit-confirm{margin-top:24px;background:var(--graphite-raised);border:1px solid var(--amber-deep);border-radius:var(--r);padding:18px 20px}
+.commit-confirm__t{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:20px;color:var(--paper)}
+.commit-confirm__b{font-size:14px;line-height:1.6;color:var(--muted);margin-top:6px;max-width:62ch}
+.commit-confirm__row{display:flex;align-items:center;gap:16px;margin-top:16px;flex-wrap:wrap}
+.commit-confirm__back{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);transition:.15s}
+.commit-confirm__back:hover{color:var(--paper)}
+/* Inline hint under a decision field label (see also .field__def). */
+.field__hint{font-size:13px;line-height:1.55;color:var(--muted);margin:2px 0 8px;max-width:70ch}
+/* A6: what an option term means, at the point of choice. Form only — these
+   define the vocabulary, never which option to pick. */
+.field__def{margin-top:10px;border-left:2px solid var(--steel-soft);padding-left:13px;display:flex;flex-direction:column;gap:6px}
+.field__def dt{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber-deep);font-weight:600}
+.field__def dd{font-size:13px;line-height:1.5;color:var(--muted);margin-top:1px}

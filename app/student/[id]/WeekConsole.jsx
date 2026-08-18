@@ -9,7 +9,9 @@
  * renders the committed state instead of the form.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import WeekRail from "./WeekRail";
+import { defineTerm, defineChoices } from "./jargon";
 import { api } from "../../../lib/api";
 import ArtifactsWeek1 from "./ArtifactsWeek1";
 
@@ -48,12 +50,16 @@ function DecisionField({ ix, field, value, onChange }) {
       </div>
     );
   }
+  const fieldDef = defineTerm(field.label);
+  const choiceDefs = defineChoices(field.choices);
+
   return (
     <div className="field">
       <div className="field__label">
         <span className="field__ix">{pad2(ix)}</span>
         <span className="field__name">{field.label}</span>
       </div>
+      {fieldDef && <p className="field__hint">{fieldDef}</p>}
       {field.choices?.length > 0 && field.choices.length <= 4 ? (
         <div className="segrow">
           {field.choices.map((c) => (
@@ -83,12 +89,27 @@ function DecisionField({ ix, field, value, onChange }) {
           placeholder=""
         />
       )}
+      {choiceDefs.length > 0 && (
+        <dl className="field__def">
+          {choiceDefs.map(([label, def]) => (
+            <div key={label}>
+              <dt>{label}</dt>
+              <dd>{def}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
     </div>
   );
 }
 
-export default function WeekConsole({ game, cohortId, playable, reload, notify, setSection }) {
-  const [move, setMove] = useState("brief");
+export default function WeekConsole({ game, cohortId, playable, reload, notify, setSection, weekMove }) {
+  // The step is mirrored from the URL so arriving from the war room's rail
+  // ("→ Decision") lands on the Decision rather than resetting to the Briefing.
+  const [move, setMove] = useState(weekMove === "dec" ? "dec" : "brief");
+  useEffect(() => {
+    if (weekMove === "brief" || weekMove === "dec") setMove(weekMove);
+  }, [weekMove]);
   const [values, setValues] = useState({});
   const [deliverable, setDeliverable] = useState("");
   const [busy, setBusy] = useState(false);
@@ -114,8 +135,17 @@ export default function WeekConsole({ game, cohortId, playable, reload, notify, 
 
   const setValue = (key, v) => setValues((cur) => ({ ...cur, [key]: v }));
 
-  async function commit(e) {
+  // A9: committing is final and firm-wide, so the submit button asks first.
+  // One stray click shouldn't lock an unfinished week for the whole team.
+  const [confirming, setConfirming] = useState(false);
+
+  function askToCommit(e) {
     e.preventDefault();
+    setConfirming(true);
+  }
+
+  async function commit() {
+    setConfirming(false);
     setBusy(true);
     setErr(null);
     try {
@@ -136,48 +166,16 @@ export default function WeekConsole({ game, cohortId, playable, reload, notify, 
     }
   }
 
-  const moves = [
-    ["brief", "01", "Briefing", "situation report"],
-    ["war", "02", "War room", "six advisors"],
-    ["dec", "03", "Decision", "commit the week"],
-  ];
-
   return (
     <div className="dc-console" style={{ borderRadius: 6, overflow: "hidden" }}>
       <div className="shell" style={{ minHeight: "auto" }}>
-        <nav className="rail">
-          <div className="rail__wk">
-            <div className="rail__num"><span>W</span>{pad2(weekNo)}</div>
-            <div className="rail__title">{briefing?.title}</div>
-            {weekNo === 1 && (
-              <div className="rail__mandate">
-                &ldquo;Take thirty days, get me a real read, and come back with a direction I
-                can take to the board.&rdquo; — Ray Calloway, CEO
-              </div>
-            )}
-          </div>
-          <div className="rail__moves">
-            {moves.map(([key, ix, label, sub]) => (
-              <button
-                key={key}
-                type="button"
-                className={`move-btn ${move === key ? "move-btn--on" : ""}`}
-                onClick={() => (key === "war" ? setSection("advisors") : setMove(key))}
-              >
-                <span className="move-btn__ix">{ix}</span>
-                <span>
-                  <span className="move-btn__label">{label}</span>
-                  <span className="move-btn__sub">{sub}</span>
-                </span>
-                {key === "dec" && (
-                  <span className={`move-btn__flag ${submitted ? "flag--done" : "flag--open"}`}>
-                    {submitted ? "committed" : "open"}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-        </nav>
+        <WeekRail
+          weekNo={weekNo}
+          title={briefing?.title}
+          active={move}
+          submitted={submitted}
+          onMove={(key) => (key === "war" ? setSection("advisors") : setMove(key))}
+        />
 
         <main className="stage">
           {move === "brief" && (
@@ -268,7 +266,7 @@ export default function WeekConsole({ game, cohortId, playable, reload, notify, 
                   </div>
                 </div>
               ) : (
-                <form className="decision" onSubmit={commit}>
+                <form className="decision" onSubmit={askToCommit}>
                   {spec?.deliverable_prompt && (
                     <div className="decision__prompt">{spec.deliverable_prompt}</div>
                   )}
@@ -279,21 +277,48 @@ export default function WeekConsole({ game, cohortId, playable, reload, notify, 
                     <div className="field">
                       <div className="field__label">
                         <span className="field__ix">◆</span>
-                        <span className="field__name">Deliverable</span>
+                        <span className="field__name">Your firm&rsquo;s written deliverable</span>
                       </div>
+                      <p className="field__hint">
+                        Your reasoning in your own words, as one firm — the consolidated
+                        output you&rsquo;d actually hand over. The fields above capture the
+                        specific calls; this is the whole, and it should agree with them.
+                      </p>
                       <textarea
                         style={{ minHeight: 150 }}
                         value={deliverable}
                         onChange={(e) => setDeliverable(e.target.value)}
-                        placeholder="Write your firm's deliverable here…"
+                        placeholder="Set out your reasoning — what you concluded and why…"
                       />
                     </div>
                   )}
                   {err && (
                     <div className="notice" style={{ borderColor: "var(--signal-red)" }}>{err}</div>
                   )}
+                  {confirming && (
+                    <div className="commit-confirm">
+                      <p className="commit-confirm__t">Commit Week {pad2(weekNo)}?</p>
+                      <p className="commit-confirm__b">
+                        This locks the week for the whole firm and can&rsquo;t be undone.
+                        You won&rsquo;t see a score — you&rsquo;ll feel the consequences later.
+                      </p>
+                      <div className="commit-confirm__row">
+                        <button type="button" className="commit" onClick={commit} disabled={busy}>
+                          {busy ? "Committing…" : "Yes, commit it"}
+                        </button>
+                        <button
+                          type="button"
+                          className="commit-confirm__back"
+                          onClick={() => setConfirming(false)}
+                          disabled={busy}
+                        >
+                          Keep working
+                        </button>
+                      </div>
+                    </div>
+                  )}
                   <div className="commit-bar">
-                    <button type="submit" className="commit" disabled={busy || !playable}>
+                    <button type="submit" className="commit" disabled={busy || !playable || confirming}>
                       {busy ? "Committing…" : "Commit decision"}
                     </button>
                     <div className="commit-note">

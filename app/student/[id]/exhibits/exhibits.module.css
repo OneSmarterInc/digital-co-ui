@@ -225,9 +225,21 @@
   overflow-x: auto;
 }
 
+/* The systems-of-record table was wider than the viewport, so comparing the
+   Age column against the cost columns meant scrolling sideways and losing the
+   row you were reading. Tightening the cells lets it fit; .tblWrap keeps the
+   sideways scroll as a fallback on genuinely narrow screens. */
 .tbl {
   width: 100%;
   border-collapse: collapse;
+  table-layout: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.tbl td,
+.tbl th {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .tbl th {

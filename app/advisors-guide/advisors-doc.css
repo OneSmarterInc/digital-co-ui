@@ -1,0 +1,54 @@
+/* Your Advisors, lifted from the authored standalone HTML. Every rule is scoped
+ * under .advisors-doc — the source uses generic class names that would otherwise
+ * collide with the console stylesheet in app/console.css. */
+.advisors-doc{
+    --graphite:#16191D; --graphite-raised:#1E2228; --steel-line:#2C323A; --steel-soft:#363E48;
+    --paper:#ECEFF2; --muted:#8A94A0; --muted-dim:#5C6672;
+    --amber:#E8A13C; --amber-deep:#C4791F; --signal-red:#D2564B; --ok:#7FB08A; --blueprint:#5BA3C4; --r:4px;
+  }
+.advisors-doc *{box-sizing:border-box;margin:0;padding:0}
+.advisors-doc{background:var(--graphite);color:var(--paper);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;padding:0 0 60px}
+.advisors-doc .wrap{max-width:880px;margin:0 auto;padding:0 26px}
+.advisors-doc .top{display:flex;align-items:center;justify-content:space-between;padding:20px 26px;border-bottom:1px solid var(--steel-line);max-width:880px;margin:0 auto}
+.advisors-doc .brand{display:flex;align-items:center;gap:10px}
+.advisors-doc .mark{width:22px;height:22px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2.5px}
+.advisors-doc .mark span{background:var(--amber);border-radius:1px}
+.advisors-doc .brand__name{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:16px;letter-spacing:.03em;display:flex;gap:8px;align-items:center}
+.advisors-doc .brand__plat{color:var(--paper)}
+.advisors-doc .brand__sep{color:var(--muted-dim);font-weight:400}
+.advisors-doc .brand__sim{color:var(--amber)}
+.advisors-doc .top__tag{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-dim)}
+.advisors-doc .hero{padding:38px 0 6px}
+.advisors-doc .hero .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--amber-deep);font-weight:600;margin-bottom:12px}
+.advisors-doc .hero h1{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:clamp(32px,6vw,48px);line-height:1;letter-spacing:.01em}
+.advisors-doc .hero p{color:var(--muted);font-size:15.5px;margin-top:14px;max-width:680px}
+.advisors-doc .hero p b{color:var(--paper);font-weight:600}
+.advisors-doc .rule{height:3px;width:54px;background:var(--amber);margin:20px 0 0}
+.advisors-doc .adv{border-top:1px solid var(--steel-line);padding:22px 0}
+.advisors-doc .adv__head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.advisors-doc .adv__name{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:23px;letter-spacing:.01em}
+.advisors-doc .adv__lane{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--amber-deep);font-weight:600}
+.advisors-doc .adv__char{color:var(--muted);font-size:14.5px;margin-top:9px;line-height:1.6;max-width:740px}
+.advisors-doc .adv__char b{color:var(--paper);font-weight:600}
+.advisors-doc .lens{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.advisors-doc .lens__cell{flex:1;min-width:250px;background:var(--graphite-raised);border:1px solid var(--steel-line);border-radius:var(--r);padding:11px 14px}
+.advisors-doc .lens__k{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;margin-bottom:4px}
+.advisors-doc .lens__cell.listen .lens__k{color:var(--ok)}
+.advisors-doc .lens__cell.discount .lens__k{color:var(--signal-red)}
+.advisors-doc .lens__v{font-size:13.5px;line-height:1.5;color:var(--paper)}
+.advisors-doc .adv__asks{font-size:13px;color:var(--muted);margin-top:12px;line-height:1.55}
+.advisors-doc .adv__asks b{color:var(--paper);font-weight:600}
+.advisors-doc .note{margin-top:30px;background:var(--graphite-raised);border:1px solid var(--blueprint);border-radius:var(--r);padding:18px 20px}
+.advisors-doc .note .lab{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--blueprint);font-weight:600;margin-bottom:8px}
+.advisors-doc .note h3{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:20px;margin-bottom:6px}
+.advisors-doc .note p{color:var(--muted);font-size:14px;line-height:1.6}
+.advisors-doc .note p b{color:var(--paper);font-weight:600}
+.advisors-doc .foot{margin-top:30px;padding-top:16px;border-top:1px solid var(--steel-line);font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.06em;color:var(--muted-dim);text-transform:uppercase}
+
+/* Way out — these are full pages, so each carries its own back control. */
+.advisors-doc .top__right{display:flex;align-items:center;gap:16px}
+.advisors-doc .backbtn{width:30px;height:30px;flex:none;display:grid;place-items:center;background:var(--graphite-raised);border:1px solid var(--steel-line);border-radius:2px;color:var(--muted);font-size:15px;line-height:1;cursor:pointer;transition:.15s;font-family:'IBM Plex Sans',system-ui,sans-serif}
+.advisors-doc .backbtn:hover{border-color:var(--amber-deep);color:var(--paper)}
+.advisors-doc .backlink{background:none;border:none;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);transition:.15s;padding:0}
+.advisors-doc .backlink:hover{color:var(--amber)}
+@media(max-width:560px){.advisors-doc .backlink{display:none}}
