@@ -22,6 +22,34 @@ export default function ScheduleView({ gameId, detail, rounds, reload, notify })
   const [extendFor, setExtendFor] = useState(null);
   const [busy, setBusy] = useState(false);
 
+  // The calendar is derived from the start date on every read, so moving the
+  // date regenerates every round. A term slipping a week used to mean living
+  // with a wrong schedule for fourteen of them.
+  const [editingStart, setEditingStart] = useState(false);
+  const [startDraft, setStartDraft] = useState(detail.start_date || "");
+
+  const openStart = () => {
+    setStartDraft(detail.start_date || "");
+    setEditingStart(true);
+  };
+
+  const saveStart = async () => {
+    if (!startDraft) {
+      notify("Pick a start date first.");
+      return;
+    }
+    setBusy(true);
+    await runAction({
+      path: `/instructor/simulations/${gameId}/`,
+      opts: { ...jsonPost({ start_date: startDraft }), method: "PATCH" },
+      label: "Schedule rebuilt from the new start date",
+      reload,
+      notify,
+      after: () => setEditingStart(false),
+    });
+    setBusy(false);
+  };
+
   const doExtend = async (n, days) => {
     setExtendFor(null);
     setBusy(true);
@@ -40,8 +68,59 @@ export default function ScheduleView({ gameId, detail, rounds, reload, notify })
       <ViewHeader
         eyebrow="Timeline"
         title="Schedule"
-        subtitle="Rounds are paced from the start date. Click a current or future round to extend its deadline, and later rounds shift to match."
+        subtitle="Rounds are paced from the start date. Move the start date to rebuild the whole calendar, or click a current or future round to extend just that one — later rounds shift to match."
       />
+
+      <div className="flex flex-wrap items-center gap-3 rounded-[3px] border border-[var(--steel-line,#2C323A)] bg-[var(--graphite-raised,#1E2228)] px-5 py-4">
+        <div className="min-w-0">
+          <p className={`${MONO} text-[9px] uppercase tracking-[0.16em] text-[var(--muted-dim,#5C6672)]`}>
+            Start date
+          </p>
+          <p className={`mt-1 ${DISPLAY} text-[1.15rem] font-semibold leading-none`}>
+            {detail.start_date || "Not set"}
+          </p>
+        </div>
+
+        {editingStart ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              type="date"
+              value={startDraft}
+              onChange={(e) => setStartDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") saveStart();
+                if (e.key === "Escape") setEditingStart(false);
+              }}
+              autoFocus
+              className="h-8 rounded-[2px] border border-[var(--steel-line,#2C323A)] bg-[var(--graphite,#16191D)] px-2.5 text-[0.85rem] text-[var(--paper,#ECEFF2)] outline-none [color-scheme:dark] focus:border-[var(--blueprint,#5BA3C4)]"
+            />
+            <button
+              onClick={saveStart}
+              disabled={busy}
+              className={`rounded-[2px] bg-[var(--amber,#E8A13C)] px-3 py-1.5 ${MONO} text-[9.5px] font-bold uppercase tracking-[0.1em] text-[var(--graphite,#16191D)] transition hover:bg-[#F0B052] disabled:opacity-50`}
+            >
+              {busy ? "Rebuilding…" : "Rebuild schedule"}
+            </button>
+            <button
+              onClick={() => setEditingStart(false)}
+              className={`${MONO} text-[9.5px] uppercase tracking-[0.1em] text-[var(--muted-dim,#5C6672)] hover:text-[var(--paper,#ECEFF2)]`}
+            >
+              Cancel
+            </button>
+            <span className={`${MONO} text-[8.5px] uppercase tracking-[0.08em] text-[var(--muted-dim,#5C6672)]`}>
+              Every round moves · extensions already granted are kept
+            </span>
+          </div>
+        ) : (
+          <button
+            onClick={openStart}
+            disabled={busy}
+            className={`rounded-[2px] border border-[var(--steel-line,#2C323A)] px-3 py-1.5 ${MONO} text-[9.5px] font-semibold uppercase tracking-[0.1em] text-[var(--muted,#8A94A0)] transition hover:border-[var(--steel-soft,#363E48)] hover:text-[var(--paper,#ECEFF2)] disabled:opacity-50`}
+          >
+            Change start date
+          </button>
+        )}
+      </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <MiniInfo label="Current round" value={`R${detail.current_round}`} sub={`of ${detail.total_rounds}`} />
