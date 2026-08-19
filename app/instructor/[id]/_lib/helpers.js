@@ -93,14 +93,29 @@ export function billingOf(detail) {
   );
 }
 
+/* Firms with their members, plus an Unassigned bucket.
+ *
+ * Seeded from detail.firms rather than from the students, so a firm with nobody
+ * in it still appears. It used to be built only from students, which meant a
+ * newly created firm was invisible until someone was moved into it — and an
+ * empty firm, the only kind that can be deleted, could never be seen to delete.
+ */
 export function groupsOf(detail) {
   const students = detail.students ?? [];
   const map = new Map();
+
+  for (const f of detail.firms ?? []) {
+    map.set(f.name, { name: f.name, index: (f.number ?? 1) - 1, members: [] });
+  }
   for (const s of students) {
     const key = s.firm ?? "Unassigned";
-    if (!map.has(key)) map.set(key, { name: key, index: s.firm_index ?? 0, members: [] });
+    if (!map.has(key)) {
+      // Unassigned sorts last; it is a holding pen, not a firm.
+      map.set(key, { name: key, index: s.firm ? s.firm_index ?? 0 : Number.MAX_SAFE_INTEGER, members: [] });
+    }
     map.get(key).members.push(s);
   }
+
   for (const grp of map.values()) grp.members.sort((a, b) => a.name.localeCompare(b.name));
   return [...map.values()].sort((a, b) => a.index - b.index);
 }

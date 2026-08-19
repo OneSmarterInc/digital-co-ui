@@ -46,6 +46,43 @@ export default function FirmsView({ gameId, detail, reload, notify }) {
   const groups = useMemo(() => groupsOf(detail), [detail]);
   const [busy, setBusy] = useState(false);
 
+  const [newFirm, setNewFirm] = useState("");
+  const [adding, setAdding] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(null); // the firm group
+
+  const doCreateFirm = async () => {
+    setBusy(true);
+    const name = newFirm.trim();
+    await runAction({
+      path: `/instructor/simulations/${gameId}/firms/`,
+      opts: jsonPost(name ? { name } : {}),
+      label: name ? `${name} created` : "Firm created",
+      reload,
+      notify,
+      after: () => {
+        setNewFirm("");
+        setAdding(false);
+      },
+    });
+    setBusy(false);
+  };
+
+  // Deleting a firm takes its run, rounds and grades with it, so the server
+  // refuses while anyone is in it or anything has been submitted. Surface that
+  // reason rather than a generic failure — it tells the instructor what to do.
+  const doDeleteFirm = async (grp) => {
+    setBusy(true);
+    setConfirmDelete(null);
+    await runAction({
+      path: `/instructor/simulations/${gameId}/firms/${grp.index + 1}/`,
+      opts: { method: "DELETE" },
+      label: `${grp.name} deleted`,
+      reload,
+      notify,
+    });
+    setBusy(false);
+  };
+
   const doMove = async (enrollmentId, firmNumber, label) => {
     setBusy(true);
     await runAction({
@@ -67,7 +104,43 @@ export default function FirmsView({ gameId, detail, reload, notify }) {
           enrolled === 1 ? "" : "s"
         } enrolled. Move a student between firms with the dropdown.`}
         action={
-          instructors.length > 0 ? (
+          <div className="flex flex-wrap items-center gap-2">
+            {adding ? (
+              <>
+                <input
+                  value={newFirm}
+                  onChange={(e) => setNewFirm(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") doCreateFirm();
+                    if (e.key === "Escape") setAdding(false);
+                  }}
+                  placeholder="Firm name (optional)"
+                  autoFocus
+                  className="h-8 w-[176px] rounded-[2px] border border-[var(--steel-line,#2C323A)] bg-[var(--graphite,#16191D)] px-2.5 text-[0.8rem] text-[var(--paper,#ECEFF2)] outline-none focus:border-[var(--blueprint,#5BA3C4)]"
+                />
+                <button
+                  onClick={doCreateFirm}
+                  disabled={busy}
+                  className={`rounded-[2px] bg-[var(--amber,#E8A13C)] px-3 py-1.5 ${MONO} text-[9.5px] font-bold uppercase tracking-[0.1em] text-[var(--graphite,#16191D)] transition hover:bg-[#F0B052] disabled:opacity-50`}
+                >
+                  {busy ? "Adding…" : "Add firm"}
+                </button>
+                <button
+                  onClick={() => setAdding(false)}
+                  className={`${MONO} text-[9.5px] uppercase tracking-[0.1em] text-[var(--muted-dim,#5C6672)] hover:text-[var(--paper,#ECEFF2)]`}
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setAdding(true)}
+                className={`rounded-[2px] border border-[var(--steel-line,#2C323A)] px-3 py-1.5 ${MONO} text-[9.5px] font-semibold uppercase tracking-[0.1em] text-[var(--muted,#8A94A0)] transition hover:border-[var(--steel-soft,#363E48)] hover:text-[var(--paper,#ECEFF2)]`}
+              >
+                + New firm
+              </button>
+            )}
+            {instructors.length > 0 ? (
             <div className="flex items-center gap-2 rounded-[2px] border border-[var(--steel-line,#2C323A)] px-2.5 py-1.5">
               <span className={`${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--muted-dim,#5C6672)]`}>Faculty</span>
               <div className="flex">
@@ -88,7 +161,8 @@ export default function FirmsView({ gameId, detail, reload, notify }) {
                 ))}
               </div>
             </div>
-          ) : null
+            ) : null}
+          </div>
         }
       />
 
@@ -104,8 +178,8 @@ export default function FirmsView({ gameId, detail, reload, notify }) {
       {groups.length === 0 ? (
         <EmptyState
           icon={<IconUsers size={22} />}
-          title="No students yet"
-          message="Once students enroll they will appear here, ready to be placed into firms."
+          title="No firms yet"
+          message="Create a firm to start placing students, or wait for enrolments to arrive."
         />
       ) : (
         <div className="space-y-4">
@@ -144,6 +218,22 @@ export default function FirmsView({ gameId, detail, reload, notify }) {
                         className={`flex items-center gap-1.5 rounded-[2px] border border-[var(--steel-line,#2C323A)] px-3 py-1.5 ${MONO} text-[9.5px] font-semibold uppercase tracking-[0.1em] text-[var(--paper,#ECEFF2)] transition hover:border-[var(--steel-soft,#363E48)] hover:bg-[var(--graphite-high,#252B32)]`}
                       >
                         View firm <IconExternal size={13} />
+                      </button>
+                      <button
+                        onClick={() => setConfirmDelete(grp)}
+                        disabled={busy || grp.members.length > 0}
+                        title={
+                          grp.members.length > 0
+                            ? "Move its students out before deleting this firm"
+                            : `Delete ${grp.name}`
+                        }
+                        className={`rounded-[2px] border px-3 py-1.5 ${MONO} text-[9.5px] font-semibold uppercase tracking-[0.1em] transition ${
+                          grp.members.length > 0
+                            ? "cursor-not-allowed border-[var(--steel-line,#2C323A)] text-[var(--muted-dim,#5C6672)]"
+                            : "border-[#7a3b35] text-[var(--signal-red,#D2564B)] hover:bg-[rgba(210,86,75,0.1)]"
+                        }`}
+                      >
+                        Delete
                       </button>
                     </div>
                   )}
@@ -187,6 +277,40 @@ export default function FirmsView({ gameId, detail, reload, notify }) {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {confirmDelete && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-[rgba(10,12,14,0.72)] px-4"
+          role="dialog"
+          aria-modal="true"
+          onMouseDown={(e) => e.target === e.currentTarget && setConfirmDelete(null)}
+        >
+          <div className={`w-full max-w-[440px] p-6 ${PANEL}`}>
+            <h3 className={`${DISPLAY} text-[20px] font-semibold leading-tight`}>
+              Delete {confirmDelete.name}?
+            </h3>
+            <p className="mt-2 text-[0.9rem] leading-[1.6] text-[var(--muted,#8A94A0)]">
+              This removes the firm and the run behind it. It cannot be undone. Firms that
+              have students in them, or that have submitted a round, are refused.
+            </p>
+            <div className="mt-5 flex items-center justify-end gap-3">
+              <button
+                onClick={() => setConfirmDelete(null)}
+                className={`${MONO} text-[10px] uppercase tracking-[0.12em] text-[var(--muted,#8A94A0)] hover:text-[var(--paper,#ECEFF2)]`}
+              >
+                Keep it
+              </button>
+              <button
+                onClick={() => doDeleteFirm(confirmDelete)}
+                disabled={busy}
+                className={`rounded-[2px] bg-[var(--signal-red,#D2564B)] px-4 py-2 ${MONO} text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--paper,#ECEFF2)] transition hover:bg-[#E0655A] disabled:opacity-50`}
+              >
+                {busy ? "Deleting…" : "Delete firm"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

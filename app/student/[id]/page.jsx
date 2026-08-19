@@ -322,10 +322,12 @@ export default function StudentCohortPage() {
     try { localStorage.setItem(introKey, "1"); } catch {}
     setIntroDone(true);
     // A replay came from somewhere inside the console, so put them back there.
-    // The first-run tour hands off to Week 1, which is the point of it.
+    // The first-run tour hands off to Week 1, which is the point of it — unless
+    // there is no run yet, in which case the student is still waiting on a firm
+    // and Week 1 is an empty locked screen.
     if (replayTour) setReplayTour(false);
-    else setSection("week");
-  }, [introKey, replayTour, setSection]);
+    else if (game) setSection("week");
+  }, [game, introKey, replayTour, setSection]);
 
   function signOut() {
     logout();
@@ -349,18 +351,31 @@ export default function StudentCohortPage() {
   const gated = sim.blocked || sim.paid === false;
   const headerName = profile?.first_name?.trim() || profile?.email || "Student";
   const weekMove = searchParams.get("move") || null;
-  const sectionProps = { sim, game, cohortId, rounds, current, status, playable, gated, reload, notify, setSection, weekMove };
+  const sectionProps = {
+    sim, game, cohortId, rounds, current, status, playable, gated, reload, notify,
+    setSection, weekMove, onRevisitTour: () => setReplayTour(true),
+  };
 
   // Once the instructor finalizes the run, the sim is over: the only thing left
   // for the student is the debrief, so the rest of the sidebar is hidden and the
   // view is pinned to it regardless of what was last open.
   const completed = game?.run?.status === "COMPLETE";
-  const displaySection = completed ? "debrief" : section;
+
+  // Enrolled, but no firm yet. Accepting an invite no longer auto-places a
+  // student — an instructor allocates firms — so there is a real gap between
+  // joining and playing. There is no run behind them in that gap, so there is
+  // no week, no briefing and no advisors: the tour is the whole of what they
+  // can do, and the console pins itself to that.
+  const awaitingFirm = !game && !sim.firm;
+  const displaySection = completed ? "debrief" : awaitingFirm ? "dashboard" : section;
 
   // A fresh firm gets the narrative rollout before Week 1 — once.
-  // Or, show it again on demand — the "Revisit tour" button on the cohorts list
-  // (?revisit=true) or the one in the sidebar — regardless of round or completion.
-  if (game && (replayTour || (!introDone && (revisit || (playable && game?.week && current === 1 && !game.week.submitted))))) {
+  // Or on demand: the "Revisit tour" buttons (?revisit=true, or the sidebar),
+  // regardless of round or completion.
+  // Or while waiting on a firm, where it is the only thing there is to see —
+  // and that case has no `game`, which is why this is not gated on one.
+  const firstRunTour = playable && game?.week && current === 1 && !game.week.submitted;
+  if (replayTour || (!introDone && (revisit || awaitingFirm || firstRunTour))) {
     return <Intro onDone={finishTour} />;
   }
 
@@ -418,7 +433,11 @@ export default function StudentCohortPage() {
           <p className={`mb-4 px-3 ${MONO} text-[9.5px] uppercase tracking-[0.2em] text-[var(--muted-dim)]`}>Cohort</p>
           <nav className="flex flex-col gap-1">
             {SECTIONS.filter(([key]) =>
-              completed ? key === "debrief" : key !== "debrief" || game?.debrief_available
+              completed
+                ? key === "debrief"
+                : awaitingFirm
+                  ? key === "dashboard"
+                  : key !== "debrief" || game?.debrief_available
             ).map(([key, label]) => {
               const active = displaySection === key;
               const locked = (key === "week" || key === "advisors") && !playable;
@@ -493,7 +512,7 @@ export default function StudentCohortPage() {
  * Dashboard — where this cohort stands for you, right now
  * ================================================================== */
 
-function DashboardView({ sim, game, rounds, current, status, playable, gated, setSection }) {
+function DashboardView({ sim, game, rounds, current, status, playable, gated, setSection, onRevisitTour }) {
   const deadline = closesIn(rounds[current - 1]?.end);
   const week = game?.week;
   const total = sim.total_rounds || rounds.length || 0;
@@ -513,10 +532,30 @@ function DashboardView({ sim, game, rounds, current, status, playable, gated, se
       {!sim.blocked && sim.paid === false && (
         <Notice>Your payment is still outstanding — gameplay unlocks once it clears.</Notice>
       )}
-      {!gated && status.live && !game && (
-        <Notice tone="var(--blueprint)">
-          You haven&apos;t been placed in a firm yet. Your instructor will assign you; the weekly loop opens then.
-        </Notice>
+      {!game && !sim.firm && (
+        <div className="rounded-[3px] border border-[var(--blueprint)] bg-[var(--graphite-raised)] px-6 py-5">
+          <p className={`${MONO} text-[9px] uppercase tracking-[0.2em] text-[var(--blueprint)]`}>
+            Waiting on a firm
+          </p>
+          <h2 className={`mt-2 ${DISPLAY} text-[1.5rem] font-semibold leading-tight`}>
+            You&rsquo;re enrolled, but not yet placed
+          </h2>
+          <p className="mt-2 max-w-2xl text-[0.92rem] leading-[1.6] text-[var(--muted)]">
+            Your instructor assigns firms once the roster settles. Until then there is no
+            briefing, no war room and no decision to make &mdash; the simulation opens the
+            moment you&rsquo;re placed.
+          </p>
+          <p className="mt-3 max-w-2xl text-[0.92rem] leading-[1.6] text-[var(--muted)]">
+            Meanwhile the opening tour is worth your time: it explains how a week works, and
+            you only get one first read of it.
+          </p>
+          <button
+            onClick={onRevisitTour}
+            className={`mt-4 inline-flex items-center gap-2 rounded-[2px] bg-[var(--amber)] px-5 py-2.5 ${DISPLAY} text-[15px] font-bold uppercase tracking-[0.05em] text-[var(--graphite)] transition hover:bg-[#F0B052]`}
+          >
+            Watch the tour
+          </button>
+        </div>
       )}
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

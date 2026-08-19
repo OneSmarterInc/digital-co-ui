@@ -232,11 +232,41 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
   const [busy, setBusy] = useState(false);
   const [menuFor, setMenuFor] = useState(null);
   const [allocTab, setAllocTab] = useState("firms");
+  const [newFirm, setNewFirm] = useState("");
+  const [addingFirm, setAddingFirm] = useState(false);
+  const [confirmDeleteFirm, setConfirmDeleteFirm] = useState(null);
 
   const act = async (path, opts, label, after) => {
     setBusy(true);
     await runAction({ path, opts, label, reload, notify, after });
     setBusy(false);
+  };
+
+  // Firms are created and removed here as well as on the Firms screen: setup is
+  // where an instructor is actually shaping the cohort, and "ask an admin" used
+  // to be the only answer when the firm count was wrong.
+  const doCreateFirm = () => {
+    const name = newFirm.trim();
+    act(
+      `/instructor/simulations/${gameId}/firms/`,
+      jsonPost(name ? { name } : {}),
+      name ? `${name} created` : "Firm created",
+      () => {
+        setNewFirm("");
+        setAddingFirm(false);
+      }
+    );
+  };
+
+  // The server refuses while a firm holds students or has submitted work —
+  // deleting one takes its run, rounds and grades with it.
+  const doDeleteFirm = (firm) => {
+    setConfirmDeleteFirm(null);
+    act(
+      `/instructor/simulations/${gameId}/firms/${firm.number}/`,
+      { method: "DELETE" },
+      `${firm.label} deleted`
+    );
   };
 
   const doMove = (enrollmentId, firmNumber, label) => {
@@ -360,6 +390,46 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
           ))}
         </div>
 
+        {allocTab === "firms" && (
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            {addingFirm ? (
+              <>
+                <input
+                  value={newFirm}
+                  onChange={(e) => setNewFirm(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") doCreateFirm();
+                    if (e.key === "Escape") setAddingFirm(false);
+                  }}
+                  placeholder="Firm name (optional)"
+                  autoFocus
+                  className="h-8 w-[188px] rounded-[2px] border border-[var(--steel-line)] bg-[var(--graphite)] px-2.5 text-[0.8rem] text-[var(--paper)] outline-none focus:border-[var(--blueprint)]"
+                />
+                <button
+                  onClick={doCreateFirm}
+                  disabled={busy}
+                  className={`rounded-[2px] bg-[var(--amber)] px-3 py-1.5 ${MONO} text-[9.5px] font-bold uppercase tracking-[0.1em] text-[var(--graphite)] transition hover:bg-[#F0B052] disabled:opacity-50`}
+                >
+                  {busy ? "Adding…" : "Add firm"}
+                </button>
+                <button
+                  onClick={() => setAddingFirm(false)}
+                  className={`${MONO} text-[9.5px] uppercase tracking-[0.1em] text-[var(--muted-dim)] hover:text-[var(--paper)]`}
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setAddingFirm(true)}
+                className={`rounded-[2px] border border-[var(--steel-line)] px-3 py-1.5 ${MONO} text-[9.5px] font-semibold uppercase tracking-[0.1em] text-[var(--muted)] transition hover:border-[var(--steel-soft)] hover:text-[var(--paper)]`}
+              >
+                + New firm
+              </button>
+            )}
+          </div>
+        )}
+
         {allocTab === "awaiting" ? (
           awaiting.length === 0 ? (
             <p className="text-sm text-[var(--muted)]">Everyone has been placed in a firm.</p>
@@ -387,7 +457,10 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
             </div>
           )
         ) : firms.length === 0 ? (
-          <p className="text-sm text-[var(--muted)]">No firms exist yet. Ask an admin to add teams, or provision a test team above.</p>
+          <p className="text-sm text-[var(--muted)]">
+            No firms yet. Add one above &mdash; students can&rsquo;t be placed until at least
+            one exists.
+          </p>
         ) : (
           <div className="space-y-4">
             {firms.map((f) => {
@@ -395,10 +468,10 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
               return (
                 <div
                   key={f.number}
-                  className="overflow-hidden rounded-[3px] border border-[var(--steel-line)]"
+                  className="rounded-[3px] border border-[var(--steel-line)]"
                   style={{ borderLeftWidth: 3, borderLeftColor: color }}
                 >
-                  <div className="flex items-center justify-between gap-3 bg-[var(--graphite-high)] px-4 py-3">
+                  <div className="flex items-center justify-between gap-3 rounded-t-[2px] bg-[var(--graphite-high)] px-4 py-3">
                     <div className="flex items-center gap-3">
                       <span
                         className={`flex h-[30px] w-[30px] items-center justify-center rounded-[2px] ${DISPLAY} font-bold text-[var(--graphite)]`}
@@ -408,9 +481,27 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
                       </span>
                       <p className={`${DISPLAY} text-[16px] font-semibold`}>{f.label}</p>
                     </div>
-                    <Pill tone={f.members.length ? "good" : "muted"}>
-                      {f.members.length} member{f.members.length === 1 ? "" : "s"}
-                    </Pill>
+                    <div className="flex flex-none items-center gap-2.5">
+                      <Pill tone={f.members.length ? "good" : "muted"}>
+                        {f.members.length} member{f.members.length === 1 ? "" : "s"}
+                      </Pill>
+                      <button
+                        onClick={() => setConfirmDeleteFirm(f)}
+                        disabled={busy || f.members.length > 0}
+                        title={
+                          f.members.length > 0
+                            ? "Move its students out before deleting this firm"
+                            : `Delete ${f.label}`
+                        }
+                        className={`rounded-[2px] border px-2.5 py-1 ${MONO} text-[9px] font-semibold uppercase tracking-[0.1em] transition ${
+                          f.members.length > 0
+                            ? "cursor-not-allowed border-[var(--steel-line)] text-[var(--muted-dim)]"
+                            : "border-[#7a3b35] text-[var(--signal-red)] hover:bg-[rgba(210,86,75,0.1)]"
+                        }`}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                   <div className="grid gap-2 p-3 sm:grid-cols-2">
                     {f.members.length === 0 ? (
@@ -489,6 +580,40 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
           </p>
         )}
       </StepCard>
+
+      {confirmDeleteFirm && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-[rgba(10,12,14,0.72)] px-4"
+          role="dialog"
+          aria-modal="true"
+          onMouseDown={(e) => e.target === e.currentTarget && setConfirmDeleteFirm(null)}
+        >
+          <div className="w-full max-w-[440px] rounded-[3px] border border-[var(--steel-line)] bg-[var(--graphite-raised)] p-6 shadow-[0_1px_0_rgba(0,0,0,0.4),0_24px_60px_-24px_rgba(0,0,0,0.8)]">
+            <h3 className={`${DISPLAY} text-[20px] font-semibold leading-tight`}>
+              Delete {confirmDeleteFirm.label}?
+            </h3>
+            <p className="mt-2 text-[0.9rem] leading-[1.6] text-[var(--muted)]">
+              This removes the firm and the run behind it, and cannot be undone. Firms with
+              students in them, or with a submitted round, are refused.
+            </p>
+            <div className="mt-5 flex items-center justify-end gap-3">
+              <button
+                onClick={() => setConfirmDeleteFirm(null)}
+                className={`${MONO} text-[10px] uppercase tracking-[0.12em] text-[var(--muted)] hover:text-[var(--paper)]`}
+              >
+                Keep it
+              </button>
+              <button
+                onClick={() => doDeleteFirm(confirmDeleteFirm)}
+                disabled={busy}
+                className={`rounded-[2px] bg-[var(--signal-red)] px-4 py-2 ${MONO} text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--paper)] transition hover:bg-[#E0655A] disabled:opacity-50`}
+              >
+                {busy ? "Deleting…" : "Delete firm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -869,10 +994,10 @@ function FirmPicker({ open, onToggle, firms, exclude, allowUnassign, onPick, lab
 
 function StepCard({ n, title, subtitle, meta, done, open, onToggle, children }) {
   return (
-    <div className={`overflow-hidden ${PANEL}`}>
+    <div className={PANEL}>
       <button
         onClick={onToggle}
-        className={`flex w-full items-center justify-between gap-4 px-6 py-4 text-left transition ${
+        className={`flex w-full items-center justify-between gap-4 rounded-t-[3px] px-6 py-4 text-left transition ${
           open ? "bg-[rgba(232,161,60,0.04)]" : ""
         } hover:bg-[var(--graphite-high)]`}
       >
