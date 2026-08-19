@@ -379,6 +379,17 @@ export default function AdminConsole() {
   const [newTier, setNewTier] = useState("UNDERGRAD");
   const [newTeams, setNewTeams] = useState(4);
   const [newFaculty, setNewFaculty] = useState([]);
+  // Adding faculty inline: the workspace could only assign instructors that
+  // already existed, so provisioning for a new lecturer stalled here.
+  const [addingFaculty, setAddingFaculty] = useState(false);
+  const [facFirst, setFacFirst] = useState("");
+  const [facLast, setFacLast] = useState("");
+  const [facEmail, setFacEmail] = useState("");
+  const [facBusy, setFacBusy] = useState(false);
+  const [facErrors, setFacErrors] = useState({});
+  // The temp password is returned once and never again, so it stays on screen
+  // until the admin dismisses it rather than vanishing with the modal.
+  const [facCreated, setFacCreated] = useState(null);
   const toggleFaculty = (id) =>
     setNewFaculty((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   const [newTimezone, setNewTimezone] = useState(BROWSER_TZ);
@@ -430,8 +441,14 @@ export default function AdminConsole() {
   }, [router]);
 
   async function reload() {
-    const res = await api("/admin/simulations/");
-    if (res.ok) setData(await res.json());
+    // People as well as simulations: adding an instructor has to put them in
+    // the faculty picker, and this was only refetching the simulation list.
+    const [sims, peopleRes] = await Promise.all([
+      api("/admin/simulations/"),
+      api("/admin/people/"),
+    ]);
+    if (sims.ok) setData(await sims.json());
+    if (peopleRes.ok) setPeople(await peopleRes.json());
   }
 
   /* Catch what we can before the round trip, then render whatever the server
@@ -473,6 +490,40 @@ export default function AdminConsole() {
       <span className="mt-1 block text-[0.78rem] leading-snug text-[var(--signal-red)]">{fieldErrors[key]}</span>
     ) : null;
   const errRing = (key) => (fieldErrors[key] ? " border-[var(--signal-red)]" : "");
+
+  async function createFaculty() {
+    if (facBusy) return;
+    setFacBusy(true);
+    setFacErrors({});
+    try {
+      const res = await api("/admin/faculty/", {
+        method: "POST",
+        body: JSON.stringify({
+          email: facEmail.trim().toLowerCase(),
+          first_name: facFirst.trim(),
+          last_name: facLast.trim(),
+        }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setFacErrors(body.errors || {});
+        if (!body.errors) setFacErrors({ email: body.detail || "Couldn't add the instructor." });
+        setFacBusy(false);
+        return;
+      }
+      await reload();                       // so the checkbox list includes them
+      setNewFaculty((prev) => [...prev, body.id]);   // and they arrive selected
+      setFacCreated(body);
+      setFacFirst("");
+      setFacLast("");
+      setFacEmail("");
+      setAddingFaculty(false);
+    } catch {
+      setFacErrors({ email: "Couldn't reach the server." });
+    } finally {
+      setFacBusy(false);
+    }
+  }
 
   async function createSimulation(event) {
     event.preventDefault();
@@ -524,6 +575,9 @@ export default function AdminConsole() {
       setNewPrice(0);
       setNewAdvisorRate(DEFAULT_ADVISOR_RATE);
       setFieldErrors({});
+      setAddingFaculty(false);
+      setFacErrors({});
+      setFacCreated(null);
       await reload();
     } catch {
       setCreateError("Couldn't reach the server.");
@@ -870,10 +924,107 @@ export default function AdminConsole() {
                 {errFor("days_per_round")}
                 </label>
               </div>
-              <label className="block">
-                <span className={fieldLabel}>
-                  Faculty{newFaculty.length > 0 ? ` — ${newFaculty.length} selected` : " (assign later if none)"}
-                </span>
+              <div className="block">
+                <div className="flex items-center justify-between gap-3">
+                  <span className={fieldLabel}>
+                    Faculty{newFaculty.length > 0 ? ` — ${newFaculty.length} selected` : " (assign later if none)"}
+                  </span>
+                  {!addingFaculty && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFacErrors({});
+                        setAddingFaculty(true);
+                      }}
+                      className={`mb-1.5 ${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--amber)] hover:underline`}
+                    >
+                      + Add new
+                    </button>
+                  )}
+                </div>
+
+                {/* Shown once and never again, so it stays until dismissed. */}
+                {facCreated && (
+                  <div className="mb-2 rounded-[2px] border border-[var(--amber-deep)] bg-[rgba(232,161,60,0.07)] px-3.5 py-3">
+                    <p className={`${MONO} text-[9px] uppercase tracking-[0.14em] text-[var(--amber)]`}>
+                      Temporary password — shown once
+                    </p>
+                    <p className="mt-1 text-[0.85rem] text-[var(--muted)]">
+                      {facCreated.name} signs in with <b className="text-[var(--paper)]">{facCreated.username}</b>
+                    </p>
+                    <p className={`mt-1.5 select-all ${MONO} text-[1rem] font-bold text-[var(--paper)]`}>
+                      {facCreated.temp_password}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setFacCreated(null)}
+                      className={`mt-2 ${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--muted-dim)] hover:text-[var(--paper)]`}
+                    >
+                      I&rsquo;ve saved it
+                    </button>
+                  </div>
+                )}
+
+                {addingFaculty && (
+                  <div className="mb-2 rounded-[2px] border border-[var(--steel-line)] bg-[var(--graphite)] p-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <input
+                          value={facFirst}
+                          onChange={(e) => setFacFirst(e.target.value)}
+                          placeholder="First name"
+                          autoFocus
+                          className={`w-full ${inputClass}${facErrors.first_name ? " border-[var(--signal-red)]" : ""}`}
+                        />
+                        {facErrors.first_name && (
+                          <span className="mt-1 block text-[0.78rem] text-[var(--signal-red)]">{facErrors.first_name}</span>
+                        )}
+                      </div>
+                      <input
+                        value={facLast}
+                        onChange={(e) => setFacLast(e.target.value)}
+                        placeholder="Last name"
+                        className={`w-full ${inputClass}`}
+                      />
+                    </div>
+                    <div className="mt-2">
+                      <input
+                        type="email"
+                        value={facEmail}
+                        onChange={(e) => setFacEmail(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            createFaculty();
+                          }
+                          if (e.key === "Escape") setAddingFaculty(false);
+                        }}
+                        placeholder="Email — this is their sign-in"
+                        className={`w-full ${inputClass}${facErrors.email ? " border-[var(--signal-red)]" : ""}`}
+                      />
+                      {facErrors.email && (
+                        <span className="mt-1 block text-[0.78rem] text-[var(--signal-red)]">{facErrors.email}</span>
+                      )}
+                    </div>
+                    <div className="mt-2.5 flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={createFaculty}
+                        disabled={facBusy}
+                        className={`rounded-[2px] bg-[var(--amber)] px-3 py-1.5 ${MONO} text-[9.5px] font-bold uppercase tracking-[0.1em] text-[var(--graphite)] transition hover:bg-[#F0B052] disabled:opacity-50`}
+                      >
+                        {facBusy ? "Adding…" : "Add instructor"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAddingFaculty(false)}
+                        className={`${MONO} text-[9.5px] uppercase tracking-[0.1em] text-[var(--muted-dim)] hover:text-[var(--paper)]`}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <div className="max-h-[132px] overflow-y-auto rounded-[2px] border border-[var(--steel-line)] bg-[var(--graphite)]">
                   {(people.instructors ?? []).length === 0 ? (
                     <p className="px-3.5 py-3 text-[0.85rem] text-[var(--muted-dim)]">No instructors in the workspace yet.</p>
@@ -905,7 +1056,7 @@ export default function AdminConsole() {
                     })
                   )}
                 </div>
-              </label>
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <label className="block">
                   <span className={fieldLabel}>Timezone</span>
