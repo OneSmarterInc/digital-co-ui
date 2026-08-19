@@ -943,24 +943,49 @@ export default function AdminConsole() {
                   )}
                 </div>
 
-                {/* Shown once and never again, so it stays until dismissed. */}
+                {/* The instructor sets their own password from an emailed link;
+                    nobody here ever sees it. The link only appears if the mail
+                    failed, so the admin still has a way to hand it over. */}
                 {facCreated && (
-                  <div className="mb-2 rounded-[2px] border border-[var(--amber-deep)] bg-[rgba(232,161,60,0.07)] px-3.5 py-3">
-                    <p className={`${MONO} text-[9px] uppercase tracking-[0.14em] text-[var(--amber)]`}>
-                      Temporary password — shown once
+                  <div
+                    className={`mb-2 rounded-[2px] border px-3.5 py-3 ${
+                      facCreated.invite_sent
+                        ? "border-[var(--ok)] bg-[rgba(127,176,138,0.07)]"
+                        : "border-[var(--amber-deep)] bg-[rgba(232,161,60,0.07)]"
+                    }`}
+                  >
+                    <p
+                      className={`${MONO} text-[9px] uppercase tracking-[0.14em] ${
+                        facCreated.invite_sent ? "text-[var(--ok)]" : "text-[var(--amber)]"
+                      }`}
+                    >
+                      {facCreated.invite_sent ? "Invitation sent" : "Account created — email failed"}
                     </p>
-                    <p className="mt-1 text-[0.85rem] text-[var(--muted)]">
-                      {facCreated.name} signs in with <b className="text-[var(--paper)]">{facCreated.username}</b>
+                    <p className="mt-1 text-[0.85rem] leading-[1.5] text-[var(--muted)]">
+                      {facCreated.invite_sent ? (
+                        <>
+                          <b className="text-[var(--paper)]">{facCreated.name}</b> has been emailed a link
+                          to choose their password, and signs in as {facCreated.username}.
+                        </>
+                      ) : (
+                        <>
+                          The account exists but the email didn&rsquo;t send
+                          {facCreated.send_error ? ` (${facCreated.send_error})` : ""}. Send this link to{" "}
+                          <b className="text-[var(--paper)]">{facCreated.username}</b> so they can set a password:
+                        </>
+                      )}
                     </p>
-                    <p className={`mt-1.5 select-all ${MONO} text-[1rem] font-bold text-[var(--paper)]`}>
-                      {facCreated.temp_password}
-                    </p>
+                    {!facCreated.invite_sent && facCreated.set_password_url && (
+                      <p className={`mt-1.5 select-all break-all ${MONO} text-[0.75rem] text-[var(--paper)]`}>
+                        {facCreated.set_password_url}
+                      </p>
+                    )}
                     <button
                       type="button"
                       onClick={() => setFacCreated(null)}
                       className={`mt-2 ${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--muted-dim)] hover:text-[var(--paper)]`}
                     >
-                      I&rsquo;ve saved it
+                      Dismiss
                     </button>
                   </div>
                 )}
