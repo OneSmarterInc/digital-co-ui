@@ -2,28 +2,59 @@
 
 import styles from "./exhibits.module.css";
 
-export default function ExhibitsPage() {
+/* The case exhibits — the quantitative layer behind each week's briefing.
+ *
+ * Two things this file has to get right, because getting them wrong breaks the
+ * course rather than just looking untidy:
+ *
+ * 1. DESIGN NOTES ARE INSTRUCTOR-ONLY. Each exhibit carries a note naming the
+ *    trap it is wired to (take_accelerator, sweet_deal_as_written, which rows
+ *    are inert, where the bait sits). Rendering those to a student pre-announces
+ *    every trap in the simulation. They render only when showDesignNotes is
+ *    explicitly true, which only the instructor route passes.
+ *
+ * 2. LATER WEEKS ARE HIDDEN. A firm in Round 3 must not read the Week 8 and
+ *    Week 12 exhibits — that leaks what is coming. Exhibits are filtered to
+ *    week <= currentWeek, current first, earlier ones below.
+ *
+ * Passing no props renders the student view of Week 1 only, which is the safe
+ * default if a caller forgets.
+ */
+
+function Exhibit({ week, title, intent, currentWeek, showDesignNotes, children }) {
+  if (week > currentWeek) return null; // never leak a later week
+  return (
+    <section className={styles.reviewItem}>
+      <div className={styles.reviewHead}>
+        <h2>{title}</h2>
+        {showDesignNotes && intent && (
+          <p className={styles.reviewIntent}>
+            <b>Instructor note — not shown to students.</b> Design intent: {intent}
+          </p>
+        )}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+export default function ExhibitsPage({ currentWeek = 1, showDesignNotes = false }) {
+  // Give every Exhibit the gate values without threading them through by hand.
+  const gate = { currentWeek, showDesignNotes };
   return (
     <div className={styles.dcConsole}>
       <div className={styles.reviewWrap}>
         <div className={styles.reviewTitle}>
           <h1>THE QUANTITATIVE LAYER</h1>
           <div className={styles.sub}>
-            DigitalCo · seven exhibits · review copy — renders exactly as
-            students see them
+            {showDesignNotes
+              ? "DigitalCo · every exhibit, with design notes — instructor view"
+              : `DigitalCo · the reference documents behind your briefings, through Week ${currentWeek}`}
           </div>
         </div>
 
         {/* Week 1 · Exhibit F5 */}
-        <section className={styles.reviewItem}>
-          <div className={styles.reviewHead}>
-            <h2>Week 1 · Exhibit F5 — Industry & Competitive Note</h2>
-            <p className={styles.reviewIntent}>
-              Design intent: the HBS-style industry framing. The bait is the
-              associate's "$12M at Meridian's rate" claim — checking it against
-              the 31,400 capable units is the first calculation of the course.
-            </p>
-          </div>
+        <Exhibit {...gate} week={1} title="Week 1 · Exhibit F5 — Industry & Competitive Note" intent={"the HBS-style industry framing. The bait is the associate's \"$12M at Meridian's rate\" claim — checking it against the 31,400 capable units is the first calculation of the course."}>
           <div className={styles.artPane}>
             <p className={styles.provenance}>
               Prepared by a strategy associate before your arrival — the
@@ -142,19 +173,10 @@ export default function ExhibitsPage() {
               </div>
             </div>
           </div>
-        </section>
+        </Exhibit>
 
         {/* Week 1 · Exhibit F6 */}
-        <section className={styles.reviewItem}>
-          <div className={styles.reviewHead}>
-            <h2>Week 1 · Exhibit F6 — Financial Exhibits</h2>
-            <p className={styles.reviewIntent}>
-              Design intent: the firm in numbers, with deliberately inert rows
-              (capex, inventory days) among the load-bearing ones. The
-              unit-economics worksheet supports two opposite conclusions on
-              purpose.
-            </p>
-          </div>
+        <Exhibit {...gate} week={1} title="Week 1 · Exhibit F6 — Financial Exhibits" intent={"the firm in numbers, with deliberately inert rows (capex, inventory days) among the load-bearing ones. The unit-economics worksheet supports two opposite conclusions on purpose."}>
           <div className={styles.artPane}>
             <p className={styles.provenance}>
               From the finance pack Reinhardt's office circulates to the board —
@@ -384,18 +406,10 @@ export default function ExhibitsPage() {
               </div>
             </div>
           </div>
-        </section>
+        </Exhibit>
 
         {/* Week 3 · Case Exhibit */}
-        <section className={styles.reviewItem}>
-          <div className={styles.reviewHead}>
-            <h2>Week 3 · Case Exhibit — The Integrator's Accelerator Memo</h2>
-            <p className={styles.reviewIntent}>
-              Design intent: sunk-cost bait wired to the take_accelerator trap.
-              The memo's arithmetic is correct; the guarantee, the scope
-              exclusion, and the closing paragraph are the lesson.
-            </p>
-          </div>
+        <Exhibit {...gate} week={3} title="Week 3 · Case Exhibit — The Integrator's Accelerator Memo" intent={"sunk-cost bait wired to the take_accelerator trap. The memo's arithmetic is correct; the guarantee, the scope exclusion, and the closing paragraph are the lesson."}>
           <div className={styles.artPane}>
             <p className={styles.provenance}>
               Received this morning from the systems integrator's engagement
@@ -494,18 +508,10 @@ export default function ExhibitsPage() {
               </div>
             </div>
           </div>
-        </section>
+        </Exhibit>
 
         {/* Week 4 · Case Exhibit */}
-        <section className={styles.reviewItem}>
-          <div className={styles.reviewHead}>
-            <h2>Week 4 · Case Exhibit — The Sweet Deal TCO Workbook</h2>
-            <p className={styles.reviewIntent}>
-              Design intent: the savings are honest; the exhibit is the missing
-              rows. Wired to the sweet_deal_as_written trap and priced again at
-              Week 12.
-            </p>
-          </div>
+        <Exhibit {...gate} week={4} title="Week 4 · Case Exhibit — The Sweet Deal TCO Workbook" intent={"the savings are honest; the exhibit is the missing rows. Wired to the sweet_deal_as_written trap and priced again at Week 12."}>
           <div className={styles.artPane}>
             <p className={styles.provenance}>
               The hyperscaler's account team left this workbook after the
@@ -661,18 +667,10 @@ export default function ExhibitsPage() {
               </div>
             </div>
           </div>
-        </section>
+        </Exhibit>
 
         {/* Week 6 · Case Exhibit */}
-        <section className={styles.reviewItem}>
-          <div className={styles.reviewHead}>
-            <h2>Week 6 · Case Exhibit — Platform Sizing One-Pager</h2>
-            <p className={styles.reviewIntent}>
-              Design intent: the same NPV model, three assumption sets. The
-              biggest number on the page is computed on the assumptions that
-              produced the last three years.
-            </p>
-          </div>
+        <Exhibit {...gate} week={6} title="Week 6 · Case Exhibit — Platform Sizing One-Pager" intent={"the same NPV model, three assumption sets. The biggest number on the page is computed on the assumptions that produced the last three years."}>
           <div className={styles.artPane}>
             <p className={styles.provenance}>
               Zoe's team ran the platform options through the same NPV model
@@ -772,18 +770,10 @@ export default function ExhibitsPage() {
               </div>
             </div>
           </div>
-        </section>
+        </Exhibit>
 
         {/* Week 8 · Case Exhibit */}
-        <section className={styles.reviewItem}>
-          <div className={styles.reviewHead}>
-            <h2>Week 8 · Case Exhibit — Data Monetization Pro Formas</h2>
-            <p className={styles.reviewIntent}>
-              Design intent: Column A wins every comparison ending inside twelve
-              months and loses every one that doesn't. The Week 11 revolt sits
-              in the rows marked 'not modeled'.
-            </p>
-          </div>
+        <Exhibit {...gate} week={8} title="Week 8 · Case Exhibit — Data Monetization Pro Formas" intent={"Column A wins every comparison ending inside twelve months and loses every one that doesn't. The Week 11 revolt sits in the rows marked 'not modeled'."}>
           <div className={styles.artPane}>
             <p className={styles.provenance}>
               Two pro formas for the data business, prepared to the same
@@ -884,18 +874,10 @@ export default function ExhibitsPage() {
               </div>
             </div>
           </div>
-        </section>
+        </Exhibit>
 
         {/* Week 12 · Case Exhibit */}
-        <section className={styles.reviewItem}>
-          <div className={styles.reviewHead}>
-            <h2>Week 12 · Case Exhibit — The Bill at Fleet Scale</h2>
-            <p className={styles.reviewIntent}>
-              Design intent: one exhibit, two documents. A decision memo to
-              portable firms, a hostage note to locked-in ones — the Week 4
-              decision, priced.
-            </p>
-          </div>
+        <Exhibit {...gate} week={12} title="Week 12 · Case Exhibit — The Bill at Fleet Scale" intent={"one exhibit, two documents. A decision memo to portable firms, a hostage note to locked-in ones — the Week 4 decision, priced."}>
           <div className={styles.artPane}>
             <p className={styles.provenance}>
               Reinhardt's office forwarded the cloud invoice trend with one
@@ -1042,7 +1024,7 @@ export default function ExhibitsPage() {
               </div>
             </div>
           </div>
-        </section>
+        </Exhibit>
       </div>
     </div>
   );

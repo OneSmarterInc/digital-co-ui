@@ -56,7 +56,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 @media (max-width:900px){.arc{display:none}.who__id{display:none}}
 
 /* ---------- shell + rail ---------- */
-.shell{display:grid;grid-template-columns:236px 1fr;max-width:1240px;margin:0 auto;min-height:calc(100vh - 60px)}
+.shell{display:grid;grid-template-columns:236px minmax(0,1fr);max-width:1440px;margin:0 auto;min-height:calc(100vh - 60px)}
 .rail{border-right:1px solid var(--steel-line);padding:26px 0;background:#14171B}
 .rail__wk{padding:0 24px 22px}
 .rail__num{font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:52px;line-height:.85;color:var(--paper)}
@@ -270,7 +270,7 @@ table.tbl{width:100%;border-collapse:collapse}
 .cp__back{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:var(--muted);border:1px solid var(--steel-line);border-radius:2px;padding:7px 11px;text-transform:uppercase;transition:.15s}
 .cp__back:hover{color:var(--paper);border-color:var(--steel-soft)}
 .cp__log{flex:1;padding:20px 18px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;max-height:52vh;min-height:220px}
-.turn{max-width:82%}
+.turn{max-width:min(82%, 72ch)}
 .turn__who{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-dim);margin-bottom:4px}
 .turn__body{padding:11px 14px;border-radius:var(--r);font-size:14px;line-height:1.55;white-space:pre-line}
 .turn--adv .turn__body{background:#20262D;border:1px solid var(--steel-line)}
@@ -675,3 +675,24 @@ select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
 .field__def{margin-top:10px;border-left:2px solid var(--steel-soft);padding-left:13px;display:flex;flex-direction:column;gap:6px}
 .field__def dt{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber-deep);font-weight:600}
 .field__def dd{font-size:13px;line-height:1.5;color:var(--muted);margin-top:1px}
+
+/* The week's case exhibit, surfaced inside the briefing. The prose reference
+   files are summaries; students were never finding the real document. */
+.exhibit-link{display:block;width:100%;text-align:left;background:var(--graphite-raised);border:1px solid var(--amber-deep);border-left-width:3px;border-radius:var(--r);padding:14px 18px;transition:.15s}
+.exhibit-link:hover{background:var(--graphite-high);border-color:var(--amber)}
+.exhibit-link__lab{display:block;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);font-weight:600}
+.exhibit-link__name{display:block;font-family:'Saira Condensed',sans-serif;font-weight:600;font-size:19px;color:var(--paper);margin-top:3px}
+.exhibit-link__note{display:block;font-size:13px;line-height:1.55;color:var(--muted);margin-top:5px;max-width:70ch}
+
+/* War room at the wider measure: the bench gets room for a full role line
+   ("Vendor and Partnership Advisor" was truncating), and the conversation
+   takes the rest — wider, but the text inside still stops at ~72ch.
+
+   .console-panel carries `max-width:820px; margin:0 auto` from the older
+   standalone layout. Auto margins beat stretch alignment on a grid item, so
+   the conversation sized to its content and sat in a 724px column at 279px
+   wide. Inside the room, the column decides the width. */
+.dc-console .warroom{grid-template-columns:288px minmax(0,1fr);gap:20px}
+.dc-console .warroom > .console-panel{width:100%;max-width:none;margin:0}
+.dc-console .adv__lane,.dc-console .cp__lane{white-space:normal}
+@media (max-width:1100px){.dc-console .warroom{grid-template-columns:248px minmax(0,1fr)}}

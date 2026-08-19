@@ -210,10 +210,10 @@ const SECTIONS = [
   ["debrief", "Debrief"],
 ];
 const DIM_LABELS = {
-  strategic_judgment: "Strategy",
-  execution_consequence: "Execution",
+  strategic_judgment: "Strategic judgment",
+  execution_consequence: "Execution consequence",
   coherence: "Coherence",
-  deliverable_quality: "Deliverable",
+  deliverable_quality: "Deliverable quality",
 };
 
 /* ================================================================== *
@@ -683,7 +683,7 @@ function MimicPerformance({ game }) {
           <div className="grid grid-cols-3 gap-4">
             <MiniInfo label="Graded rounds" value={data.graded_count} sub={`of ${weeks.length ? weeks[weeks.length - 1].week_number : 0} played`} />
             <MiniInfo label="Average" value={data.average} sub="per round" />
-            <MiniInfo label="Best round" value={data.best} sub="total score" />
+            <MiniInfo label="Highest round" value={data.best} sub="total score" />
           </div>
           <div className="space-y-3">
             {weeks.map((w) => (

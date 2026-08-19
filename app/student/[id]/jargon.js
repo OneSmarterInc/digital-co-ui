@@ -29,6 +29,22 @@ const DEFINITIONS = {
   "renegotiate": "Go back to the counterparty and change the terms of the existing arrangement.",
   "replace": "End the current arrangement and bring in a different party.",
 
+  // week 3 — integrator decision. "Take accelerator" is the trap option and was
+  // the one choice on the form a student could not look up.
+  "take accelerator": "Buy the integrator's proprietary tooling to speed the cutover, on their terms.",
+  "take_accelerator": "Buy the integrator's proprietary tooling to speed the cutover, on their terms.",
+
+  // week 2 — alignment
+  "push bold raw": "Put the full, unsoftened proposal to the room and let it be argued on its merits.",
+  "push_bold_raw": "Put the full, unsoftened proposal to the room and let it be argued on its merits.",
+  "transform data services": "Back the data-and-services direction as the primary transformation.",
+  "transform_data_services": "Back the data-and-services direction as the primary transformation.",
+  "balanced split": "Fund both directions partially rather than choosing between them.",
+  "balanced_split": "Fund both directions partially rather than choosing between them.",
+  "governance": "The decision rights and review structure around the work — who approves what, and when.",
+  "business voice": "A formal say for the business side in how the programme is steered, not just IT.",
+  "stage gate": "A checkpoint where work must pass review before more money is released.",
+
   // recurring field concepts
   "current-state assessment": "Your read of the situation as it actually is — diagnosis, not plan.",
   "strategy statement": "The direction you're committing to and why. In Week 1 this becomes the anchor every later week is measured against.",

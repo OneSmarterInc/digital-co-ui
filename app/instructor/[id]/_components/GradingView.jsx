@@ -5,6 +5,7 @@ import { flagText } from "../_lib/helpers";
 import { ViewHeader, EmptyState, MiniInfo, ScoreChips } from "./ui";
 import { IconClipboard } from "./icons";
 import { GradingModal } from "./modals";
+import { SubmissionView } from "./SubmissionView";
 
 /* Grading view — dark console theme, var(--token, #fallback) throughout.
  * Console vocabulary: amber = waiting for you (round chip, anchor-required
@@ -19,10 +20,32 @@ const FLAG = `inline-flex items-center gap-1.5 rounded-[2px] border px-2.5 py-0.
 
 export default function GradingView({ gameId, queue, reload, notify }) {
   const [gradeScore, setGradeScore] = useState(null);
+  const [reading, setReading] = useState(null); // a graded week, reopened read-only
+  const [tab, setTab] = useState("waiting");
 
-  const waiting = queue.length;
-  const flags = queue.reduce((a, r) => a + (r.trap_flags?.length || 0), 0);
-  const needAnchor = queue.filter((r) => r.week_number === 1).length;
+  // The queue now carries graded weeks too. They used to vanish on grading,
+  // taking the written answers with them — but Week 13's audit, the Week 14
+  // debrief and any grade query all need them read back later.
+  const ungraded = queue.filter((r) => !r.graded);
+  const graded = queue.filter((r) => r.graded);
+  const rows = tab === "waiting" ? ungraded : graded;
+
+  const waiting = ungraded.length;
+  const flags = ungraded.reduce((a, r) => a + (r.trap_flags?.length || 0), 0);
+  const needAnchor = ungraded.filter((r) => r.week_number === 1).length;
+
+  const tabBtn = (key, label, n) => (
+    <button
+      onClick={() => setTab(key)}
+      className={`rounded-[2px] border px-3 py-1.5 ${MONO} text-[10px] uppercase tracking-[0.12em] transition ${
+        tab === key
+          ? "border-[var(--amber-deep,#C4791F)] text-[var(--amber,#E8A13C)]"
+          : "border-[var(--steel-line,#2C323A)] text-[var(--muted,#8A94A0)] hover:text-[var(--paper,#ECEFF2)]"
+      }`}
+    >
+      {label} ({n})
+    </button>
+  );
 
   return (
     <div className="space-y-7 text-[var(--paper,#ECEFF2)]">
@@ -30,11 +53,16 @@ export default function GradingView({ gameId, queue, reload, notify }) {
         eyebrow="Grade submissions"
         title="Grading"
         subtitle={
-          queue.length
-            ? `${queue.length} submitted week${queue.length === 1 ? "" : "s"} waiting for a grade across your firms.`
+          waiting
+            ? `${waiting} submitted week${waiting === 1 ? "" : "s"} waiting for a grade across your firms.`
             : "Submitted weeks land here for grading. Week 1 asks for its anchor before it can be saved."
         }
       />
+
+      <div className="flex flex-wrap gap-2">
+        {tabBtn("waiting", "Waiting", ungraded.length)}
+        {tabBtn("graded", "Graded", graded.length)}
+      </div>
 
       {waiting > 0 && (
         <div className="grid grid-cols-3 gap-4">
@@ -44,15 +72,19 @@ export default function GradingView({ gameId, queue, reload, notify }) {
         </div>
       )}
 
-      {queue.length === 0 ? (
+      {rows.length === 0 ? (
         <EmptyState
           icon={<IconClipboard size={22} />}
-          title="You are all caught up"
-          message="Nothing is waiting to grade right now. As teams submit each round, their weeks show up here."
+          title={tab === "waiting" ? "You are all caught up" : "Nothing graded yet"}
+          message={
+            tab === "waiting"
+              ? "Nothing is waiting to grade right now. As teams submit each round, their weeks show up here."
+              : "Once you grade a week it stays here — scores, choices and the full written answers, readable for the rest of the term."
+          }
         />
       ) : (
         <div className="space-y-3">
-          {queue.map((row) => {
+          {rows.map((row) => {
             const engineTotal = Object.values(row.auto_scores || {}).reduce((a, b) => a + (Number(b) || 0), 0);
             const rowFlags = row.trap_flags || [];
             const showMeta = rowFlags.length > 0 || row.week_number === 1;
@@ -72,16 +104,25 @@ export default function GradingView({ gameId, queue, reload, notify }) {
                       </p>
                     </div>
                   </div>
-                  <button
-                    onClick={() => setGradeScore(row)}
-                    className={`flex-none rounded-[2px] bg-[var(--amber,#E8A13C)] px-4 py-2 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.04em] text-[var(--graphite,#16191D)] transition duration-150 hover:bg-[#F0B052]`}
-                  >
-                    Grade
-                  </button>
+                  {row.graded ? (
+                    <button
+                      onClick={() => setReading(row)}
+                      className={`flex-none rounded-[2px] border border-[var(--steel-line,#2C323A)] px-4 py-2 ${MONO} text-[10px] uppercase tracking-[0.12em] text-[var(--muted,#8A94A0)] transition hover:border-[var(--steel-soft,#363E48)] hover:text-[var(--paper,#ECEFF2)]`}
+                    >
+                      Read submission
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setGradeScore(row)}
+                      className={`flex-none rounded-[2px] bg-[var(--amber,#E8A13C)] px-4 py-2 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.04em] text-[var(--graphite,#16191D)] transition duration-150 hover:bg-[#F0B052]`}
+                    >
+                      Grade
+                    </button>
+                  )}
                 </div>
 
                 <div className="mt-3">
-                  <ScoreChips scores={row.auto_scores} />
+                  <ScoreChips scores={row.graded ? row.dimension_scores : row.auto_scores} />
                 </div>
 
                 {showMeta && (
@@ -107,6 +148,8 @@ export default function GradingView({ gameId, queue, reload, notify }) {
           })}
         </div>
       )}
+
+      {reading && <SubmissionView row={reading} onClose={() => setReading(null)} />}
 
       {gradeScore && (
         <GradingModal

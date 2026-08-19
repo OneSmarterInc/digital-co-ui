@@ -136,9 +136,22 @@ export default function BenchmarksPage() {
             <span className={`${DISPLAY} text-[16px] font-semibold text-[var(--muted)]`}>Benchmarks</span>
           </div>
         </div>
-        <span className={`hidden ${MONO} text-[10.5px] uppercase tracking-[0.16em] text-[var(--muted)] sm:inline`}>
-          {me.first_name || me.username}
-        </span>
+        {/* These pages imported logout but never rendered a control, so an
+            instructor on Insights had no way to sign out. */}
+        <div className="flex items-center gap-3">
+          <span className={`hidden ${MONO} text-[10.5px] uppercase tracking-[0.16em] text-[var(--muted)] sm:inline`}>
+            {me.first_name || me.username}
+          </span>
+          <button
+            onClick={() => {
+              logout();
+              router.replace("/login");
+            }}
+            className={`rounded-[2px] border border-[var(--steel-line)] px-4 py-2 ${MONO} text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)] transition hover:border-[var(--steel-soft)] hover:bg-[var(--graphite-high)] hover:text-[var(--paper)]`}
+          >
+            Sign out
+          </button>
+        </div>
       </header>
 
       <div className="flex">

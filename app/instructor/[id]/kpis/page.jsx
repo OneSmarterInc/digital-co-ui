@@ -8,6 +8,7 @@ import { initials, fmtMoney } from "../_lib/helpers";
 import { ViewHeader, MiniInfo, Avatar, Pill } from "../_components/ui";
 import { IconBack } from "../_components/icons";
 import DetailSidebar from "../_components/DetailSidebar";
+import { choiceLabel } from "../_lib/choiceLabels";
 
 /* ================================================================== *
  * Firm dashboards: /instructor/[id]/kpis
@@ -53,7 +54,7 @@ const CHIP = `inline-flex items-center gap-1 rounded-[2px] border px-2 py-0.5 fo
 
 const DIM_LABELS = {
   strategic_judgment: "Strategic judgment",
-  execution_consequence: "Execution",
+  execution_consequence: "Execution consequence",
   coherence: "Coherence",
   deliverable_quality: "Deliverable quality",
 };
@@ -113,6 +114,9 @@ function ValueChip({ label, value }) {
     display = "unset";
   } else if (typeof value === "number" && value < 0) {
     tone = "border-[var(--amber-deep)] text-[var(--amber)]";
+  } else if (typeof value === "string") {
+    // The stored value is an enum; show what the student actually chose.
+    display = choiceLabel(value);
   }
   return (
     <span className={`${CHIP} ${tone}`}>
@@ -346,9 +350,22 @@ export default function FirmDashboardsPage() {
             <span className={`${DISPLAY} text-[16px] font-semibold text-[var(--muted)]`}>Firm dashboards</span>
           </div>
         </div>
-        <span className={`hidden ${MONO} text-[10.5px] uppercase tracking-[0.16em] text-[var(--muted)] sm:inline`}>
-          {me.first_name || me.username}
-        </span>
+        {/* These pages imported logout but never rendered a control, so an
+            instructor on Insights had no way to sign out. */}
+        <div className="flex items-center gap-3">
+          <span className={`hidden ${MONO} text-[10.5px] uppercase tracking-[0.16em] text-[var(--muted)] sm:inline`}>
+            {me.first_name || me.username}
+          </span>
+          <button
+            onClick={() => {
+              logout();
+              router.replace("/login");
+            }}
+            className={`rounded-[2px] border border-[var(--steel-line)] px-4 py-2 ${MONO} text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)] transition hover:border-[var(--steel-soft)] hover:bg-[var(--graphite-high)] hover:text-[var(--paper)]`}
+          >
+            Sign out
+          </button>
+        </div>
       </header>
 
       <div className="flex">

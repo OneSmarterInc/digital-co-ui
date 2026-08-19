@@ -185,6 +185,31 @@ export default function InviteesView({ gameId, detail, reload, notify }) {
       .catch(() => notify("Copy failed — select and copy manually"));
   }
 
+  async function doResend(inv) {
+    setBusy(true);
+    try {
+      const r = await api(`/instructor/simulations/${gameId}/invitations/${inv.id}/resend/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.detail || `Request failed (${r.status})`);
+      await loadInvites();
+      notify(`Re-sent to ${inv.email} ✓`);
+    } catch (e) {
+      notify(`Resend failed: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const fmtSent = (iso) => {
+    if (!iso) return null;
+    const d = new Date(iso);
+    return Number.isNaN(d.getTime()) ? null : d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+  };
+
   const filtersActive = q.trim() !== "" || statusFilter !== "all";
 
   return (
@@ -301,7 +326,7 @@ export default function InviteesView({ gameId, detail, reload, notify }) {
           <div>
             <h2 className={`${DISPLAY} text-[19px] font-semibold leading-tight`}>All invitations</h2>
             <p className="mt-1 text-sm text-[var(--muted,#8A94A0)]">
-              {invites.length} sent · resending is safe, the backend is idempotent per email.
+              {invites.length} invited · resending issues a fresh link and retires the old one.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -360,6 +385,7 @@ export default function InviteesView({ gameId, detail, reload, notify }) {
                 <tr className="border-y border-[var(--steel-line,#2C323A)]">
                   <Th className="pl-6">Email</Th>
                   <Th>Status</Th>
+                  <Th>Delivery</Th>
                   <Th className="pr-6 text-right">Actions</Th>
                 </tr>
               </thead>
@@ -375,9 +401,23 @@ export default function InviteesView({ gameId, detail, reload, notify }) {
                     <td className="px-3 py-3">
                       <StatusPill status={inv.status} />
                     </td>
+                    {/* Being on the list is not the same as having received it. */}
+                    <td className="px-3 py-3">
+                      {inv.send_error ? (
+                        <span className={`${MONO} text-[0.72rem] text-[var(--signal-red,#D2564B)]`} title={inv.send_error}>
+                          not delivered
+                        </span>
+                      ) : inv.sent_at ? (
+                        <span className={`${MONO} text-[0.72rem] text-[var(--muted-dim,#5C6672)]`}>
+                          sent {fmtSent(inv.sent_at)}
+                        </span>
+                      ) : (
+                        <span className={`${MONO} text-[0.72rem] text-[var(--muted-dim,#5C6672)]`}>not sent</span>
+                      )}
+                    </td>
                     <td className="py-3 pl-3 pr-6 text-right">
                       {inv.status !== "ACCEPTED" && (
-                        <button onClick={() => doInvite(inv.email, `Re-sent to ${inv.email}`)} disabled={busy} className={GHOST_SM}>
+                        <button onClick={() => doResend(inv)} disabled={busy} className={GHOST_SM}>
                           Resend
                         </button>
                       )}

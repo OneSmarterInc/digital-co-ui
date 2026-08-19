@@ -245,31 +245,75 @@ export function GradingModal({ score, gameId, onClose, onGraded }) {
                 </button>
               ))}
             </div>
+            {/* The setting drives the coherence audit for the whole run, and
+                nothing on screen said what separated the three. */}
+            <dl className={`mt-2.5 space-y-1 ${MONO} text-[9px] leading-[1.5] text-[var(--muted-dim,#5C6672)]`}>
+              <div>
+                <dt className="inline font-bold uppercase tracking-[0.08em] text-[var(--paper,#ECEFF2)]">Strong · </dt>
+                <dd className="inline">
+                  Names a direction and what it rules out. Later weeks can be measured against it.
+                </dd>
+              </div>
+              <div>
+                <dt className="inline font-bold uppercase tracking-[0.08em] text-[var(--paper,#ECEFF2)]">Adequate · </dt>
+                <dd className="inline">
+                  A real position, but it costs nothing to hold — little is explicitly given up.
+                </dd>
+              </div>
+              <div>
+                <dt className="inline font-bold uppercase tracking-[0.08em] text-[var(--paper,#ECEFF2)]">Weak · </dt>
+                <dd className="inline">
+                  A list of intentions or a hedge that keeps every option open. Nothing to audit against.
+                </dd>
+              </div>
+            </dl>
             <p className={`mt-2 ${MONO} text-[9px] text-[var(--muted-dim,#5C6672)]`}>
               Week 1 needs an anchor, or the coherence audit sinks the run.
             </p>
           </div>
         )}
         <p className={`${MONO} text-[9px] uppercase tracking-[0.08em] leading-[1.5] text-[var(--muted-dim,#5C6672)]`}>
-          Enter an adjustment to the engine&rsquo;s score. Leave at 0 to accept it as proposed.
+          The box is an adjustment, not the score. Leave it at 0 to accept the engine&rsquo;s
+          proposal as it stands.
         </p>
-        <div className="space-y-3">
-          {Object.entries(SCORE_LABELS).map(([dim, label]) => (
-            <div key={dim} className="flex items-center justify-between gap-3">
-              <div>
+        <div className="space-y-2.5">
+          {Object.entries(SCORE_LABELS).map(([dim, label]) => {
+            const engine = Number(auto[dim] ?? 0);
+            const adj = Number(vals[dim]) || 0;
+            const final = engine + adj;
+            return (
+              <div key={dim} className="border-b border-[var(--steel-line,#2C323A)] pb-2.5 last:border-b-0 last:pb-0">
                 <p className="text-[0.9rem] font-semibold">{label}</p>
-                <p className={`${MONO} text-[8.5px] uppercase tracking-[0.08em] text-[var(--muted-dim,#5C6672)]`}>
-                  engine: {auto[dim] ?? "—"}
-                </p>
+                <div className={`mt-1.5 flex items-center gap-2 ${MONO} text-[0.8rem]`}>
+                  <span className="text-[var(--muted-dim,#5C6672)]">engine</span>
+                  <span className="w-6 text-right font-bold text-[var(--paper,#ECEFF2)]">{engine}</span>
+                  <span className="text-[var(--muted-dim,#5C6672)]">+</span>
+                  <input
+                    type="number"
+                    value={vals[dim]}
+                    onChange={(e) => setVals((v) => ({ ...v, [dim]: Number(e.target.value) }))}
+                    aria-label={`${label} adjustment`}
+                    className={`w-16 px-2 py-1.5 text-right text-[0.85rem] ${INPUT}`}
+                  />
+                  <span className="text-[var(--muted-dim,#5C6672)]">=</span>
+                  <span
+                    className={`w-8 text-right text-[0.95rem] font-bold ${
+                      final > 0
+                        ? "text-[var(--ok,#7FB08A)]"
+                        : final < 0
+                          ? "text-[var(--amber,#E8A13C)]"
+                          : "text-[var(--muted,#8A94A0)]"
+                    }`}
+                  >
+                    {final > 0 ? `+${final}` : final}
+                  </span>
+                  <span className={`${MONO} text-[8px] uppercase tracking-[0.1em] text-[var(--muted-dim,#5C6672)]`}>
+                    recorded
+                  </span>
+                </div>
               </div>
-              <input
-                type="number"
-                value={vals[dim]}
-                onChange={(e) => setVals((v) => ({ ...v, [dim]: Number(e.target.value) }))}
-                className={`w-20 px-3 py-2 text-right text-[0.9rem] ${INPUT}`}
-              />
-            </div>
-          ))}
+            );
+          })}
         </div>
         {err && <p className="text-sm text-[var(--signal-red,#D2564B)]">{err}</p>}
       </div>

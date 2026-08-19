@@ -49,7 +49,12 @@ const DISPLAY = "font-['Saira_Condensed',sans-serif]";
 const PANEL =
   "rounded-[3px] border border-[var(--steel-line)] bg-[var(--graphite-raised)] shadow-[0_1px_0_rgba(0,0,0,0.4),0_8px_24px_-12px_rgba(0,0,0,0.6)]";
 
-const DIM_SHORT = { strategic_judgment: "Strat", execution_consequence: "Exec", coherence: "Coher", deliverable_quality: "Deliv" };
+const DIM_SHORT = {
+  strategic_judgment: "Strategic judgment",
+  execution_consequence: "Execution consequence",
+  coherence: "Coherence",
+  deliverable_quality: "Deliverable quality",
+};
 const STAKEHOLDERS = {
   calloway: "Calloway",
   reinhardt: "Reinhardt",

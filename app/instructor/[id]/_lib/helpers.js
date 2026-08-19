@@ -11,13 +11,10 @@ export const SCORE_LABELS = {
   deliverable_quality: "Deliverable quality",
 };
 
-// Compact labels for tight rows (the grading list chips).
-export const SCORE_SHORT = {
-  strategic_judgment: "Judgment",
-  execution_consequence: "Execution",
-  coherence: "Coherence",
-  deliverable_quality: "Deliverable",
-};
+// The grading list chips. These used to abbreviate ("Judgment", "Deliverable"),
+// which gave the same four dimensions different names on different screens —
+// use the rubric's names everywhere.
+export const SCORE_SHORT = SCORE_LABELS;
 
 export const ANCHOR_OPTIONS = ["strong", "adequate", "weak"];
 

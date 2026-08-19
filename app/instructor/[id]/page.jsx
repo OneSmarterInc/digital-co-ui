@@ -123,7 +123,10 @@ export default function SimulationDetailPage() {
     try {
       // Scope the grading queue to this simulation server-side (an instructor
       // may teach several); keep the ungraded guard as a safety net.
-      const q = await api(`/instructor/queue/?ungraded=1&cohort=${gameId}`);
+      // The whole queue, graded and not. Graded weeks used to be dropped here,
+      // which is why written answers became unreachable the moment they were
+      // graded; GradingView splits them into Waiting / Graded.
+      const q = await api(`/instructor/queue/?cohort=${gameId}`);
       if (q.ok) {
         const rows = await q.json();
         setQueue(rows.filter((r) => !r.graded));
@@ -256,7 +259,7 @@ export default function SimulationDetailPage() {
       </header>
 
       <div className="flex">
-        <DetailSidebar section={section} setSection={setSection} queueCount={queue.length} deploymentStatus={detail.deployment_status} />
+        <DetailSidebar section={section} setSection={setSection} queueCount={queue.filter((r) => !r.graded).length} deploymentStatus={detail.deployment_status} />
         <main className="min-w-0 flex-1 px-8 py-8">
           <div className="mx-auto max-w-[920px]">
             {section === "overview" && <OverviewView {...viewProps} />}

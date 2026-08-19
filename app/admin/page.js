@@ -53,6 +53,8 @@ const TIMEZONES = [
 const BROWSER_TZ = typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC";
 const TZ_OPTIONS = TIMEZONES.includes(BROWSER_TZ) ? TIMEZONES : [BROWSER_TZ, ...TIMEZONES];
 const TODAY = new Date().toISOString().slice(0, 10);
+// Mirrors core.models.DEFAULT_ADVISOR_HOURLY_RATE.
+const DEFAULT_ADVISOR_RATE = 300;
 
 function PersonIcon() {
   return (
@@ -387,9 +389,12 @@ export default function AdminConsole() {
   const [newTeamSize, setNewTeamSize] = useState(4);
   const [newCapacity, setNewCapacity] = useState(30);
   const [newPrice, setNewPrice] = useState(0);
-  const [newAdvisorRate, setNewAdvisorRate] = useState(0);
+  // Not 0 — sending 0 would override the backend's default and silently make
+  // advisor consultation free for the whole cohort.
+  const [newAdvisorRate, setNewAdvisorRate] = useState(DEFAULT_ADVISOR_RATE);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [simToDelete, setSimToDelete] = useState(null);
@@ -429,9 +434,57 @@ export default function AdminConsole() {
     if (res.ok) setData(await res.json());
   }
 
+  /* Catch what we can before the round trip, then render whatever the server
+     says per field. `Number(x) || fallback` used to swallow every empty and
+     malformed field — a cleared team count became 0 and the admin got a
+     simulation with no firms and no error. */
+  function validateNew() {
+    const errs = {};
+    const num = (v) => (String(v).trim() === "" ? null : Number(v));
+    const range = (key, label, v, lo, hi) => {
+      const n = num(v);
+      if (n === null) errs[key] = `${label} is required.`;
+      else if (!Number.isInteger(n)) errs[key] = `${label} must be a whole number.`;
+      else if (n < lo || n > hi) errs[key] = `${label} must be between ${lo} and ${hi}.`;
+      return n;
+    };
+
+    if (!newName.trim()) errs.name = "Give the simulation a name.";
+    if (!newTier) errs.tier = "Choose a tier.";
+    if (!newTimezone) errs.timezone = "Choose a time zone.";
+    if (!newStartDate) errs.start_date = "Set a start date — the round calendar is built from it.";
+
+    const teams = range("teams", "Number of firms", newTeams, 1, 20);
+    const size = range("team_size", "Firm size", newTeamSize, 1, 12);
+    const cap = range("enrollment_capacity", "Enrollment capacity", newCapacity, 1, 1000);
+    range("days_per_round", "Round length", newDaysPerRound, 1, 60);
+    range("price_per_student", "Price per student", newPrice, 0, 100000);
+    range("advisor_hourly_rate", "Advisor rate", newAdvisorRate, 0, 100000);
+
+    if (teams && size && cap && teams * size > cap) {
+      errs.enrollment_capacity = `${teams} firms of ${size} needs at least ${teams * size} seats.`;
+    }
+    return errs;
+  }
+
+  // One place to render a field's error and flag its input.
+  const errFor = (key) =>
+    fieldErrors[key] ? (
+      <span className="mt-1 block text-[0.78rem] leading-snug text-[var(--signal-red)]">{fieldErrors[key]}</span>
+    ) : null;
+  const errRing = (key) => (fieldErrors[key] ? " border-[var(--signal-red)]" : "");
+
   async function createSimulation(event) {
     event.preventDefault();
     if (creating) return;
+
+    const errs = validateNew();
+    setFieldErrors(errs);
+    if (Object.keys(errs).length) {
+      setCreateError("Some fields need attention.");
+      return;
+    }
+
     setCreating(true);
     setCreateError("");
     try {
@@ -440,19 +493,20 @@ export default function AdminConsole() {
         body: JSON.stringify({
           name: newName.trim(),
           tier: newTier,
-          teams: Number(newTeams) || 0,
+          teams: Number(newTeams),
           faculty: newFaculty,
           timezone: newTimezone,
-          start_date: newStartDate || null,
-          days_per_round: Number(newDaysPerRound) || 7,
-          team_size: Number(newTeamSize) || 4,
-          enrollment_capacity: Number(newCapacity) || 30,
-          price_per_student: Number(newPrice) || 0,
-          advisor_hourly_rate: Number(newAdvisorRate) || 0,
+          start_date: newStartDate,
+          days_per_round: Number(newDaysPerRound),
+          team_size: Number(newTeamSize),
+          enrollment_capacity: Number(newCapacity),
+          price_per_student: Number(newPrice),
+          advisor_hourly_rate: Number(newAdvisorRate),
         }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
+        setFieldErrors(body.errors || {});
         setCreateError(body.detail || "Couldn't create the simulation.");
         setCreating(false);
         return;
@@ -468,7 +522,8 @@ export default function AdminConsole() {
       setNewTeamSize(4);
       setNewCapacity(30);
       setNewPrice(0);
-      setNewAdvisorRate(0);
+      setNewAdvisorRate(DEFAULT_ADVISOR_RATE);
+      setFieldErrors({});
       await reload();
     } catch {
       setCreateError("Couldn't reach the server.");
@@ -759,8 +814,9 @@ export default function AdminConsole() {
                   onChange={(e) => setNewName(e.target.value)}
                   autoFocus
                   placeholder="e.g. Fall 2026 MIS"
-                  className={`w-full ${inputClass}`}
+                  className={`w-full ${inputClass}${errRing("name")}`}
                 />
+                {errFor("name")}
               </label>
               <div className="grid grid-cols-2 gap-4">
                 <label className="block">
@@ -768,11 +824,12 @@ export default function AdminConsole() {
                   <select
                     value={newTier}
                     onChange={(e) => setNewTier(e.target.value)}
-                    className={`w-full ${selectClass}`}
+                    className={`w-full ${selectClass}${errRing("tier")}`}
                   >
                     <option value="UNDERGRAD">Undergraduate</option>
                     <option value="GRADUATE">Graduate</option>
                   </select>
+                {errFor("tier")}
                 </label>
                 <label className="block">
                   <span className={fieldLabel}>Teams</span>
@@ -782,8 +839,9 @@ export default function AdminConsole() {
                     max="20"
                     value={newTeams}
                     onChange={(e) => setNewTeams(e.target.value)}
-                    className={`w-full ${inputClass}`}
+                    className={`w-full ${inputClass}${errRing("teams")}`}
                   />
+                {errFor("teams")}
                 </label>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -795,8 +853,9 @@ export default function AdminConsole() {
                     max="12"
                     value={newTeamSize}
                     onChange={(e) => setNewTeamSize(e.target.value)}
-                    className={`w-full ${inputClass}`}
+                    className={`w-full ${inputClass}${errRing("team_size")}`}
                   />
+                {errFor("team_size")}
                 </label>
                 <label className="block">
                   <span className={fieldLabel}>Round length (days)</span>
@@ -806,8 +865,9 @@ export default function AdminConsole() {
                     max="60"
                     value={newDaysPerRound}
                     onChange={(e) => setNewDaysPerRound(e.target.value)}
-                    className={`w-full ${inputClass}`}
+                    className={`w-full ${inputClass}${errRing("days_per_round")}`}
                   />
+                {errFor("days_per_round")}
                 </label>
               </div>
               <label className="block">
@@ -852,12 +912,13 @@ export default function AdminConsole() {
                   <select
                     value={newTimezone}
                     onChange={(e) => setNewTimezone(e.target.value)}
-                    className={`w-full ${selectClass}`}
+                    className={`w-full ${selectClass}${errRing("timezone")}`}
                   >
                     {TZ_OPTIONS.map((tz) => (
                       <option key={tz} value={tz}>{tz}</option>
                     ))}
                   </select>
+                {errFor("timezone")}
                 </label>
                 <label className="block">
                   <span className={fieldLabel}>Start date</span>
@@ -865,8 +926,9 @@ export default function AdminConsole() {
                     type="date"
                     value={newStartDate}
                     onChange={(e) => setNewStartDate(e.target.value)}
-                    className={`w-full ${inputClass}`}
+                    className={`w-full ${inputClass}${errRing("start_date")}`}
                   />
+                {errFor("start_date")}
                 </label>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -878,8 +940,9 @@ export default function AdminConsole() {
                     max="1000"
                     value={newCapacity}
                     onChange={(e) => setNewCapacity(e.target.value)}
-                    className={`w-full ${inputClass}`}
+                    className={`w-full ${inputClass}${errRing("enrollment_capacity")}`}
                   />
+                {errFor("enrollment_capacity")}
                 </label>
                 <label className="block">
                   <span className={fieldLabel}>Price / student</span>
@@ -889,8 +952,9 @@ export default function AdminConsole() {
                     max="100000"
                     value={newPrice}
                     onChange={(e) => setNewPrice(e.target.value)}
-                    className={`w-full ${inputClass}`}
+                    className={`w-full ${inputClass}${errRing("price_per_student")}`}
                   />
+                {errFor("price_per_student")}
                 </label>
               </div>
               <label className="block">
@@ -901,8 +965,9 @@ export default function AdminConsole() {
                   max="100000"
                   value={newAdvisorRate}
                   onChange={(e) => setNewAdvisorRate(e.target.value)}
-                  className={`w-full ${inputClass}`}
+                  className={`w-full ${inputClass}${errRing("advisor_hourly_rate")}`}
                 />
+                {errFor("advisor_hourly_rate")}
                 <span className={`mt-1.5 block ${MONO} text-[9px] uppercase tracking-[0.08em] text-[var(--muted-dim)]`}>
                   Charged per started hour of advisor chat. 0 = advisors included.
                 </span>

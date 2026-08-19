@@ -181,6 +181,10 @@ const IconHelp = (p) => <Svg {...p}><circle cx="12" cy="12" r="10" /><path d="M1
  * Page shell
  * ================================================================== */
 
+// Sections that render the console shell (rail + stage) rather than plain
+// prose. These need the width; the rest read better at a fixed measure.
+const WIDE_SECTIONS = new Set(["week", "advisors", "exhibits", "debrief"]);
+
 // Order matters: Advisors is used every week, Performance only occasionally,
 // so Performance sits below it rather than above.
 const SECTIONS = [
@@ -456,12 +460,20 @@ export default function StudentCohortPage() {
         </aside>
 
         <main className="min-w-0 flex-1 px-8 py-8">
-          <div className="mx-auto max-w-[860px]">
+          {/* Prose views read best at a fixed measure; the console views carry
+              their own rail plus a two-column layout inside, so 860px squeezed
+              them into the middle of a much wider screen — the war-room bench
+              and conversation ended up sharing ~270px. They get the room. */}
+          <div className={`mx-auto ${WIDE_SECTIONS.has(displaySection) ? "max-w-[1440px]" : "max-w-[860px]"}`}>
             {displaySection === "dashboard" && <DashboardView {...sectionProps} />}
             {displaySection === "week" && <WeekConsole {...sectionProps} />}
             {displaySection === "performance" && <PerformanceView {...sectionProps} />}
             {displaySection === "advisors" && <AdvisorsConsole {...sectionProps} />}
-            {displaySection === "exhibits" && <ExhibitsPage />}
+            {/* Students get exhibits up to their current week only, and never
+                the design notes — those name every trap in the course. */}
+            {displaySection === "exhibits" && (
+              <ExhibitsPage currentWeek={current} showDesignNotes={false} />
+            )}
             {displaySection === "schedule" && <ScheduleView {...sectionProps} />}
             {displaySection === "debrief" && <DebriefConsole {...sectionProps} />}
           </div>
@@ -591,12 +603,43 @@ function DashboardView({ sim, game, rounds, current, status, playable, gated, se
  * Performance — the firm's graded rounds so far
  * ================================================================== */
 
+// Full names, matching the grade modal and the rubrics handed out in class.
+// "Strategy" and "Strategic judgment" are not quite the same idea, and students
+// comparing the screen to their rubric should see one set of names.
 const DIM_LABELS = {
-  strategic_judgment: "Strategy",
-  execution_consequence: "Execution",
+  strategic_judgment: "Strategic judgment",
+  execution_consequence: "Execution consequence",
   coherence: "Coherence",
-  deliverable_quality: "Deliverable",
+  deliverable_quality: "Deliverable quality",
 };
+
+/* A score that can be negative, drawn from a centre line.
+ *
+ * The previous bar set width to (value / max) * 100%, which for a negative
+ * value is an invalid CSS width — so it fell back to auto and the div filled
+ * its track. A student's worst round was drawn as their longest bar. Negative
+ * scores are normal in this model, so they get their own side and their own
+ * colour rather than being a rendering accident. */
+function ScoreBar({ value, scale }) {
+  const v = Number(value) || 0;
+  const pct = Math.min(50, (Math.abs(v) / Math.max(1, scale)) * 50);
+  const positive = v >= 0;
+  return (
+    <div className="relative h-2 flex-1 overflow-hidden rounded-[1px] border border-[var(--steel-line)] bg-[var(--graphite)]">
+      <span className="absolute left-1/2 top-0 h-full w-px bg-[var(--steel-soft)]" aria-hidden="true" />
+      {v !== 0 && (
+        <span
+          className="absolute top-0 h-full"
+          style={{
+            left: positive ? "50%" : `${50 - pct}%`,
+            width: `${pct}%`,
+            background: positive ? "var(--blueprint-deep)" : "var(--amber)",
+          }}
+        />
+      )}
+    </div>
+  );
+}
 
 function PerformanceView({ game, cohortId }) {
   const [data, setData] = useState(null);
@@ -645,7 +688,8 @@ function PerformanceView({ game, cohortId }) {
   const weeks = data.weeks ?? [];
   // Bars scale against the run's own peak so early rounds still read; 10 is
   // the nominal per-dimension ceiling.
-  const dimMax = Math.max(10, ...weeks.flatMap((w) => Object.values(w.scores)));
+  // Magnitude, so a run of negatives scales the same as a run of positives.
+  const dimMax = Math.max(5, ...weeks.flatMap((w) => Object.values(w.scores).map((v) => Math.abs(Number(v) || 0))));
 
   return (
     <div className="space-y-7">
@@ -665,7 +709,7 @@ function PerformanceView({ game, cohortId }) {
           <div className="grid grid-cols-3 gap-4">
             <MiniInfo label="Graded rounds" value={data.graded_count} sub={`of ${weeks.length ? weeks[weeks.length - 1].week_number : 0} played`} />
             <MiniInfo label="Average" value={data.average} sub="per round" />
-            <MiniInfo label="Best round" value={data.best} sub="total score" />
+            <MiniInfo label="Highest round" value={data.best} sub="total score" />
           </div>
 
           <div className="space-y-3">
@@ -684,7 +728,7 @@ function PerformanceView({ game, cohortId }) {
                     {w.total}
                     {w.total === data.best && weeks.length > 1 && (
                       <span className={`ml-2 align-middle ${MONO} text-[8.5px] font-semibold uppercase tracking-[0.1em] text-[var(--amber)]`}>
-                        best
+                        highest
                       </span>
                     )}
                   </p>
@@ -692,13 +736,17 @@ function PerformanceView({ game, cohortId }) {
                 <div className="mt-4 grid gap-x-6 gap-y-2.5 sm:grid-cols-2">
                   {Object.entries(w.scores).map(([dim, value]) => (
                     <div key={dim} className="flex items-center gap-3">
-                      <span className={`w-[86px] flex-none ${MONO} text-[8.5px] uppercase tracking-[0.1em] text-[var(--muted-dim)]`}>
+                      <span className={`w-[132px] flex-none ${MONO} text-[8.5px] uppercase tracking-[0.1em] text-[var(--muted-dim)]`}>
                         {DIM_LABELS[dim] || dim}
                       </span>
-                      <div className="h-2 flex-1 overflow-hidden rounded-[1px] border border-[var(--steel-line)] bg-[var(--graphite)]">
-                        <div className="h-full bg-[var(--blueprint-deep)]" style={{ width: `${Math.min(100, (value / dimMax) * 100)}%` }} />
-                      </div>
-                      <span className={`w-6 flex-none text-right ${MONO} text-[0.72rem] font-bold text-[var(--paper)]`}>{value}</span>
+                      <ScoreBar value={value} scale={dimMax} />
+                      <span
+                        className={`w-7 flex-none text-right ${MONO} text-[0.72rem] font-bold ${
+                          value > 0 ? "text-[var(--paper)]" : value < 0 ? "text-[var(--amber)]" : "text-[var(--muted-dim)]"
+                        }`}
+                      >
+                        {value > 0 ? `+${value}` : value}
+                      </span>
                     </div>
                   ))}
                 </div>

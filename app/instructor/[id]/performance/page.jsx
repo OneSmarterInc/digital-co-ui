@@ -46,22 +46,43 @@ const PANEL =
   "rounded-[3px] border border-[var(--steel-line)] bg-[var(--graphite-raised)] shadow-[0_1px_0_rgba(0,0,0,0.4),0_8px_24px_-12px_rgba(0,0,0,0.6)]";
 
 const DIMS = ["strategic_judgment", "execution_consequence", "coherence", "deliverable_quality"];
-const DIM_SHORT = { strategic_judgment: "Strat", execution_consequence: "Exec", coherence: "Coher", deliverable_quality: "Deliv" };
+// Full names everywhere — students and faculty compare these against the
+// rubrics handed out in class.
+const DIM_SHORT = {
+  strategic_judgment: "Strategic judgment",
+  execution_consequence: "Execution consequence",
+  coherence: "Coherence",
+  deliverable_quality: "Deliverable quality",
+};
 
 function ProgressionChart({ firms, maxWeek }) {
   const W = 720;
   const H = 240;
   const PAD = { l: 34, r: 12, t: 12, b: 26 };
-  const maxTotal = Math.max(10, ...firms.flatMap((f) => f.weeks.filter((w) => w.total != null).map((w) => w.total)));
+  // The axis must span the range the data actually contains. It used to bottom
+  // out at 0, so a firm's negative round sat outside the plot and their line
+  // entered the frame from off-chart with no point — the first round of a run
+  // that opened negative was simply invisible.
+  const totals = firms.flatMap((f) => f.weeks.filter((w) => w.total != null).map((w) => w.total));
+  const maxTotal = Math.max(10, ...totals);
+  const minTotal = Math.min(0, ...totals);
+  const span = Math.max(1, maxTotal - minTotal);
   const x = (week) => PAD.l + ((week - 1) / Math.max(1, maxWeek - 1)) * (W - PAD.l - PAD.r);
-  const y = (total) => H - PAD.b - (total / maxTotal) * (H - PAD.t - PAD.b);
-  const gridY = [0, 0.25, 0.5, 0.75, 1].map((p) => Math.round(maxTotal * p));
+  const y = (total) => H - PAD.b - ((total - minTotal) / span) * (H - PAD.t - PAD.b);
+  const gridY = [0, 0.25, 0.5, 0.75, 1].map((p) => Math.round(minTotal + span * p));
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Score progression per firm">
       {gridY.map((v) => (
         <g key={v}>
-          <line x1={PAD.l} x2={W - PAD.r} y1={y(v)} y2={y(v)} stroke="var(--steel-line, #2C323A)" strokeWidth="1" />
+          <line
+            x1={PAD.l}
+            x2={W - PAD.r}
+            y1={y(v)}
+            y2={y(v)}
+            stroke={v === 0 ? "var(--steel-soft, #363E48)" : "var(--steel-line, #2C323A)"}
+            strokeWidth={v === 0 ? "1.5" : "1"}
+          />
           <text x={PAD.l - 6} y={y(v) + 3} textAnchor="end" fontSize="9" fill="var(--muted-dim, #5C6672)" fontFamily="IBM Plex Mono, monospace">
             {v}
           </text>
@@ -194,9 +215,22 @@ export default function PerformancePage() {
             <span className={`${DISPLAY} text-[16px] font-semibold text-[var(--muted)]`}>Performance</span>
           </div>
         </div>
-        <span className={`hidden ${MONO} text-[10.5px] uppercase tracking-[0.16em] text-[var(--muted)] sm:inline`}>
-          {me.first_name || me.username}
-        </span>
+        {/* These pages imported logout but never rendered a control, so an
+            instructor on Insights had no way to sign out. */}
+        <div className="flex items-center gap-3">
+          <span className={`hidden ${MONO} text-[10.5px] uppercase tracking-[0.16em] text-[var(--muted)] sm:inline`}>
+            {me.first_name || me.username}
+          </span>
+          <button
+            onClick={() => {
+              logout();
+              router.replace("/login");
+            }}
+            className={`rounded-[2px] border border-[var(--steel-line)] px-4 py-2 ${MONO} text-[10.5px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)] transition hover:border-[var(--steel-soft)] hover:bg-[var(--graphite-high)] hover:text-[var(--paper)]`}
+          >
+            Sign out
+          </button>
+        </div>
       </header>
 
       <div className="flex">

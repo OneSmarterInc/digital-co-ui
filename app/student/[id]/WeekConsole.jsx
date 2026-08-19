@@ -17,6 +17,19 @@ import ArtifactsWeek1 from "./ArtifactsWeek1";
 
 const pad2 = (n) => String(n ?? 0).padStart(2, "0");
 
+/* Weeks with a full case exhibit behind the prose reference files. The briefing
+ * used to summarise these in two sentences with the real document a nav item
+ * away and nothing pointing at it — students (and the person who designed the
+ * sim) never found it. */
+const WEEK_EXHIBITS = {
+  1: "Industry & Competitive Note · Financial Exhibits",
+  3: "The Integrator's Accelerator Memo",
+  4: "The Sweet Deal TCO Workbook",
+  6: "Platform Sizing One-Pager",
+  8: "Data Monetization Pro Formas",
+  12: "The Bill at Fleet Scale",
+};
+
 function FileCard({ ix, artifact }) {
   const [open, setOpen] = useState(false);
   return (
@@ -36,8 +49,14 @@ function FileCard({ ix, artifact }) {
 
 function DecisionField({ ix, field, value, onChange }) {
   if (field.field_type === "boolean") {
+    // Toggles used to render unnumbered, so the form read 02 -> 06 and a student
+    // could not tell whether they had skipped something. Every field counts.
     return (
       <div className="field">
+        <div className="field__label">
+          <span className="field__ix">{pad2(ix)}</span>
+          <span className="field__name">{field.label}</span>
+        </div>
         <label className="toggle">
           <input
             type="checkbox"
@@ -45,7 +64,7 @@ function DecisionField({ ix, field, value, onChange }) {
             onChange={(e) => onChange(field.key, e.target.checked)}
           />
           <span className="toggle__sw" />
-          <span className="toggle__text">{field.label}</span>
+          <span className="toggle__text">{field.toggle_hint || "Yes"}</span>
         </label>
       </div>
     );
@@ -231,6 +250,25 @@ export default function WeekConsole({ game, cohortId, playable, reload, notify, 
                     {artifacts.map((a, i) => (
                       <FileCard key={i} ix={i + 1} artifact={a} />
                     ))}
+                  </div>
+                )}
+
+                {/* The prose files above summarise; this is the actual document,
+                    with the numbers the week turns on. */}
+                {WEEK_EXHIBITS[weekNo] && (
+                  <div style={{ padding: "0 34px 30px" }}>
+                    <button
+                      type="button"
+                      className="exhibit-link"
+                      onClick={() => setSection?.("exhibits")}
+                    >
+                      <span className="exhibit-link__lab">The full case exhibit</span>
+                      <span className="exhibit-link__name">{WEEK_EXHIBITS[weekNo]}</span>
+                      <span className="exhibit-link__note">
+                        The reference files above are summaries. This is the document itself —
+                        costed tables, terms, and the rows it does not show you. Open it →
+                      </span>
+                    </button>
                   </div>
                 )}
               </article>
