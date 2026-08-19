@@ -326,7 +326,7 @@ export default function InviteesView({ gameId, detail, reload, notify }) {
           <div>
             <h2 className={`${DISPLAY} text-[19px] font-semibold leading-tight`}>All invitations</h2>
             <p className="mt-1 text-sm text-[var(--muted,#8A94A0)]">
-              {invites.length} invited · resending issues a fresh link and retires the old one.
+              {invites.length} invited · resending is safe — it sends the same link again.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
