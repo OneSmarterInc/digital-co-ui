@@ -101,7 +101,10 @@ export default function InvitePage() {
         try {
           if (!body.had_account) {
             await login(invite.email, password);
-            router.replace(`/student/${body.cohort_id}`);
+            // The cohorts list, not the simulation itself. A new enrollment is
+            // unpaid, and the list is where that is stated and gated — dropping
+            // a student straight into the sim walks them past it.
+            router.replace("/student");
             return;
           }
         } catch {
