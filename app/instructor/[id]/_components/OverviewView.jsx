@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { statusOf, closesIn, fmtMoney, groupsOf } from "../_lib/helpers";
 import { runAction } from "../_lib/actions";
+import { api } from "../_lib/api";
 import { StatCard, StatusPill, DeploymentBanner, AttentionCard, SectionCard, SegmentedRounds, FillBar } from "./ui";
 import { IconPlay, IconKey, IconUsers, IconGrid, IconCard, IconAlert, IconClipboard, IconTrendUp, IconClock, IconCheck } from "./icons";
 import { ConfirmModal } from "./modals";
@@ -23,6 +24,70 @@ const PANEL =
   "rounded-[3px] border border-[var(--steel-line,#2C323A)] bg-[var(--graphite-raised,#1E2228)] shadow-[0_1px_0_rgba(0,0,0,0.4),0_8px_24px_-12px_rgba(0,0,0,0.6)]";
 
 export default function OverviewView({ detail, queue, gameId, rounds, reload, notify, setSection }) {
+  // Co-faculty: staffing a cohort used to require an admin, at provisioning.
+  const teachers = detail.instructors ?? [];
+  const [addingFac, setAddingFac] = useState(false);
+  const [facEmail, setFacEmail] = useState("");
+  const [facFirst, setFacFirst] = useState("");
+  const [facLast, setFacLast] = useState("");
+  const [facBusy, setFacBusy] = useState(false);
+  const [facErrors, setFacErrors] = useState({});
+  const [facLink, setFacLink] = useState(null); // only when the invite email failed
+
+  const teacherName = (i) =>
+    [i.first_name, i.last_name].filter(Boolean).join(" ").trim() || i.username;
+
+  async function addCoFaculty() {
+    if (facBusy) return;
+    setFacBusy(true);
+    setFacErrors({});
+    setFacLink(null);
+    try {
+      const r = await api(`/instructor/simulations/${gameId}/instructors/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: facEmail.trim().toLowerCase(),
+          first_name: facFirst.trim(),
+          last_name: facLast.trim(),
+        }),
+      });
+      const body = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        setFacErrors(body.errors || { email: body.detail || "Couldn't add them." });
+        setFacBusy(false);
+        return;
+      }
+      await reload();
+      setAddingFac(false);
+      setFacEmail("");
+      setFacFirst("");
+      setFacLast("");
+      if (body.created && !body.invite_sent && body.set_password_url) setFacLink(body);
+      notify(
+        body.created
+          ? `${body.name} added — emailed a link to set their password ✓`
+          : `${body.name} added ✓`
+      );
+    } catch {
+      setFacErrors({ email: "Couldn't reach the server." });
+    } finally {
+      setFacBusy(false);
+    }
+  }
+
+  async function removeCoFaculty(i) {
+    setFacBusy(true);
+    await runAction({
+      path: `/instructor/simulations/${gameId}/instructors/${i.id}/`,
+      opts: { method: "DELETE" },
+      label: `${teacherName(i)} removed from this simulation`,
+      reload,
+      notify,
+    });
+    setFacBusy(false);
+  }
+
   const status = statusOf(detail);
   const students = detail.students ?? [];
   const enrolled = students.length;
@@ -217,6 +282,131 @@ export default function OverviewView({ detail, queue, gameId, rounds, reload, no
                     />
                   )}
                 </>
+              )}
+            </div>
+          </SectionCard>
+
+          <SectionCard
+            title="Teaching team"
+            subtitle="Everyone with instructor access to this simulation."
+            action={
+              !addingFac && (
+                <button
+                  onClick={() => {
+                    setFacErrors({});
+                    setAddingFac(true);
+                  }}
+                  className={`rounded-[2px] border border-[var(--steel-line,#2C323A)] px-2.5 py-1 ${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--muted,#8A94A0)] transition hover:border-[var(--steel-soft,#363E48)] hover:text-[var(--paper,#ECEFF2)]`}
+                >
+                  + Co-faculty
+                </button>
+              )
+            }
+          >
+            <div className="border-t border-[var(--steel-line,#2C323A)]">
+              {teachers.map((i) => (
+                <div
+                  key={i.id}
+                  className="flex items-center justify-between gap-3 border-b border-[var(--steel-line,#2C323A)] px-6 py-3 last:border-b-0"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-[var(--paper,#ECEFF2)]">{teacherName(i)}</p>
+                    <p className={`truncate ${MONO} text-[10px] text-[var(--muted-dim,#5C6672)]`}>{i.username}</p>
+                  </div>
+                  <button
+                    onClick={() => removeCoFaculty(i)}
+                    disabled={facBusy || teachers.length <= 1}
+                    title={
+                      teachers.length <= 1
+                        ? "The only instructor — add someone else first"
+                        : `Remove ${teacherName(i)} from this simulation`
+                    }
+                    className={`flex-none rounded-[2px] border px-2.5 py-1 ${MONO} text-[9px] uppercase tracking-[0.1em] transition ${
+                      teachers.length <= 1
+                        ? "cursor-not-allowed border-[var(--steel-line,#2C323A)] text-[var(--muted-dim,#5C6672)]"
+                        : "border-[#7a3b35] text-[var(--signal-red,#D2564B)] hover:bg-[rgba(210,86,75,0.1)]"
+                    }`}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+
+              {addingFac && (
+                <div className="border-b border-[var(--steel-line,#2C323A)] px-6 py-4 last:border-b-0">
+                  <input
+                    type="email"
+                    value={facEmail}
+                    onChange={(e) => setFacEmail(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") addCoFaculty();
+                      if (e.key === "Escape") setAddingFac(false);
+                    }}
+                    placeholder="Their email"
+                    autoFocus
+                    className="w-full rounded-[2px] border border-[var(--steel-line,#2C323A)] bg-[var(--graphite,#16191D)] px-2.5 py-2 text-[0.85rem] text-[var(--paper,#ECEFF2)] outline-none focus:border-[var(--blueprint,#5BA3C4)]"
+                  />
+                  {facErrors.email && (
+                    <p className="mt-1 text-[0.78rem] text-[var(--signal-red,#D2564B)]">{facErrors.email}</p>
+                  )}
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    <input
+                      value={facFirst}
+                      onChange={(e) => setFacFirst(e.target.value)}
+                      placeholder="First name"
+                      className="rounded-[2px] border border-[var(--steel-line,#2C323A)] bg-[var(--graphite,#16191D)] px-2.5 py-2 text-[0.85rem] text-[var(--paper,#ECEFF2)] outline-none focus:border-[var(--blueprint,#5BA3C4)]"
+                    />
+                    <input
+                      value={facLast}
+                      onChange={(e) => setFacLast(e.target.value)}
+                      placeholder="Last name"
+                      className="rounded-[2px] border border-[var(--steel-line,#2C323A)] bg-[var(--graphite,#16191D)] px-2.5 py-2 text-[0.85rem] text-[var(--paper,#ECEFF2)] outline-none focus:border-[var(--blueprint,#5BA3C4)]"
+                    />
+                  </div>
+                  {facErrors.first_name && (
+                    <p className="mt-1 text-[0.78rem] text-[var(--signal-red,#D2564B)]">{facErrors.first_name}</p>
+                  )}
+                  <p className={`mt-2 ${MONO} text-[8.5px] uppercase tracking-[0.08em] leading-[1.5] text-[var(--muted-dim,#5C6672)]`}>
+                    Already has an account? The email alone is enough. Otherwise they get one
+                    and a link to choose their own password.
+                  </p>
+                  <div className="mt-2.5 flex items-center gap-2">
+                    <button
+                      onClick={addCoFaculty}
+                      disabled={facBusy}
+                      className={`rounded-[2px] bg-[var(--amber,#E8A13C)] px-3 py-1.5 ${MONO} text-[9.5px] font-bold uppercase tracking-[0.1em] text-[var(--graphite,#16191D)] transition hover:bg-[#F0B052] disabled:opacity-50`}
+                    >
+                      {facBusy ? "Adding…" : "Add"}
+                    </button>
+                    <button
+                      onClick={() => setAddingFac(false)}
+                      className={`${MONO} text-[9.5px] uppercase tracking-[0.1em] text-[var(--muted-dim,#5C6672)] hover:text-[var(--paper,#ECEFF2)]`}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Only when the invite email failed — otherwise nobody sees a link. */}
+              {facLink && (
+                <div className="border-b border-[var(--amber-deep,#C4791F)] bg-[rgba(232,161,60,0.07)] px-6 py-3 last:border-b-0">
+                  <p className={`${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--amber,#E8A13C)]`}>
+                    Added, but the email didn&rsquo;t send
+                  </p>
+                  <p className="mt-1 text-[0.82rem] text-[var(--muted,#8A94A0)]">
+                    Send this to {facLink.username} so they can set a password:
+                  </p>
+                  <p className={`mt-1 select-all break-all ${MONO} text-[0.72rem] text-[var(--paper,#ECEFF2)]`}>
+                    {facLink.set_password_url}
+                  </p>
+                  <button
+                    onClick={() => setFacLink(null)}
+                    className={`mt-1.5 ${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--muted-dim,#5C6672)] hover:text-[var(--paper,#ECEFF2)]`}
+                  >
+                    Dismiss
+                  </button>
+                </div>
               )}
             </div>
           </SectionCard>
