@@ -168,8 +168,13 @@ function AdminsView({ admins }) {
         admins.map((a) => (
           <div key={a.id} className={`${cols} ${ROW}`}>
             <div className="flex items-center gap-3">
-              <PersonBadge name={a.username} />
-              <p className="text-[0.98rem] font-semibold">{a.username}</p>
+              <PersonBadge name={a.name || a.username} />
+              <div className="min-w-0">
+                <p className="truncate text-[0.98rem] font-semibold">{a.name || a.username}</p>
+                {a.name && a.name !== a.username && (
+                  <p className={`truncate ${MONO} text-[10px] text-[var(--muted-dim)]`}>{a.username}</p>
+                )}
+              </div>
             </div>
             <span className="text-[0.92rem] text-[var(--muted)]">{a.email || "\u2014"}</span>
             <span
@@ -204,8 +209,13 @@ function FacultyView({ faculty }) {
         faculty.map((f) => (
           <div key={f.id} className={`${cols} ${ROW}`}>
             <div className="flex items-center gap-3">
-              <PersonBadge name={f.username} />
-              <p className="text-[0.98rem] font-semibold">{f.username}</p>
+              <PersonBadge name={f.name || f.username} />
+              <div className="min-w-0">
+                <p className="truncate text-[0.98rem] font-semibold">{f.name || f.username}</p>
+                {f.name && f.name !== f.username && (
+                  <p className={`truncate ${MONO} text-[10px] text-[var(--muted-dim)]`}>{f.username}</p>
+                )}
+              </div>
             </div>
             <span className="text-[0.92rem] text-[var(--muted)]">{f.email || "\u2014"}</span>
             <div className="flex flex-wrap gap-1.5">
@@ -246,8 +256,13 @@ function StudentsView({ students }) {
         students.map((s) => (
           <div key={s.id} className={`${cols} ${ROW}`}>
             <div className="flex items-center gap-3">
-              <PersonBadge name={s.username} />
-              <p className="text-[0.98rem] font-semibold">{s.username}</p>
+              <PersonBadge name={s.name || s.username} />
+              <div className="min-w-0">
+                <p className="truncate text-[0.98rem] font-semibold">{s.name || s.username}</p>
+                {s.name && s.name !== s.username && (
+                  <p className={`truncate ${MONO} text-[10px] text-[var(--muted-dim)]`}>{s.username}</p>
+                )}
+              </div>
             </div>
             <span className="text-[0.92rem] text-[var(--muted)]">{s.email || "\u2014"}</span>
             <span className="text-[0.92rem] text-[var(--paper)]">{s.team || "\u2014"}</span>
@@ -1069,12 +1084,21 @@ export default function AdminConsole() {
                             onChange={() => toggleFaculty(i.id)}
                             className="h-3.5 w-3.5 accent-[#E8A13C]"
                           />
-                          <span
-                            className={`text-[0.9rem] ${
-                              checked ? "font-semibold text-[var(--paper)]" : "text-[var(--muted)]"
-                            }`}
-                          >
-                            {i.username}
+                          <span className="min-w-0">
+                            <span
+                              className={`block truncate text-[0.9rem] ${
+                                checked ? "font-semibold text-[var(--paper)]" : "text-[var(--muted)]"
+                              }`}
+                            >
+                              {i.name || i.username}
+                            </span>
+                            {/* username IS the email, so only repeat it when
+                                the row is showing a real name above. */}
+                            {i.name && i.name !== i.username && (
+                              <span className={`block truncate ${MONO} text-[9.5px] text-[var(--muted-dim)]`}>
+                                {i.username}
+                              </span>
+                            )}
                           </span>
                         </label>
                       );
