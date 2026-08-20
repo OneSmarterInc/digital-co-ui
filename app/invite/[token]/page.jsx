@@ -44,7 +44,7 @@ export default function InvitePage() {
   const token = Array.isArray(params?.token) ? params.token[0] : params?.token;
 
   const [invite, setInvite] = useState(null);
-  const [phase, setPhase] = useState("loading"); // loading | ready | gone | done
+  const [phase, setPhase] = useState("loading"); // loading | ready | spent | unreachable | gone | done
   const [first, setFirst] = useState("");
   const [last, setLast] = useState("");
   const [password, setPassword] = useState("");
@@ -59,14 +59,25 @@ export default function InvitePage() {
       try {
         const r = await fetch(`${API_BASE}/invites/${encodeURIComponent(token)}/`);
         if (!r.ok) {
+          const j = await r.json().catch(() => ({}));
+          // A link that was already redeemed is not a dead end — that student
+          // has an account. Send them to sign in rather than to their
+          // instructor for an invitation they no longer need.
+          if (j.reason === "already_accepted") {
+            setInvite({ email: j.email });
+            setPhase("spent");
+            return;
+          }
           setPhase("gone");
           return;
         }
         setInvite(await r.json());
         setPhase("ready");
       } catch {
-        setError("Couldn't reach the server. Try again in a moment.");
-        setPhase("gone");
+        // Never say "expired" for a network failure: the link is probably fine
+        // and telling a student it is dead sends them to chase a replacement
+        // that will behave identically.
+        setPhase("unreachable");
       }
     })();
   }, [token]);
@@ -133,6 +144,45 @@ export default function InvitePage() {
       <p className={`text-center ${MONO} text-[11px] uppercase tracking-[0.16em] text-[var(--muted)]`}>
         Checking your invitation…
       </p>
+    );
+  }
+
+  const signIn = (label) => (
+    <a
+      href="/login"
+      className={`mt-5 inline-block rounded-[2px] border border-[var(--steel-line)] px-4 py-2 ${MONO} text-[10px] uppercase tracking-[0.14em] text-[var(--muted)] transition hover:border-[var(--steel-soft)] hover:text-[var(--paper)]`}
+    >
+      {label}
+    </a>
+  );
+
+  if (phase === "unreachable") {
+    return shell(
+      <div className="rounded-[3px] border border-[var(--steel-line)] bg-[var(--graphite-raised)] p-7 text-center">
+        <h1 className={`${DISPLAY} text-[26px] font-bold leading-none`}>Couldn&rsquo;t reach the server</h1>
+        <p className="mt-3 text-[0.92rem] leading-[1.6] text-[var(--muted)]">
+          Your link is fine — we just couldn&rsquo;t load it. Check your connection and try again.
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className={`mt-5 inline-block rounded-[2px] border border-[var(--amber-deep)] bg-[var(--amber)] px-4 py-2 ${MONO} text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--graphite)]`}
+        >
+          Try again
+        </button>
+      </div>
+    );
+  }
+
+  if (phase === "spent") {
+    return shell(
+      <div className="rounded-[3px] border border-[var(--steel-line)] bg-[var(--graphite-raised)] p-7 text-center">
+        <h1 className={`${DISPLAY} text-[26px] font-bold leading-none`}>You&rsquo;re already set up</h1>
+        <p className="mt-3 text-[0.92rem] leading-[1.6] text-[var(--muted)]">
+          This invitation has been used{invite?.email ? <> — your account is <b className="text-[var(--paper)]">{invite.email}</b></> : null}. Sign
+          in with the password you chose. If you don&rsquo;t remember it, ask your instructor to reset it.
+        </p>
+        {signIn("Go to sign in")}
+      </div>
     );
   }
 
