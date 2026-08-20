@@ -149,7 +149,16 @@ export default function GradingView({ gameId, queue, reload, notify }) {
         </div>
       )}
 
-      {reading && <SubmissionView row={reading} onClose={() => setReading(null)} />}
+      {reading && (
+        <SubmissionView
+          row={reading}
+          onClose={() => setReading(null)}
+          onRevise={(row) => {
+            setReading(null);
+            setGradeScore(row);
+          }}
+        />
+      )}
 
       {gradeScore && (
         <GradingModal
@@ -157,9 +166,10 @@ export default function GradingView({ gameId, queue, reload, notify }) {
           gameId={gameId}
           onClose={() => setGradeScore(null)}
           onGraded={async () => {
+            const revised = gradeScore.graded;
             setGradeScore(null);
             await reload();
-            notify("Grade saved ✓");
+            notify(revised ? "Grade updated ✓" : "Grade saved ✓");
           }}
         />
       )}

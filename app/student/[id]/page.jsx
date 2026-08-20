@@ -735,7 +735,7 @@ function PerformanceView({ game, cohortId }) {
       <SectionHeader
         eyebrow="Track record"
         title="Performance"
-        subtitle="Your firm's graded rounds — final instructor scores across the four dimensions. Everyone in your firm sees the same record."
+        subtitle="Your firm's graded rounds — final instructor scores across the four dimensions, and the written feedback where your instructor left it. Everyone in your firm sees the same record."
       />
 
       {weeks.length === 0 ? (
@@ -789,6 +789,18 @@ function PerformanceView({ game, cohortId }) {
                     </div>
                   ))}
                 </div>
+                {/* The numbers say what happened; this says why. Only shown when
+                    the instructor actually published something. */}
+                {w.feedback && (
+                  <div className="mt-4 border-t border-[var(--steel-line)] pt-4">
+                    <p className={`${MONO} text-[8.5px] uppercase tracking-[0.14em] text-[var(--muted-dim)]`}>
+                      From your instructor
+                    </p>
+                    <p className="mt-2 whitespace-pre-wrap text-[0.92rem] leading-[1.75] text-[var(--paper)]">
+                      {w.feedback}
+                    </p>
+                  </div>
+                )}
               </div>
             ))}
           </div>

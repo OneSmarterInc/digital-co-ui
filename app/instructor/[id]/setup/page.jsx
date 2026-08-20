@@ -214,6 +214,28 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
   const accepted = invites.filter((i) => i.status === "ACCEPTED").length;
   const expired = invites.filter((i) => i.status === "EXPIRED").length;
   const invitedCount = invites.length;
+  // Being on the list is not the same as having received it. Surfacing this
+  // here is how an instructor finds out mail is misconfigured at all — the
+  // previous screen only ever said "invited".
+  const delivered = invites.filter((i) => i.sent_at).length;
+  const undelivered = invites.filter((i) => !i.sent_at);
+  // The console backend "succeeds" by printing, so invitations stamp as sent
+  // while nothing leaves the server. Without this the counter reads green and
+  // lies. Server-level fact, stated once.
+  const mailLive = detail.mail?.configured !== false;
+
+  const doResend = (inv) =>
+    act(
+      `/instructor/simulations/${gameId}/invitations/${inv.id}/resend/`,
+      jsonPost({}),
+      `Re-sent to ${inv.email}`
+    );
+
+  const fmtSent = (iso) => {
+    if (!iso) return null;
+    const d = new Date(iso);
+    return Number.isNaN(d.getTime()) ? null : d.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+  };
 
   // Deployment: draft (admin hasn't released to faculty) -> faculty (ready) -> students (live)
   const deployStatus = detail.deployment_status || "draft";
@@ -225,7 +247,12 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
   const step3Done = deployed;
   const completeCount = [step1Done, step2Done, step3Done].filter(Boolean).length;
   const pct = Math.round((completeCount / 3) * 100);
-  const canDeploy = step1Done && step2Done && deployStatus === "faculty";
+  // Placement is deliberately NOT a precondition. Firms are a teaching decision
+  // an instructor often makes after the roster settles, and an unplaced student
+  // has somewhere to be in the meantime — the console gives them the tour and
+  // tells them they are waiting. Holding the whole cohort shut until the last
+  // person is placed helps nobody.
+  const canDeploy = step1Done && deployStatus === "faculty";
 
   const [open, setOpen] = useState({ 1: true });
   const toggle = (n) => setOpen((o) => ({ ...o, [n]: !o[n] }));
@@ -343,9 +370,87 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
           <MiniStat label="Total invites" value={invitedCount} bar="var(--amber)" />
           <MiniStat label="Pending" value={pending} bar="var(--blueprint)" />
           <MiniStat label="Accepted" value={accepted} bar="var(--ok)" />
-          <MiniStat label="Expired" value={expired} bar="var(--muted-dim)" />
+          <MiniStat
+            label="Emailed"
+            value={mailLive ? `${delivered}/${invitedCount}` : "—"}
+            bar={!mailLive || undelivered.length ? "var(--signal-red)" : "var(--ok)"}
+          />
         </div>
         <InvitePanel gameId={gameId} detail={detail} reload={reload} notify={notify} busy={busy} setBusy={setBusy} />
+
+        {!mailLive && (
+          <div className="mt-5 rounded-[3px] border border-[var(--signal-red)] bg-[rgba(210,86,75,0.07)] px-4 py-3">
+            <p className={`${MONO} text-[9px] uppercase tracking-[0.14em] text-[var(--signal-red)]`}>
+              Email is not configured on this server
+            </p>
+            <p className="mt-1 text-[0.85rem] leading-[1.55] text-[var(--muted)]">
+              Invitations are being recorded but <b className="text-[var(--paper)]">not sent</b> —
+              the mail backend is &ldquo;{detail.mail?.backend || "console"}&rdquo;, which writes to
+              the server log instead of emailing. Students will never receive a link. Set
+              MAIL_BACKEND=mailjet and the Mailjet credentials on the server, then resend below.
+            </p>
+          </div>
+        )}
+
+        {mailLive && undelivered.length > 0 && (
+          <div className="mt-5 rounded-[3px] border border-[var(--signal-red)] bg-[rgba(210,86,75,0.07)] px-4 py-3">
+            <p className={`${MONO} text-[9px] uppercase tracking-[0.14em] text-[var(--signal-red)]`}>
+              {undelivered.length} invitation{undelivered.length === 1 ? "" : "s"} not delivered
+            </p>
+            <p className="mt-1 text-[0.85rem] leading-[1.55] text-[var(--muted)]">
+              {undelivered[0].send_error
+                ? undelivered[0].send_error
+                : "No email was sent for these. If every invitation is undelivered, email is not configured on the server."}
+            </p>
+          </div>
+        )}
+
+        {invites.length > 0 && (
+          <div className="mt-5">
+            <h4 className={`${DISPLAY} text-[17px] font-semibold`}>Invitations</h4>
+            <p className="mt-0.5 text-sm text-[var(--muted)]">
+              Resending is safe — it sends the same link again, so anything already in their
+              inbox keeps working.
+            </p>
+            <div className="mt-3 overflow-hidden rounded-[3px] border border-[var(--steel-line)]">
+              {invites.map((inv) => (
+                <div
+                  key={inv.id}
+                  className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--steel-line)] px-4 py-2.5 last:border-b-0"
+                >
+                  <div className="min-w-0">
+                    <p className={`truncate ${MONO} text-[0.8rem] text-[var(--paper)]`}>{inv.email}</p>
+                    <p className={`truncate ${MONO} text-[9px] uppercase tracking-[0.1em]`}>
+                      {inv.send_error ? (
+                        <span className="text-[var(--signal-red)]" title={inv.send_error}>
+                          not delivered — {inv.send_error.slice(0, 60)}
+                        </span>
+                      ) : inv.sent_at ? (
+                        <span className="text-[var(--muted-dim)]">emailed {fmtSent(inv.sent_at)}</span>
+                      ) : (
+                        <span className="text-[var(--signal-red)]">no email sent</span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="flex flex-none items-center gap-2.5">
+                    <Pill tone={inv.status === "ACCEPTED" ? "good" : "muted"}>
+                      {String(inv.status || "").toLowerCase() || "pending"}
+                    </Pill>
+                    {inv.status !== "ACCEPTED" && (
+                      <button
+                        onClick={() => doResend(inv)}
+                        disabled={busy}
+                        className={`rounded-[2px] border border-[var(--steel-line)] px-2.5 py-1 ${MONO} text-[9px] uppercase tracking-[0.1em] text-[var(--muted)] transition hover:border-[var(--steel-soft)] hover:text-[var(--paper)] disabled:opacity-50`}
+                      >
+                        Resend
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </StepCard>
 
       {/* STEP 2 — allocate */}
@@ -549,7 +654,15 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
         <div className="rounded-[3px] border border-[var(--steel-line)] bg-[var(--graphite)] p-5">
           <p className={`mb-3 ${MONO} text-[9px] uppercase tracking-[0.2em] text-[var(--muted-dim)]`}>Before you deploy</p>
           <Check ok={step1Done} title="At least one student invited or enrolled" detail={`${Math.max(invitedCount, enrolled)} so far`} />
-          <Check ok={step2Done} title="Every enrolled student placed in a firm" detail={`${placed} of ${enrolled} placed`} />
+          <Check
+            ok
+            title="Students placed in firms — optional"
+            detail={
+              awaiting.length === 0
+                ? `${placed} of ${enrolled} placed`
+                : `${placed} of ${enrolled} placed · the other ${awaiting.length} can be placed after you deploy`
+            }
+          />
           <Check
             ok={!isDraft}
             title="Simulation released to faculty by an admin"
@@ -559,8 +672,17 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
 
         <div className="mt-4 rounded-[3px] border border-[var(--steel-line)] border-l-[3px] border-l-[var(--amber-deep)] bg-[var(--graphite-raised)] px-4 py-3.5">
           <p className="text-sm text-[var(--muted)]">
-            <strong className="text-[var(--amber)]">Heads up:</strong> once deployed, students get immediate access and the simulation starts
-            tracking decisions. You can still invite more students or move people between firms afterwards.
+            <strong className="text-[var(--amber)]">Heads up:</strong> once deployed, students get immediate access and the
+            simulation starts tracking decisions. You can still invite more students, create firms and move
+            people between them afterwards.
+            {awaiting.length > 0 && (
+              <>
+                {" "}
+                The {awaiting.length} student{awaiting.length === 1 ? "" : "s"} you haven&rsquo;t placed
+                yet will see the opening tour and a note that they&rsquo;re waiting on a firm; the
+                simulation opens for them the moment you place them.
+              </>
+            )}
           </p>
         </div>
 
@@ -576,7 +698,7 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
           <p className={`mt-2 text-center ${MONO} text-[9px] uppercase tracking-[0.08em] text-[var(--muted-dim)]`}>
             {isDraft
               ? "An admin has to release this simulation to faculty before you can deploy it."
-              : "Invite at least one student and place everyone in a firm to enable deploy."}
+              : "Invite or enrol at least one student to enable deploy."}
           </p>
         )}
       </StepCard>

@@ -28,7 +28,7 @@ const fmtDate = (iso) => {
 // Written answers are the long values; the structured calls are the short ones.
 const isWritten = (v) => typeof v === "string" && v.length > 60;
 
-export function SubmissionView({ row, onClose }) {
+export function SubmissionView({ row, onClose, onRevise }) {
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -85,6 +85,31 @@ export function SubmissionView({ row, onClose }) {
               );
             })}
           </div>
+
+          {/* What this firm read above the briefing that round — the only
+              firm-specific text on their page, and worth seeing before judging
+              what they wrote in response to it. */}
+          {row.preamble && (
+            <div className="mt-4 border-l-[3px] border-[var(--amber-deep,#C4791F)] bg-[var(--graphite,#16191D)] px-4 py-3">
+              <p className={`${MONO} text-[9px] uppercase tracking-[0.16em] text-[var(--muted-dim,#5C6672)]`}>
+                Their briefing opened with
+              </p>
+              <p className="mt-1.5 whitespace-pre-wrap text-[0.9rem] italic leading-[1.7] text-[var(--paper,#ECEFF2)]">
+                {row.preamble}
+              </p>
+            </div>
+          )}
+
+          {row.feedback && (
+            <div className="mt-4 border-l-[3px] border-[var(--steel-soft,#363E48)] bg-[var(--graphite,#16191D)] px-4 py-3">
+              <p className={`${MONO} text-[9px] uppercase tracking-[0.16em] text-[var(--muted-dim,#5C6672)]`}>
+                Written feedback · the firm sees this
+              </p>
+              <p className="mt-1.5 whitespace-pre-wrap text-[0.9rem] leading-[1.7] text-[var(--paper,#ECEFF2)]">
+                {row.feedback}
+              </p>
+            </div>
+          )}
 
           {row.week_number === 1 && (
             <p className={`mt-3 ${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--muted-dim,#5C6672)]`}>
@@ -148,6 +173,25 @@ export function SubmissionView({ row, onClose }) {
           <button
             onClick={onClose}
             className={`rounded-[2px] border border-[var(--steel-line,#2C323A)] px-4 py-2 ${MONO} text-[10px] uppercase tracking-[0.14em] text-[var(--muted,#8A94A0)] transition hover:border-[var(--steel-soft,#363E48)] hover:text-[var(--paper,#ECEFF2)]`}
+          >
+            Close
+          </button>
+        </div>
+        {/* Week 1's anchor strength drives the coherence audit for the whole
+            run, so a mis-click needs a way back. Revising overwrites the
+            recorded grade; the backend reverses what it applied before. */}
+        <div className="flex items-center justify-end gap-3 border-t border-[var(--steel-line,#2C323A)] px-7 py-4">
+          {onRevise && (
+            <button
+              onClick={() => onRevise(row)}
+              className={`${MONO} text-[10px] uppercase tracking-[0.1em] text-[var(--amber,#E8A13C)] hover:underline`}
+            >
+              Revise this grade
+            </button>
+          )}
+          <button
+            onClick={onClose}
+            className={`${MONO} rounded-[2px] border border-[var(--steel-line,#2C323A)] px-4 py-2 text-[10px] uppercase tracking-[0.1em] text-[var(--muted,#8A94A0)] hover:border-[var(--steel-soft,#363E48)] hover:text-[var(--paper,#ECEFF2)]`}
           >
             Close
           </button>

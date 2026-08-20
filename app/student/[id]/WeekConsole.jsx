@@ -204,6 +204,11 @@ export default function WeekConsole({ game, cohortId, playable, reload, notify, 
                 <h1>{briefing?.title}</h1>
               </div>
               <article className="dossier">
+                {/* Written for this firm alone, from what they have already
+                    committed. The briefing below it is the same for everyone. */}
+                {briefing?.preamble && (
+                  <p className="dossier__preamble">{briefing.preamble}</p>
+                )}
                 <div className="dossier__body">
                   <p className="lede">{briefing?.body}</p>
                 </div>

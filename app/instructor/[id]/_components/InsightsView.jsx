@@ -57,6 +57,35 @@ function Momentum({ value }) {
   );
 }
 
+/* Drawn either side of a centre line. A negative width is invalid CSS — the
+ * element falls back to `auto` and fills its track, which is how a penalty once
+ * rendered as the longest bar on screen. Sign becomes offset and colour, never
+ * length. The pale band behind the bar is min..max across firm-weeks. */
+function SpreadBar({ avg, min, max, scale }) {
+  const span = Math.max(1, scale);
+  const pct = (v) => Math.min(50, (Math.abs(v) / span) * 50);
+  const lo = Math.min(min, 0);
+  const hi = Math.max(max, 0);
+
+  return (
+    <div className={`relative ${TRACK}`}>
+      <div className="absolute inset-y-0 left-1/2 w-px bg-[var(--steel-soft,#363E48)]" />
+      {(min !== 0 || max !== 0) && (
+        <div
+          className="absolute inset-y-0 bg-[rgba(59,126,156,0.22)]"
+          style={{ left: `${50 - pct(lo)}%`, width: `${pct(lo) + pct(hi)}%` }}
+        />
+      )}
+      <div
+        className={`absolute inset-y-0 ${
+          avg < 0 ? "bg-[var(--amber-deep,#C4791F)]" : "bg-[var(--blueprint-deep,#3B7E9C)]"
+        }`}
+        style={avg < 0 ? { right: "50%", width: `${pct(avg)}%` } : { left: "50%", width: `${pct(avg)}%` }}
+      />
+    </div>
+  );
+}
+
 export default function InsightsView({ gameId, detail, rounds }) {
   const router = useRouter();
   const [data, setData] = useState(null);
@@ -95,7 +124,16 @@ export default function InsightsView({ gameId, detail, rounds }) {
 
   const firms = data.firms ?? [];
   const leaderTotal = Math.max(1, ...firms.map((f) => f.total_score));
-  const dimMax = Math.max(10, ...Object.values(data.dimension_averages ?? {}));
+  // Magnitude across averages AND the observed range, so a large negative
+  // scales the chart the same way a large positive does.
+  const dimMax = Math.max(
+    5,
+    ...Object.values(data.dimension_averages ?? {}).map((v) => Math.abs(Number(v) || 0)),
+    ...Object.values(data.dimension_spread ?? {}).flatMap((sp) => [
+      Math.abs(Number(sp.min) || 0),
+      Math.abs(Number(sp.max) || 0),
+    ]),
+  );
   const nothingGraded = (data.graded_weeks_total ?? 0) === 0;
   // Matrix spans every round any firm has touched.
   const maxWeek = Math.max(current, ...firms.flatMap((f) => f.weeks.map((w) => w.week)), 1);
@@ -242,23 +280,45 @@ export default function InsightsView({ gameId, detail, rounds }) {
         <div className={`p-6 ${PANEL}`}>
           <h2 className={`${DISPLAY} text-[19px] font-semibold leading-tight`}>Where the cohort is strong</h2>
           <p className="mt-1 text-sm text-[var(--muted,#8A94A0)]">
-            Average per dimension across all graded weeks — a low bar is a teaching signal.
+            Per dimension across all graded weeks. The bar is the average; the pale band is the
+            range. A wide band on a flat average is the round that separated your firms.
           </p>
-          <div className="mt-5 space-y-3.5">
-            {Object.entries(data.dimension_averages ?? {}).map(([dim, value]) => (
-              <div key={dim} className="flex items-center gap-3">
-                <span className={`w-[150px] flex-none ${MONO} text-[9px] uppercase tracking-[0.08em] text-[var(--muted-dim,#5C6672)]`}>
-                  {DIM_LABELS[dim] || dim}
-                </span>
-                <div className={TRACK}>
-                  <div
-                    className="h-full bg-[var(--blueprint-deep,#3B7E9C)]"
-                    style={{ width: `${Math.min(100, (value / dimMax) * 100)}%` }}
+          <div className="mt-5 space-y-4">
+            {Object.entries(data.dimension_averages ?? {}).map(([dim, value]) => {
+              const sp = (data.dimension_spread ?? {})[dim] || {};
+              return (
+                <div key={dim} className="flex items-center gap-3">
+                  <span className={`w-[150px] flex-none ${MONO} text-[9px] uppercase tracking-[0.08em] text-[var(--muted-dim,#5C6672)]`}>
+                    {DIM_LABELS[dim] || dim}
+                  </span>
+                  <SpreadBar
+                    avg={Number(value) || 0}
+                    min={Number(sp.min) || 0}
+                    max={Number(sp.max) || 0}
+                    scale={dimMax}
                   />
+                  <span className={`w-9 flex-none text-right ${MONO} text-[0.78rem] font-bold text-[var(--paper,#ECEFF2)]`}>
+                    {value}
+                  </span>
+                  {/* Firms on both sides means the dimension did real work even
+                      when the mean says nothing happened. */}
+                  <span
+                    className={`w-[84px] flex-none ${MONO} text-[8.5px] uppercase leading-[1.4] tracking-[0.06em] ${
+                      sp.above > 0 && sp.below > 0
+                        ? "text-[var(--amber,#E8A13C)]"
+                        : "text-[var(--muted-dim,#5C6672)]"
+                    }`}
+                  >
+                    {sp.count ? `${sp.min} to ${sp.max}` : "—"}
+                    {sp.above > 0 && sp.below > 0 && (
+                      <span className="block">
+                        split {sp.above}/{sp.below}
+                      </span>
+                    )}
+                  </span>
                 </div>
-                <span className={`w-9 flex-none text-right ${MONO} text-[0.78rem] font-bold text-[var(--paper,#ECEFF2)]`}>{value}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 

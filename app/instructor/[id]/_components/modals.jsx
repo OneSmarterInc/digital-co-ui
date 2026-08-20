@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../_lib/api";
 import { SCORE_LABELS, ANCHOR_OPTIONS } from "../_lib/helpers";
 
@@ -183,9 +183,41 @@ export function GradingModal({ score, gameId, onClose, onGraded }) {
     for (const dim of Object.keys(SCORE_LABELS)) init[dim] = 0;
     return init;
   });
-  const [anchor, setAnchor] = useState("");
+  const [anchor, setAnchor] = useState(score.anchor_strength || "");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState(null);
+
+  // Unlike the boxes above, this one IS pre-filled: it is a draft to edit, not
+  // an adjustment to add. A round already graded reopens with what was
+  // published; an ungraded one asks the engine for a draft once.
+  const [feedback, setFeedback] = useState(score.feedback || "");
+  const [drafting, setDrafting] = useState(false);
+  const [draftNote, setDraftNote] = useState("");
+
+  const draft = useCallback(async () => {
+    setDrafting(true);
+    setDraftNote("");
+    try {
+      const r = await api(`/instructor/score/${score.id}/feedback-draft/`, { method: "POST" });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.detail || `Request failed (${r.status})`);
+      if (j.feedback) setFeedback(j.feedback);
+      // A draft that could not be written is not an error the instructor has to
+      // clear — they can simply write their own.
+      else setDraftNote(j.problem || "No draft was produced. Write your own below.");
+    } catch (e) {
+      setDraftNote(e instanceof Error ? e.message : String(e));
+    } finally {
+      setDrafting(false);
+    }
+  }, [score.id]);
+
+  const drafted = useRef(false);
+  useEffect(() => {
+    if (drafted.current || score.feedback) return;
+    drafted.current = true;
+    draft();
+  }, [draft, score.feedback]);
 
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && onClose();
@@ -203,7 +235,11 @@ export function GradingModal({ score, gameId, onClose, onGraded }) {
       const r = await api(`/instructor/score/${score.id}/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scores: vals, ...(isWeek1 ? { anchor_strength: anchor } : {}) }),
+        body: JSON.stringify({
+          scores: vals,
+          feedback,
+          ...(isWeek1 ? { anchor_strength: anchor } : {}),
+        }),
       });
       if (!r.ok) {
         const j = await r.json().catch(() => ({}));
@@ -217,9 +253,11 @@ export function GradingModal({ score, gameId, onClose, onGraded }) {
   }
 
   return (
-    <ModalShell onClose={onClose} maxWidth={520}>
+    <ModalShell onClose={onClose} maxWidth={560}>
       <div className="border-b border-[var(--steel-line,#2C323A)] px-6 py-4">
-        <h2 className={`${DISPLAY} text-[19px] font-semibold leading-tight`}>Grade {score.team_name}</h2>
+        <h2 className={`${DISPLAY} text-[19px] font-semibold leading-tight`}>
+          {score.graded ? "Revise" : "Grade"} {score.team_name}
+        </h2>
         <p className={`mt-1 ${MONO} text-[9px] uppercase tracking-[0.1em] text-[var(--muted-dim,#5C6672)]`}>
           Round {score.week_number}
         </p>
@@ -275,6 +313,7 @@ export function GradingModal({ score, gameId, onClose, onGraded }) {
         <p className={`${MONO} text-[9px] uppercase tracking-[0.08em] leading-[1.5] text-[var(--muted-dim,#5C6672)]`}>
           The box is an adjustment, not the score. Leave it at 0 to accept the engine&rsquo;s
           proposal as it stands.
+          {score.graded && " Saving replaces the recorded grade — it is not added to it."}
         </p>
         <div className="space-y-2.5">
           {Object.entries(SCORE_LABELS).map(([dim, label]) => {
@@ -315,6 +354,39 @@ export function GradingModal({ score, gameId, onClose, onGraded }) {
             );
           })}
         </div>
+        {/* Deliberately unlike the rows above: full width, prose, its own
+            panel. The boxes add to a number; this replaces a paragraph. */}
+        <div className="rounded-[3px] border border-[var(--steel-soft,#363E48)] bg-[rgba(255,255,255,0.02)] p-3.5">
+          <div className="mb-2 flex items-baseline justify-between gap-3">
+            <label htmlFor="grade-feedback" className={`${DISPLAY} text-[15px] font-semibold`}>
+              Written feedback
+            </label>
+            <button
+              onClick={draft}
+              disabled={drafting || busy}
+              className={`${MONO} text-[9px] uppercase tracking-[0.08em] text-[var(--amber,#E8A13C)] hover:underline disabled:opacity-50`}
+            >
+              {drafting ? "Drafting…" : feedback ? "Redraft" : "Draft"}
+            </button>
+          </div>
+          <p className={`mb-2 ${MONO} text-[9px] uppercase tracking-[0.08em] leading-[1.5] text-[var(--muted-dim,#5C6672)]`}>
+            This is a draft to edit, not an adjustment. What you save here is what the firm reads.
+          </p>
+          <textarea
+            id="grade-feedback"
+            rows={9}
+            value={feedback}
+            onChange={(e) => setFeedback(e.target.value)}
+            placeholder={drafting ? "" : "What held, what was thin, what to carry forward."}
+            className={`w-full resize-y px-2.5 py-2 text-[0.85rem] leading-[1.6] ${INPUT}`}
+          />
+          <div className={`mt-1.5 flex items-baseline justify-between gap-3 ${MONO} text-[9px] text-[var(--muted-dim,#5C6672)]`}>
+            <span>{draftNote}</span>
+            <span className="shrink-0">
+              {feedback.trim() ? `${feedback.trim().split(/\s+/).length} words` : "Optional"}
+            </span>
+          </div>
+        </div>
         {err && <p className="text-sm text-[var(--signal-red,#D2564B)]">{err}</p>}
       </div>
       <div className="flex items-center justify-end gap-3 border-t border-[var(--steel-line,#2C323A)] px-6 py-4">
@@ -322,7 +394,7 @@ export function GradingModal({ score, gameId, onClose, onGraded }) {
           Cancel
         </button>
         <button onClick={save} disabled={busy || !canSave} className={COMMIT}>
-          {busy ? "Saving…" : "Save grade"}
+          {busy ? "Saving…" : score.graded ? "Save changes" : "Save grade"}
         </button>
       </div>
     </ModalShell>
