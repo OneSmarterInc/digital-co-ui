@@ -39,12 +39,6 @@ const HINT = {
   admin: "Sign in to the administrator tools for cohorts, teams, and users.",
 };
 
-const DEMO_CREDENTIALS = {
-  admin: { username: "vikram", password: "secret123", email: "admin@example.com" },
-  instructor: { username: "john", password: "secret123", email: "instructor@example.com" },
-  student: { username: "test-1@mailinator.com", password: "test1234", email: "test-1@mailinator.com" },
-};
-
 const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
 const DISPLAY = "font-['Saira_Condensed',sans-serif]";
 const FOCUS = "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--amber)]";
@@ -123,9 +117,10 @@ export default function LoginPage() {
                     key={r.key}
                     type="button"
                     onClick={() => {
+                      // Role selects which console to land in after sign-in.
+                      // It must never prefill credentials: this bundle is
+                      // public, so anything it holds is published to everyone.
                       setRole(r.key);
-                      setUsername(DEMO_CREDENTIALS[r.key].username);
-                      setPassword(DEMO_CREDENTIALS[r.key].password);
                       setError("");
                     }}
                     aria-pressed={role === r.key}
