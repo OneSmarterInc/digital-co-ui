@@ -172,7 +172,15 @@ export default function BenchmarksPage() {
                     key={wk}
                     label={`Week ${wk}`}
                     value={hit ? "Taken" : "—"}
-                    sub={hit ? `${hit.standings.length} firms` : wk === 14 ? "finale" : "checkpoint"}
+                    sub={
+                      hit?.on_hold
+                        ? "on hold"
+                        : hit
+                          ? `${hit.standings.length} firms`
+                          : wk === 14
+                            ? "finale"
+                            : "checkpoint"
+                    }
                   />
                 );
               })}
@@ -202,6 +210,26 @@ export default function BenchmarksPage() {
                       </p>
                     </div>
                   </div>
+                  {/* Withheld rather than captioned: a table missing a firm
+                      ranks the rest wrongly, and a wrong ranking read as
+                      provisional is still a wrong ranking. */}
+                  {b.on_hold ? (
+                    <div className="px-6 py-5">
+                      <p className={`${MONO} text-[9px] uppercase tracking-[0.14em] text-[var(--amber)]`}>
+                        Standings on hold
+                      </p>
+                      <p className="mt-1.5 text-[0.9rem] leading-[1.6] text-[var(--paper)]">
+                        {b.pending_firms.length === 1
+                          ? "One firm still needs this round graded: "
+                          : `${b.pending_firms.length} firms still need this round graded: `}
+                        <b>{b.pending_firms.join(", ")}</b>.
+                      </p>
+                      <p className={`mt-1.5 ${MONO} text-[9px] leading-[1.5] text-[var(--muted-dim)]`}>
+                        Firms are ranked against each other, so an ungraded firm reads as one that did
+                        badly. The table appears the moment you finish the last grade.
+                      </p>
+                    </div>
+                  ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full min-w-[640px] border-collapse">
                       <thead>
@@ -262,6 +290,7 @@ export default function BenchmarksPage() {
                       </tbody>
                     </table>
                   </div>
+                  )}
                 </div>
               ))
             )}

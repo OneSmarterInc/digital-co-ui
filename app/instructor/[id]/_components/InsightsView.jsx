@@ -408,6 +408,29 @@ export default function InsightsView({ gameId, detail, rounds }) {
         </p>
       )}
 
+      {/* Standings hold until the whole cohort is graded, because they rank
+          firms against each other — an ungraded firm looks identical to one
+          that played badly. Without naming who is outstanding, that hold is
+          indistinguishable from a broken checkpoint. */}
+      {(data.benchmark_status?.pending_firms?.length ?? 0) > 0 && (
+        <div className="rounded-[3px] border border-[var(--amber-deep,#C4791F)] bg-[rgba(232,161,60,0.07)] p-4">
+          <p className={`${MONO} text-[9px] uppercase tracking-[0.14em] text-[var(--amber,#E8A13C)]`}>
+            Week {data.benchmark_status.after_week} standings on hold
+          </p>
+          <p className="mt-1.5 text-[0.88rem] leading-[1.6] text-[var(--paper,#ECEFF2)]">
+            {data.benchmark_status.pending_firms.length === 1
+              ? "One firm still needs this round graded: "
+              : `${data.benchmark_status.pending_firms.length} firms still need this round graded: `}
+            <b>{data.benchmark_status.pending_firms.join(", ")}</b>.
+          </p>
+          <p className={`mt-1.5 ${MONO} text-[9px] leading-[1.5] text-[var(--muted-dim,#5C6672)]`}>
+            Standings rank firms against each other, so they publish only once every firm is graded —
+            otherwise an ungraded firm reads as a firm that did badly. They appear for students the
+            moment you finish the last one.
+          </p>
+        </div>
+      )}
+
       {/* deep dives, demoted to footer links */}
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[var(--steel-line,#2C323A)] pt-4">
         <span className={`${MONO} text-[9px] uppercase tracking-[0.14em] text-[var(--muted-dim,#5C6672)]`}>Deep dives:</span>
