@@ -738,6 +738,18 @@ function PerformanceView({ game, cohortId }) {
         subtitle="Your firm's graded rounds — final instructor scores across the four dimensions, and the written feedback where your instructor left it. Everyone in your firm sees the same record."
       />
 
+      {/* At a checkpoint round, standings are held until every firm has been
+          graded. Without saying so, "no standings" is indistinguishable from
+          "broken" — which produces exactly the questions the withholding was
+          meant to prevent. Says only that it is pending: which firms are
+          behind is not a student's business. */}
+      {data.benchmark?.status === "pending" && (
+        <Notice tone="var(--amber)">
+          Round {data.benchmark.after_week} benchmark standings publish once every firm&rsquo;s round is
+          graded. They are not out yet.
+        </Notice>
+      )}
+
       {weeks.length === 0 ? (
         <Notice tone="var(--blueprint)">
           Nothing graded yet. Scores appear here once your instructor grades a submitted week — submitted rounds show as
