@@ -183,7 +183,11 @@ const IconHelp = (p) => <Svg {...p}><circle cx="12" cy="12" r="10" /><path d="M1
 
 // Sections that render the console shell (rail + stage) rather than plain
 // prose. These need the width; the rest read better at a fixed measure.
-const WIDE_SECTIONS = new Set(["week", "advisors", "exhibits", "debrief"]);
+const WIDE_SECTIONS = new Set(["week", "advisors", "exhibits", "debrief", "standings"]);
+
+// Mirrors BENCHMARK_PHASE_WEEKS on the server. Used only to decide whether the
+// Standings section is worth showing yet; the server decides what it contains.
+const BENCHMARK_ROUNDS = [4, 8, 11, 14];
 
 // Order matters: Advisors is used every week, Performance only occasionally,
 // so Performance sits below it rather than above.
@@ -192,6 +196,11 @@ const SECTIONS = [
   ["week", "This Week"],
   ["advisors", "Advisors"],
   ["performance", "Performance"],
+  // Only appears once a checkpoint round exists. The reveal is staged as a
+  // class moment, so it earns its own place rather than sitting under the
+  // per-round scores where nobody would look for it — but an empty section
+  // for the first three rounds would be worse than none.
+  ["standings", "Standings"],
   ["exhibits", "Exhibits"],
   ["schedule", "Schedule"],
   ["debrief", "Debrief"],
@@ -432,13 +441,15 @@ export default function StudentCohortPage() {
         <aside className="w-[220px] shrink-0 border-r border-[var(--steel-line)] bg-[#14171B] px-5 py-8">
           <p className={`mb-4 px-3 ${MONO} text-[9.5px] uppercase tracking-[0.2em] text-[var(--muted-dim)]`}>Cohort</p>
           <nav className="flex flex-col gap-1">
-            {SECTIONS.filter(([key]) =>
-              completed
-                ? key === "debrief"
-                : awaitingFirm
-                  ? key === "dashboard"
-                  : key !== "debrief" || game?.debrief_available
-            ).map(([key, label]) => {
+            {SECTIONS.filter(([key]) => {
+              if (completed) return key === "debrief" || key === "standings";
+              if (awaitingFirm) return key === "dashboard";
+              // Checkpoints land after rounds 4, 8, 11 and 14. Before the
+              // first one there is nothing to show, and an empty section is
+              // worse than no section.
+              if (key === "standings") return current >= BENCHMARK_ROUNDS[0];
+              return key !== "debrief" || game?.debrief_available;
+            }).map(([key, label]) => {
               const active = displaySection === key;
               const locked = (key === "week" || key === "advisors") && !playable;
               return (
@@ -487,6 +498,7 @@ export default function StudentCohortPage() {
             {displaySection === "dashboard" && <DashboardView {...sectionProps} />}
             {displaySection === "week" && <WeekConsole {...sectionProps} />}
             {displaySection === "performance" && <PerformanceView {...sectionProps} />}
+            {displaySection === "standings" && <StandingsView {...sectionProps} />}
             {displaySection === "advisors" && <AdvisorsConsole {...sectionProps} />}
             {/* Students get exhibits up to their current week only, and never
                 the design notes — those name every trap in the course. */}
@@ -743,6 +755,125 @@ function PerformanceView({ game, cohortId }) {
           "broken" — which produces exactly the questions the withholding was
           meant to prevent. Says only that it is pending: which firms are
           behind is not a student's business. */}
+      {weeks.length === 0 ? (
+        <Notice tone="var(--blueprint)">
+          Nothing graded yet. Scores appear here once your instructor grades a submitted week — submitted rounds show as
+          &ldquo;waiting on grade&rdquo; in This Week until then.
+        </Notice>
+      ) : (
+        <>
+          <div className="grid grid-cols-3 gap-4">
+            <MiniInfo label="Graded rounds" value={data.graded_count} sub={`of ${weeks.length ? weeks[weeks.length - 1].week_number : 0} played`} />
+            <MiniInfo label="Average" value={data.average} sub="per round" />
+            <MiniInfo label="Highest round" value={data.best} sub="total score" />
+          </div>
+
+          <div className="space-y-3">
+            {weeks.map((w) => (
+              <div key={w.week_number} className={`p-5 ${PANEL}`}>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`flex h-9 w-9 flex-none items-center justify-center rounded-[2px] border border-[#3f5e46] bg-[var(--graphite)] ${MONO} text-[10.5px] font-bold text-[var(--ok)]`}
+                    >
+                      R{w.week_number}
+                    </span>
+                    <p className={`${DISPLAY} text-[17px] font-semibold`}>Round {w.week_number}</p>
+                  </div>
+                  <p className={`${DISPLAY} text-[1.5rem] font-bold leading-none`}>
+                    {w.total}
+                    {w.total === data.best && weeks.length > 1 && (
+                      <span className={`ml-2 align-middle ${MONO} text-[8.5px] font-semibold uppercase tracking-[0.1em] text-[var(--amber)]`}>
+                        highest
+                      </span>
+                    )}
+                  </p>
+                </div>
+                <div className="mt-4 grid gap-x-6 gap-y-2.5 sm:grid-cols-2">
+                  {Object.entries(w.scores).map(([dim, value]) => (
+                    <div key={dim} className="flex items-center gap-3">
+                      <span className={`w-[132px] flex-none ${MONO} text-[8.5px] uppercase tracking-[0.1em] text-[var(--muted-dim)]`}>
+                        {DIM_LABELS[dim] || dim}
+                      </span>
+                      <ScoreBar value={value} scale={dimMax} />
+                      <span
+                        className={`w-7 flex-none text-right ${MONO} text-[0.72rem] font-bold ${
+                          value > 0 ? "text-[var(--paper)]" : value < 0 ? "text-[var(--amber)]" : "text-[var(--muted-dim)]"
+                        }`}
+                      >
+                        {value > 0 ? `+${value}` : value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                {/* The numbers say what happened; this says why. Only shown when
+                    the instructor actually published something. */}
+                {w.feedback && (
+                  <div className="mt-4 border-t border-[var(--steel-line)] pt-4">
+                    <p className={`${MONO} text-[8.5px] uppercase tracking-[0.14em] text-[var(--muted-dim)]`}>
+                      From your instructor
+                    </p>
+                    <p className="mt-2 whitespace-pre-wrap text-[0.92rem] leading-[1.75] text-[var(--paper)]">
+                      {w.feedback}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+
+/* ================================================================== *
+ * Standings — the benchmark reveal
+ * ================================================================== */
+
+function StandingsView({ game, cohortId }) {
+  const [data, setData] = useState(null);
+  const [state, setState] = useState("loading");
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const r = await api(`/student/performance/?cohort=${cohortId}`);
+        if (!r.ok) throw new Error(String(r.status));
+        const j = await r.json();
+        if (alive) {
+          setData(j);
+          setState("ready");
+        }
+      } catch {
+        if (alive) setState("error");
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [cohortId]);
+
+  if (state !== "ready") {
+    return (
+      <p className={`${MONO} text-[11px] uppercase tracking-[0.16em] text-[var(--muted)]`}>
+        {state === "error" ? "Couldn't load standings — try again shortly." : "Loading standings…"}
+      </p>
+    );
+  }
+
+  const released = data.standings ?? [];
+
+  return (
+    <div className="space-y-7">
+      <SectionHeader
+        eyebrow="Checkpoint"
+        title="Standings"
+        subtitle="How the cohort's firms compare at each checkpoint. Standings are published only once every firm's round is graded, and released by your instructor."
+      />
+
       {data.benchmark?.status === "pending" && (
         <Notice tone="var(--amber)">
           Round {data.benchmark.after_week} benchmark standings publish once every firm&rsquo;s round is
@@ -851,73 +982,10 @@ function PerformanceView({ game, cohortId }) {
         </div>
       )}
 
-      {weeks.length === 0 ? (
+      {released.length === 0 && !data.benchmark && (
         <Notice tone="var(--blueprint)">
-          Nothing graded yet. Scores appear here once your instructor grades a submitted week — submitted rounds show as
-          &ldquo;waiting on grade&rdquo; in This Week until then.
+          Standings appear after checkpoint rounds — 4, 8, 11 and 14. Nothing to show yet.
         </Notice>
-      ) : (
-        <>
-          <div className="grid grid-cols-3 gap-4">
-            <MiniInfo label="Graded rounds" value={data.graded_count} sub={`of ${weeks.length ? weeks[weeks.length - 1].week_number : 0} played`} />
-            <MiniInfo label="Average" value={data.average} sub="per round" />
-            <MiniInfo label="Highest round" value={data.best} sub="total score" />
-          </div>
-
-          <div className="space-y-3">
-            {weeks.map((w) => (
-              <div key={w.week_number} className={`p-5 ${PANEL}`}>
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`flex h-9 w-9 flex-none items-center justify-center rounded-[2px] border border-[#3f5e46] bg-[var(--graphite)] ${MONO} text-[10.5px] font-bold text-[var(--ok)]`}
-                    >
-                      R{w.week_number}
-                    </span>
-                    <p className={`${DISPLAY} text-[17px] font-semibold`}>Round {w.week_number}</p>
-                  </div>
-                  <p className={`${DISPLAY} text-[1.5rem] font-bold leading-none`}>
-                    {w.total}
-                    {w.total === data.best && weeks.length > 1 && (
-                      <span className={`ml-2 align-middle ${MONO} text-[8.5px] font-semibold uppercase tracking-[0.1em] text-[var(--amber)]`}>
-                        highest
-                      </span>
-                    )}
-                  </p>
-                </div>
-                <div className="mt-4 grid gap-x-6 gap-y-2.5 sm:grid-cols-2">
-                  {Object.entries(w.scores).map(([dim, value]) => (
-                    <div key={dim} className="flex items-center gap-3">
-                      <span className={`w-[132px] flex-none ${MONO} text-[8.5px] uppercase tracking-[0.1em] text-[var(--muted-dim)]`}>
-                        {DIM_LABELS[dim] || dim}
-                      </span>
-                      <ScoreBar value={value} scale={dimMax} />
-                      <span
-                        className={`w-7 flex-none text-right ${MONO} text-[0.72rem] font-bold ${
-                          value > 0 ? "text-[var(--paper)]" : value < 0 ? "text-[var(--amber)]" : "text-[var(--muted-dim)]"
-                        }`}
-                      >
-                        {value > 0 ? `+${value}` : value}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                {/* The numbers say what happened; this says why. Only shown when
-                    the instructor actually published something. */}
-                {w.feedback && (
-                  <div className="mt-4 border-t border-[var(--steel-line)] pt-4">
-                    <p className={`${MONO} text-[8.5px] uppercase tracking-[0.14em] text-[var(--muted-dim)]`}>
-                      From your instructor
-                    </p>
-                    <p className="mt-2 whitespace-pre-wrap text-[0.92rem] leading-[1.75] text-[var(--paper)]">
-                      {w.feedback}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </>
       )}
     </div>
   );
