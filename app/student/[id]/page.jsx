@@ -749,6 +749,107 @@ function PerformanceView({ game, cohortId }) {
           graded. They are not out yet.
         </Notice>
       )}
+      {data.benchmark?.status === "awaiting_release" && (
+        <Notice tone="var(--amber)">
+          Round {data.benchmark.after_week} is graded across the cohort. Your instructor will release
+          the standings — usually in class.
+        </Notice>
+      )}
+
+      {/* Released benchmarks, oldest first. All of them, not just the latest:
+          the Week 8 discussion turns on comparing against Benchmark 1, and a
+          table seen once in class is useless if it cannot be looked up again. */}
+      {(data.standings?.length ?? 0) > 0 && (
+        <div className="space-y-4">
+          {data.standings.map((b) => (
+            <div key={b.after_week} className={`overflow-hidden ${PANEL}`}>
+              <div className="border-b border-[var(--steel-line)] px-6 py-4">
+                <p className={`${MONO} text-[9px] uppercase tracking-[0.16em] text-[var(--muted-dim)]`}>
+                  {b.after_week === 14 ? "Final reckoning" : "Checkpoint"}
+                </p>
+                <h3 className={`mt-1 ${DISPLAY} text-[19px] font-semibold leading-tight`}>
+                  Standings after Round {b.after_week}
+                </h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[520px] border-collapse">
+                  <thead>
+                    <tr className="border-b border-[var(--steel-line)]">
+                      {["#", "Firm", "Score", "What showed"].map((h, i) => (
+                        <th
+                          key={h}
+                          className={`px-3 py-3 text-left ${MONO} text-[9px] font-medium uppercase tracking-[0.14em] text-[var(--muted-dim)] ${
+                            i === 0 ? "pl-6" : ""
+                          } ${i === 3 ? "pr-6" : ""}`}
+                        >
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {b.standings.map((row) => {
+                      const mine = row.team_name === b.your_firm;
+                      return (
+                        <tr
+                          key={row.rank}
+                          className={`border-b border-[var(--steel-line)] last:border-b-0 ${
+                            mine ? "bg-[rgba(232,161,60,0.07)]" : ""
+                          }`}
+                        >
+                          <td className="py-3 pl-6 pr-3">
+                            <span
+                              className={`flex h-7 w-7 items-center justify-center rounded-[2px] border ${DISPLAY} text-[14px] font-bold ${
+                                row.rank === 1
+                                  ? "border-[var(--amber-deep)] bg-[var(--amber)] text-[var(--graphite)]"
+                                  : "border-[var(--steel-soft)] bg-[var(--graphite)] text-[var(--muted)]"
+                              }`}
+                            >
+                              {row.rank}
+                            </span>
+                          </td>
+                          <td className={`px-3 py-3 ${DISPLAY} text-[15px] font-semibold`}>
+                            {row.team_name}
+                            {mine && (
+                              <span className={`ml-2 ${MONO} text-[8.5px] uppercase tracking-[0.1em] text-[var(--amber)]`}>
+                                your firm
+                              </span>
+                            )}
+                          </td>
+                          <td className={`px-3 py-3 ${MONO} text-[0.85rem] font-bold`}>{row.benchmark_score}</td>
+                          <td className="px-3 py-3 pr-6">
+                            <div className="flex flex-wrap gap-1.5">
+                              {(row.visible_strengths ?? []).map((v, i) => (
+                                <span
+                                  key={`s${i}`}
+                                  className={`rounded-[2px] border border-[#3f5e46] px-1.5 py-0.5 ${MONO} text-[8.5px] uppercase tracking-[0.06em] text-[var(--ok)]`}
+                                >
+                                  {v}
+                                </span>
+                              ))}
+                              {(row.visible_weaknesses ?? []).map((v, i) => (
+                                <span
+                                  key={`w${i}`}
+                                  className={`rounded-[2px] border border-[var(--amber-deep)] px-1.5 py-0.5 ${MONO} text-[8.5px] uppercase tracking-[0.06em] text-[var(--amber)]`}
+                                >
+                                  {v}
+                                </span>
+                              ))}
+                              {!(row.visible_strengths?.length || row.visible_weaknesses?.length) && (
+                                <span className={`${MONO} text-[9px] text-[var(--muted-dim)]`}>&mdash;</span>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {weeks.length === 0 ? (
         <Notice tone="var(--blueprint)">

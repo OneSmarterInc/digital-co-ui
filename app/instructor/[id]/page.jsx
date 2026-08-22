@@ -122,14 +122,17 @@ export default function SimulationDetailPage() {
     setDetail(d);
     try {
       // Scope the grading queue to this simulation server-side (an instructor
-      // may teach several); keep the ungraded guard as a safety net.
-      // The whole queue, graded and not. Graded weeks used to be dropped here,
-      // which is why written answers became unreachable the moment they were
-      // graded; GradingView splits them into Waiting / Graded.
+      // may teach several). The whole queue, graded and not: GradingView splits
+      // it into Waiting / Graded, and reopening a graded week is the only way
+      // to read the written answers back or revise the grade.
       const q = await api(`/instructor/queue/?cohort=${gameId}`);
       if (q.ok) {
-        const rows = await q.json();
-        setQueue(rows.filter((r) => !r.graded));
+        // Pass every row through, graded included. This used to filter graded
+        // rows out, which silently defeated the Waiting / Graded split below:
+        // the Graded tab was always empty, so a graded week could never be
+        // reopened and "Revise this grade" was unreachable. The filter and the
+        // comment above it had disagreed since the split was built.
+        setQueue(await q.json());
       }
     } catch {
       /* queue is optional */

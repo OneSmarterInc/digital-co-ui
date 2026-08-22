@@ -41,6 +41,13 @@ const THEME = {
 };
 
 const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
+
+const releasedOn = (iso) => {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime())
+    ? ""
+    : d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+};
 const DISPLAY = "font-['Saira_Condensed',sans-serif]";
 const FLAG = `inline-flex items-center rounded-[2px] border px-2 py-0.5 font-['IBM_Plex_Mono',ui-monospace,monospace] text-[8.5px] uppercase tracking-[0.04em]`;
 
@@ -65,6 +72,23 @@ export default function BenchmarksPage() {
   const [benchmarks, setBenchmarks] = useState([]);
   const [phase, setPhase] = useState("loading");
   const [error, setError] = useState(null);
+  const [releasing, setReleasing] = useState(null);
+
+  async function release(afterWeek) {
+    if (releasing) return;
+    setReleasing(afterWeek);
+    try {
+      const r = await api(`/instructor/benchmarks/${gameId}/reveal/${afterWeek}/`, { method: "POST" });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.detail || `Request failed (${r.status})`);
+      const refreshed = await api(`/instructor/benchmarks/${gameId}/`);
+      if (refreshed.ok) setBenchmarks(await refreshed.json());
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setReleasing(null);
+    }
+  }
 
   useEffect(() => {
     let alive = true;
@@ -209,7 +233,33 @@ export default function BenchmarksPage() {
                           : "A phase read: standings plus what each firm's play made visible."}
                       </p>
                     </div>
+                    {/* The reveal is a teaching device, not a technicality —
+                        the Week 14 note asks for it after teams have read their
+                        own debriefs, so the standings land as epilogue rather
+                        than verdict. Nothing reaches students until this. */}
+                    {!b.on_hold && (
+                      b.is_revealed ? (
+                        <span className={`${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--ok)]`}>
+                          Released to students
+                          {b.revealed_at ? ` · ${releasedOn(b.revealed_at)}` : ""}
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => release(b.after_week)}
+                          disabled={releasing === b.after_week}
+                          className={`rounded-[2px] border border-[var(--amber-deep)] bg-[var(--amber)] px-4 py-2 ${MONO} text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--graphite)] transition disabled:opacity-50`}
+                        >
+                          {releasing === b.after_week ? "Releasing…" : "Release to students"}
+                        </button>
+                      )
+                    )}
                   </div>
+                  {!b.on_hold && !b.is_revealed && (
+                    <p className={`px-6 pb-3 ${MONO} text-[9px] leading-[1.5] text-[var(--muted-dim)]`}>
+                      Students cannot see these standings yet. They are told the round is graded and
+                      awaiting release, not who ranked where.
+                    </p>
+                  )}
                   {/* Withheld rather than captioned: a table missing a firm
                       ranks the rest wrongly, and a wrong ranking read as
                       provisional is still a wrong ranking. */}

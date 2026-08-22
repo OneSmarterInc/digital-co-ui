@@ -179,10 +179,27 @@ export default function PerformancePage() {
   for (let n = 1; n <= maxWeek; n++) {
     const cells = firms.map((f) => f.weeks.find((w) => w.week === n)).filter((w) => w?.scores);
     if (cells.length) {
+      // The mean alone hides the round that did the most work: in a cohort
+      // where one firm scored +2 and another -2, coherence reads a flat 0 —
+      // the one round where it separated the firms looks like the one round
+      // nothing happened. Carry the range so the opposition stays visible.
       dimTrend.push({
         week: n,
         firms: cells.length,
-        ...Object.fromEntries(DIMS.map((d) => [d, Math.round((cells.reduce((a, c) => a + (c.scores[d] || 0), 0) / cells.length) * 10) / 10])),
+        ...Object.fromEntries(
+          DIMS.map((d) => {
+            const values = cells.map((c) => c.scores[d] || 0);
+            return [
+              d,
+              {
+                avg: Math.round((values.reduce((a, v) => a + v, 0) / values.length) * 10) / 10,
+                min: Math.min(...values),
+                max: Math.max(...values),
+                split: values.some((v) => v > 0) && values.some((v) => v < 0),
+              },
+            ];
+          })
+        ),
       });
     }
   }
@@ -322,7 +339,9 @@ export default function PerformancePage() {
                 <div className="px-6 py-4">
                   <h2 className={`${DISPLAY} text-[19px] font-semibold leading-tight`}>Dimension trend</h2>
                   <p className="mt-1 text-sm text-[var(--muted)]">
-                    Cohort average per dimension, per graded round — watch which skill the class is (or isn't) building.
+                    Cohort average per dimension, per graded round, with the range across firms in
+                    brackets. An average of 0 with a wide range is the round that separated your firms,
+                    not a round where nothing happened — those are flagged in amber.
                   </p>
                 </div>
                 <div className="overflow-x-auto">
@@ -347,9 +366,24 @@ export default function PerformancePage() {
                             <td className={`py-2.5 pl-6 pr-3 ${DISPLAY} text-[15px] font-semibold ${isCurrent ? "text-[var(--amber)]" : ""}`}>
                               R{row.week}
                             </td>
-                            {DIMS.map((d) => (
-                              <td key={d} className={`px-3 py-2.5 ${MONO} text-[0.78rem]`}>{row[d]}</td>
-                            ))}
+                            {DIMS.map((d) => {
+                              const cell = row[d];
+                              return (
+                                <td key={d} className={`px-3 py-2.5 ${MONO} text-[0.78rem]`}>
+                                  <span className={cell.split ? "font-bold text-[var(--amber)]" : ""}>
+                                    {cell.avg}
+                                  </span>
+                                  {/* Only worth the ink when the firms actually
+                                      differed; a unanimous round says the mean
+                                      already told the whole story. */}
+                                  {cell.min !== cell.max && (
+                                    <span className={`ml-1.5 text-[0.68rem] ${cell.split ? "text-[var(--amber)]" : "text-[var(--muted-dim)]"}`}>
+                                      ({cell.min} to {cell.max})
+                                    </span>
+                                  )}
+                                </td>
+                              );
+                            })}
                             <td className={`py-2.5 pl-3 pr-6 ${MONO} text-[0.72rem] text-[var(--muted-dim)]`}>{row.firms}</td>
                           </tr>
                         );
