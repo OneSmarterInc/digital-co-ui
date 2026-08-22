@@ -169,14 +169,6 @@ export function SubmissionView({ row, onClose, onRevise }) {
           )}
         </div>
 
-        <div className="flex justify-end border-t border-[var(--steel-line,#2C323A)] px-7 py-4">
-          <button
-            onClick={onClose}
-            className={`rounded-[2px] border border-[var(--steel-line,#2C323A)] px-4 py-2 ${MONO} text-[10px] uppercase tracking-[0.14em] text-[var(--muted,#8A94A0)] transition hover:border-[var(--steel-soft,#363E48)] hover:text-[var(--paper,#ECEFF2)]`}
-          >
-            Close
-          </button>
-        </div>
         {/* Week 1's anchor strength drives the coherence audit for the whole
             run, so a mis-click needs a way back. Revising overwrites the
             recorded grade; the backend reverses what it applied before. */}
@@ -184,14 +176,14 @@ export function SubmissionView({ row, onClose, onRevise }) {
           {onRevise && (
             <button
               onClick={() => onRevise(row)}
-              className={`${MONO} text-[10px] uppercase tracking-[0.1em] text-[var(--amber,#E8A13C)] hover:underline`}
+              className={`${MONO} text-[10px] uppercase tracking-[0.1em] text-[var(--amber,#E8A13C)] transition hover:underline`}
             >
               Revise this grade
             </button>
           )}
           <button
             onClick={onClose}
-            className={`${MONO} rounded-[2px] border border-[var(--steel-line,#2C323A)] px-4 py-2 text-[10px] uppercase tracking-[0.1em] text-[var(--muted,#8A94A0)] hover:border-[var(--steel-soft,#363E48)] hover:text-[var(--paper,#ECEFF2)]`}
+            className={`rounded-[2px] border border-[var(--steel-line,#2C323A)] px-4 py-2 ${MONO} text-[10px] uppercase tracking-[0.14em] text-[var(--muted,#8A94A0)] transition hover:border-[var(--steel-soft,#363E48)] hover:text-[var(--paper,#ECEFF2)]`}
           >
             Close
           </button>

@@ -24,6 +24,12 @@ const PANEL =
   "rounded-[3px] border border-[var(--steel-line,#2C323A)] bg-[var(--graphite-raised,#1E2228)] shadow-[0_1px_0_rgba(0,0,0,0.4),0_8px_24px_-12px_rgba(0,0,0,0.6)]";
 
 export default function OverviewView({ detail, queue, gameId, rounds, reload, notify, setSection }) {
+  // `queue` is every score record for this cohort, graded and not — GradingView
+  // needs the graded ones to reopen a submission. Everything on this screen
+  // means "still owes me a grade", so filter before counting. Counting the raw
+  // queue reported a cohort at Round 6 as having ten weeks to grade when every
+  // one of them was already graded.
+  const waiting = queue.filter((r) => !r.graded);
   // Co-faculty: staffing a cohort used to require an admin, at provisioning.
   const teachers = detail.instructors ?? [];
   const [addingFac, setAddingFac] = useState(false);
@@ -171,9 +177,9 @@ export default function OverviewView({ detail, queue, gameId, rounds, reload, no
         <StatCard
           icon={<IconClipboard size={16} />}
           label="Waiting to grade"
-          value={queue.length}
+          value={waiting.length}
           pad
-          accent={queue.length ? "var(--amber, #E8A13C)" : undefined}
+          accent={waiting.length ? "var(--amber, #E8A13C)" : undefined}
         />
       </div>
 
@@ -254,7 +260,7 @@ export default function OverviewView({ detail, queue, gameId, rounds, reload, no
         <div className="space-y-6">
           <SectionCard title="Needs attention">
             <div className="space-y-3 border-t border-[var(--steel-line,#2C323A)] px-6 py-5">
-              {queue.length === 0 && unpaid === 0 ? (
+              {waiting.length === 0 && unpaid === 0 ? (
                 <div className="flex items-center gap-2.5 text-sm text-[var(--muted,#8A94A0)]">
                   <span className="grid h-6 w-6 flex-none place-items-center rounded-[2px] border border-[#3f5e46] bg-[var(--graphite,#16191D)] text-[var(--ok,#7FB08A)]">
                     <IconCheck size={14} />
@@ -263,10 +269,10 @@ export default function OverviewView({ detail, queue, gameId, rounds, reload, no
                 </div>
               ) : (
                 <>
-                  {queue.length > 0 && (
+                  {waiting.length > 0 && (
                     <AttentionCard
                       tone="var(--amber, #E8A13C)"
-                      title={`${queue.length} week${queue.length === 1 ? "" : "s"} to grade`}
+                      title={`${waiting.length} week${waiting.length === 1 ? "" : "s"} to grade`}
                       body="Submitted rounds are waiting on you."
                       cta="Grade"
                       onClick={() => setSection("grading")}
