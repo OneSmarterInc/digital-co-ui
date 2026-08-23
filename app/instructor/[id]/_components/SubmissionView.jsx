@@ -139,7 +139,7 @@ export function SubmissionView({ row, onClose, onRevise }) {
                       {k.replace(/_/g, " ")}
                     </span>
                     <span className="text-[0.85rem] text-[var(--paper,#ECEFF2)]">
-                      {typeof v === "boolean" ? (v ? "Yes" : "No") : choiceLabel(v)}
+                      {typeof v === "boolean" ? (v ? "Yes" : "No") : choiceLabel(v, k)}
                     </span>
                   </div>
                 ))}

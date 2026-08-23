@@ -116,7 +116,7 @@ function ValueChip({ label, value }) {
     tone = "border-[var(--amber-deep)] text-[var(--amber)]";
   } else if (typeof value === "string") {
     // The stored value is an enum; show what the student actually chose.
-    display = choiceLabel(value);
+    display = choiceLabel(value, label);
   }
   return (
     <span className={`${CHIP} ${tone}`}>

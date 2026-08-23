@@ -323,6 +323,20 @@ export function GradingModal({ score, gameId, onClose, onGraded }) {
             return (
               <div key={dim} className="border-b border-[var(--steel-line,#2C323A)] pb-2.5 last:border-b-0 last:pb-0">
                 <p className="text-[0.9rem] font-semibold">{label}</p>
+                {/* Deliverable quality is the one dimension proposed from the
+                    writing rather than from the structured choices, so it comes
+                    with its reasoning — and says so plainly when the model
+                    could not read it, rather than showing a considered-looking
+                    zero the engine never arrived at. */}
+                {dim === "deliverable_quality" && (
+                  <p className={`mt-0.5 ${MONO} text-[9px] leading-[1.5] text-[var(--muted-dim,#5C6672)]`}>
+                    {score.quality_proposal?.problem
+                      ? `Not assessed — ${score.quality_proposal.problem}. Set it yourself.`
+                      : score.quality_proposal?.why
+                        ? `Engine read: ${score.quality_proposal.why}`
+                        : "Assessed on how the deliverable is built, not on the decision it argues for."}
+                  </p>
+                )}
                 <div className={`mt-1.5 flex items-center gap-2 ${MONO} text-[0.8rem]`}>
                   <span className="text-[var(--muted-dim,#5C6672)]">engine</span>
                   <span className="w-6 text-right font-bold text-[var(--paper,#ECEFF2)]">{engine}</span>

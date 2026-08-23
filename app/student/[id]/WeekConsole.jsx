@@ -70,7 +70,7 @@ function DecisionField({ ix, field, value, onChange }) {
     );
   }
   const fieldDef = defineTerm(field.label);
-  const choiceDefs = defineChoices(field.choices);
+  const choiceDefs = defineChoices(field.choices, field.key);
 
   return (
     <div className="field">
