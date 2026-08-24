@@ -320,8 +320,8 @@ export default function ExhibitsPage({ currentWeek = 1, showDesignNotes = false 
                 <b>Reading the trend:</b> digital spend nearly doubled across
                 three years while EBITDA margin fell 1.6 points — that pairing,
                 not any single line, is Reinhardt's skepticism and the PE
-                firm's ammunition. The capex and inventory rows are real numbers
-                that decide almost nothing in front of you this week.
+                firm's ammunition. The capex and inventory rows are real numbers.
+                Neither one decides anything this week.
               </div>
             </div>
 
@@ -401,8 +401,7 @@ export default function ExhibitsPage({ currentWeek = 1, showDesignNotes = false 
                 platform at Meridian-level ARPU breaks even near 11,000 units —
                 fewer than are <b>already active</b>. Whether this business is
                 dead or merely mispriced is a pricing-and-rights question, not a
-                cost question. Both readings are in these five rows; the war room
-                will happily argue either side.
+                cost question. Both readings are in these five rows.
               </div>
             </div>
           </div>

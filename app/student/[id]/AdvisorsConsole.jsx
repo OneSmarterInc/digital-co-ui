@@ -324,9 +324,9 @@ export default function AdvisorsConsole({ sim, game, cohortId, playable, notify,
         <h1>The War Room</h1>
       </div>
       <p className="warroom-intro">
-        Six advisors on call. Each sees the estate through their own lane — and carries
-        their own blind spot. <b>Nothing said in this room is scored.</b> Split the bench
-        across your team, then argue about what you each heard.
+        Six advisors on call. Each sees the company through their own specialism, and each
+        has a blind spot. <b>Nothing said in this room is scored.</b> Split them across your
+        team, then argue about what you each heard.
       </p>
 
       <div style={{ display: "flex", gap: 8, margin: "6px 0 16px", alignItems: "center", flexWrap: "wrap" }}>
@@ -359,9 +359,10 @@ export default function AdvisorsConsole({ sim, game, cohortId, playable, notify,
 
       {mode === "solo" && sim.advisor_hourly_rate > 0 && (
         <div className="notice" style={{ maxWidth: 720 }}>
-          Advisor chat bills <b>{fmtMoney(sim.advisor_hourly_rate)} per started hour</b>.
-          Your first message opens an hour; messages within it are covered. Used so far:{" "}
-          {sim.advisor_hours ?? 0}h{sim.advisor_due > 0 ? ` (${fmtMoney(sim.advisor_due)})` : ""}.
+          <b>You have {TURN_CAP} turns with each advisor this week.</b> Use them well.
+          Advisor time also bills the company at{" "}
+          <b>{fmtMoney(sim.advisor_hourly_rate)} per started hour</b> — your first message
+          opens an hour, and everything inside that hour is covered.
         </div>
       )}
       {mode === "group" && (
@@ -397,7 +398,7 @@ export default function AdvisorsConsole({ sim, game, cohortId, playable, notify,
       {mode === "solo" ? (
         <div className="warroom">
           <div className="roster">
-            <div className="eyebrow roster__cap">The bench</div>
+            <div className="eyebrow roster__cap">Advisors</div>
             {advisors.map((a) => (
               <button
                 key={a.id}
@@ -480,7 +481,8 @@ export default function AdvisorsConsole({ sim, game, cohortId, playable, notify,
                   </button>
                 </div>
                 <div className="cp__note mono">
-                  Advisors explore, they don&rsquo;t score. Turns used: {turnsUsed} / {TURN_CAP}
+                  Advisors explore, they don&rsquo;t score. Turns with{" "}
+                  {active.name}: {turnsUsed} of {TURN_CAP}
                   {" · "}
                   <button
                     type="button"
@@ -493,7 +495,7 @@ export default function AdvisorsConsole({ sim, game, cohortId, playable, notify,
               </>
             ) : (
               <div className="cp__empty" style={{ padding: 40 }}>
-                Pick an advisor from the bench.
+                Pick an advisor to begin.
               </div>
             )}
           </div>
@@ -565,7 +567,7 @@ function GroupRoom({
         <div className="console-panel">
           <div className="cp__empty" style={{ padding: 40, textAlign: "center" }}>
             <p style={{ color: "var(--muted)", maxWidth: 380, margin: "0 auto 18px" }}>
-              Pick <b>{MIN_GROUP} to {MAX_GROUP}</b> advisors from the bench. In the room they&rsquo;ll
+              Pick <b>{MIN_GROUP} to {MAX_GROUP}</b> advisors. In the room they&rsquo;ll
               react to each other — agree, push back, call each other out — not just answer you in turn.
             </p>
             <button

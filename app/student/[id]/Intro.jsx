@@ -17,11 +17,11 @@ const MANDATE =
 
 const NEXT_LABELS = [
   "Begin",
-  "Read the room",
-  "See the estate",
+  "See the company",
+  "See what you inherited",
   "Learn the rules",
-  "Meet the bench",
-  "See the stakes",
+  "Meet your advisors",
+  "See how it ends",
   "Take the chair · Week 01",
 ];
 
@@ -35,10 +35,10 @@ const BENCH = [
 ];
 
 const TIERS = [
-  ["tier--1", "TRIUMPH", "You managed every thread, earned the board, and built something competitors can't easily copy."],
-  ["tier--2", "WIN, WITH SCARS", "The strategy held — but something you neglected detonated along the way, and it cost you the clean win."],
-  ["tier--3", "SQUEAK THROUGH", "You survived. Gates closed, trust strained, the ask denied — but the company is still standing."],
-  ["tier--4", "DISASTER", "You lost the thread. The private-equity firm gets its argument for a change of direction — and it isn't you."],
+  ["tier--1", "TRIUMPH", "You held one direction the whole way, earned the board, and built something competitors can't easily copy."],
+  ["tier--2", "WIN, WITH SCARS", "The strategy held. But something you left unaddressed came back, and it cost you the clean win."],
+  ["tier--3", "SQUEAK THROUGH", "You survived. Trust is strained and the ask was denied, but the company is still standing."],
+  ["tier--4", "DISASTER", "You lost the plot. The private-equity firm gets its argument for a change of direction, and it isn't you."],
 ];
 
 /* Declared out here on purpose: as a component defined inside Intro it would be a
@@ -208,7 +208,7 @@ export default function Intro({ onDone }) {
       </Scene>
 
       <Scene on={at === 3}>
-        <div className="eyebrow">Scene 03 · The estate</div>
+        <div className="eyebrow">Scene 03 · What you inherited</div>
         <h2>The four problems on your desk</h2>
         <div className="readouts">
           <div className="readout"><div className="readout__lamp lamp--red" /><div className="readout__name">S/4HANA migration</div><div className="readout__stat"><b>RED</b> · ~2 years late · ~$40M spent against a $25M budget · stalled on dependencies nobody mapped</div></div>
@@ -217,9 +217,8 @@ export default function Intro({ onDone }) {
           <div className="readout"><div className="readout__lamp lamp--black" /><div className="readout__name">The factory floor</div><div className="readout__stat"><b>BLACK BOX</b> · plant systems and fleet telemetry sit outside IT&rsquo;s visibility entirely</div></div>
         </div>
         <p className="aside">
-          Everything on this panel is a thread, and some threads have <b>long fuses</b>.
-          What you do about each of them &mdash; including nothing &mdash; will matter later
-          in ways this screen doesn&rsquo;t tell you.
+          What you do about each of these &mdash; including nothing &mdash; will matter
+          later, in ways this screen doesn&rsquo;t tell you.
         </p>
       </Scene>
 
@@ -245,7 +244,7 @@ export default function Intro({ onDone }) {
           <div className="eyebrow">One warning worth carrying</div>
           <p>
             In Week 1 you&rsquo;ll write a strategy statement. It becomes your{" "}
-            <b>anchor</b> &mdash; the yardstick every later week is quietly measured
+            <b>anchor</b> &mdash; the yardstick every later week is measured
             against. Fourteen locally clever decisions that don&rsquo;t add up to one
             strategy will cost you more than any single mistake.
           </p>
@@ -253,7 +252,7 @@ export default function Intro({ onDone }) {
       </Scene>
 
       <Scene on={at === 5}>
-        <div className="eyebrow">Scene 05 · Your bench</div>
+        <div className="eyebrow">Scene 05 · Your advisors</div>
         <h2>Six advisors. Six lanes. Six blind spots.</h2>
         <div className="bench">
           {BENCH.map(([av, name, lane, listen, discount]) => (
@@ -274,7 +273,7 @@ export default function Intro({ onDone }) {
         <p className="aside">
           Your real job in that room is never to find the advisor who&rsquo;s right.
           It&rsquo;s to <b>synthesize six biased expert views</b> into a judgment none of
-          them would reach alone. Six advisors, one team &mdash; <b>split the bench</b>,
+          them would reach alone. Six advisors, one team. Split them between you,
           then argue about what each of you heard.
         </p>
       </Scene>

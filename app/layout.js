@@ -4,7 +4,7 @@ import "./console.css";
 export const metadata = {
   title: "FLEXEE · DigitalCo — A fourteen-week IS/IT strategy simulation",
   description:
-    "Take the CIO seat at an industrial manufacturer whose digital transformation has gone sideways. Fourteen weeks, one continuous strategy, four ways it can land.",
+    "Take the CIO seat at an industrial manufacturer whose digital transformation has already failed once. Fourteen weeks, one continuous strategy, four ways it can land.",
 };
 
 export default function RootLayout({ children }) {

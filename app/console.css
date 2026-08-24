@@ -346,10 +346,16 @@ select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns=
 .chrome-fixed .right{display:flex;align-items:center;gap:18px;pointer-events:auto}
 .chrome-fixed .stepnum{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--muted-dim)}
 .chrome-fixed .stepnum b{color:var(--amber);font-weight:600}
-.scene{min-height:100vh;display:none;align-items:center;justify-content:center;padding:96px 24px 130px}
+/* The advance bar sits in the flow below the scene, not fixed over it. When it
+   was fixed, a scene taller than the viewport kept its last box permanently
+   under the buttons — on a 620px laptop the team-rule line read "then find
+   the o[BUTTON]n". min-height leaves room for the bar so a short scene still
+   fills the screen. `safe center` stops flex centering from overflowing an
+   over-tall scene off the top, where nothing can scroll it back. */
+.scene{min-height:calc(100vh - 104px);display:none;align-items:center;align-items:safe center;justify-content:center;padding:88px 24px 32px}
 .scene--on{display:flex}
 .scene__inner{width:100%;max-width:760px;animation:rise .6s ease both}
-.advance{position:fixed;bottom:0;left:0;right:0;z-index:30;display:flex;align-items:center;justify-content:center;gap:18px;padding:20px 24px 26px;background:linear-gradient(180deg,transparent,rgba(22,25,29,.94) 45%)}
+.advance{position:relative;z-index:30;display:flex;align-items:center;justify-content:center;gap:18px;padding:20px 24px 26px}
 .btn{background:var(--amber);color:var(--graphite);font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:16px;letter-spacing:.06em;text-transform:uppercase;padding:14px 34px;border-radius:2px;transition:.15s;display:inline-block}
 .btn:hover{background:#F0B052;transform:translateY(-1px)}
 .btn--ghost{background:none;color:var(--muted);border:1px solid var(--steel-line);font-size:14px;padding:13px 22px}

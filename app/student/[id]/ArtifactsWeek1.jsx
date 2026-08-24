@@ -42,7 +42,7 @@ function F1() {
   return (
     <>
       <p className="provenance">
-        The estate, system by system. Read the <b>run cost</b> column against what each
+        Every system, one by one. Read the <b>run cost</b> column against what each
         system does, read the <b>IT visibility</b> column against what could go wrong, and
         notice what the retirement column says about why DigitalCo pays for two estates at
         once.

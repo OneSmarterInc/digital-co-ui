@@ -299,9 +299,9 @@ export default function WeekConsole({ game, cohortId, playable, reload, notify, 
                   <div className="confirmed__card">
                     <div className="eyebrow">What your call set in motion</div>
                     <p>
-                      The decision is recorded for your firm. The moves you made this week
-                      seed threads that resurface as the arc unfolds. You won&rsquo;t see the
-                      scoring — you&rsquo;ll feel the consequences.
+                      The decision is recorded for your firm. What you chose this week will
+                      come back, in ways this screen doesn&rsquo;t tell you. You won&rsquo;t
+                      see the scoring — you&rsquo;ll feel the consequences.
                     </p>
                   </div>
                   <div className="confirmed__next">
