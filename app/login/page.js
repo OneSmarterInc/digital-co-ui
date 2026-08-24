@@ -150,7 +150,18 @@ export default function LoginPage() {
               </label>
 
               <label className="block">
-                <span className={labelClass}>Password</span>
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className={labelClass}>Password</span>
+                  {/* Sits with the field it concerns, not buried under the
+                      button — someone who has forgotten it knows that before
+                      they reach the bottom of the form. */}
+                  <a
+                    href="/forgot-password"
+                    className={`mb-1.5 ${MONO} text-[9.5px] uppercase tracking-[0.12em] text-[var(--muted)] transition-colors hover:text-[var(--amber)] ${FOCUS}`}
+                  >
+                    Forgot?
+                  </a>
+                </div>
                 <input
                   type="password"
                   autoComplete="current-password"
