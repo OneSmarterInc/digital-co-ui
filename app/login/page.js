@@ -68,7 +68,7 @@ export default function LoginPage() {
     } catch (err) {
       setError(
         err.status === 401
-          ? "That username and password don't match."
+          ? "That username or email and password don't match."
           : "Couldn't reach the server. Check that the API is running."
       );
       setLoading(false);
@@ -138,7 +138,7 @@ export default function LoginPage() {
               <p className="min-h-[2.6em] text-[13px] leading-[1.5] text-[var(--muted)]">{HINT[role]}</p>
 
               <label className="block">
-                <span className={labelClass}>Username</span>
+                <span className={labelClass}>Username or email</span>
                 <input
                   type="text"
                   autoComplete="username"

@@ -46,14 +46,14 @@ export default function ArcDiagram() {
       ref={ref}
       viewBox="0 0 1040 210"
       role="img"
-      aria-label="A sample fourteen-week run: the budget gate holds open while the OT gate closes at week seven and detonates at week ten, capping the outcome."
+      aria-label="A sample fourteen-week run. One risk stays under control the whole way. Another turns bad in week seven and is beyond repair by week ten."
       className="mt-1.5 block h-auto w-full"
     >
       {WEEKS.map((w) => (
         <line key={`g${w}`} x1={x(w)} x2={x(w)} y1={Y_BUDGET} y2={Y_AXIS} stroke="rgba(24,35,47,0.07)" strokeWidth="1" />
       ))}
 
-      {/* Budget gate: open the whole way */}
+      {/* One risk held under control the whole way. */}
       <text x="10" y={Y_BUDGET + 4} fill="var(--color-muted)" className={LABEL} style={{ fontSize: 11, letterSpacing: "0.14em" }}>
         BUDGET
       </text>
@@ -65,9 +65,9 @@ export default function ArcDiagram() {
       <circle cx={x(1)} cy={Y_BUDGET} r="4" fill="var(--color-go)" className={FADE} style={{ opacity: on ? 1 : 0, transitionDelay: "200ms" }} />
       <circle cx={x(14)} cy={Y_BUDGET} r="4" fill="var(--color-go)" className={FADE} style={{ opacity: on ? 1 : 0, transitionDelay: "1100ms" }} />
 
-      {/* OT gate: open, closes at week 7, detonates at week 10 */}
+      {/* One risk left unattended: manageable, then not, then past saving. */}
       <text x="10" y={Y_OT + 4} fill="var(--color-muted)" className={LABEL} style={{ fontSize: 11, letterSpacing: "0.14em" }}>
-        OT
+        PLANT
       </text>
       <line
         x1={x(1)} x2={x(7)} y1={Y_OT} y2={Y_OT}

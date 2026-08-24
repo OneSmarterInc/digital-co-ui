@@ -23,7 +23,7 @@ const THEME = {
   "--signal-red": "#D2564B",
   "--blueprint": "#5BA3C4",
   "--ok": "#7FB08A",
-  /* remaps for ArcDiagram + gate legend */
+  /* remaps for ArcDiagram + risk legend */
   "--color-go": "#7FB08A",
   "--color-caution": "#E8A13C",
   "--color-alarm": "#D2564B",
@@ -31,28 +31,28 @@ const THEME = {
 };
 
 const ENDINGS = [
-  { tier: "Triumph", color: "var(--amber)", desc: "A coherent arc with both gates intact. You built the advantage you claimed to the board." },
-  { tier: "Win with scars", color: "var(--paper)", desc: "You get the win, but a gate you let detonate leaves a permanent mark on the record." },
+  { tier: "Triumph", color: "var(--amber)", desc: "You held one direction the whole way, and nothing came back to bite you. The board believes you." },
+  { tier: "Win with scars", color: "var(--paper)", desc: "You got there, but something you left unfixed cost you along the way." },
   { tier: "Squeak through", color: "var(--muted)", desc: "Enough went right to survive the board vote. Not much more than that." },
   { tier: "Disaster", color: "var(--signal-red)", desc: "The failures compounded week over week. The board's confidence is gone." },
 ];
 
 const HARD = [
   {
-    title: "Gates that don't reopen",
-    body: "Budget credibility and factory-floor security each move one way only, from open to closed to detonated. Break one and it caps how well the whole run can end, no matter what else you do right.",
+    title: "Some decisions can't be undone",
+    body: "Money spent, systems chosen, promises made. Some of what you decide early stays decided.",
   },
   {
-    title: "Threads that accumulate",
-    body: "Coherence, cloud lock-in, data rights, and OT posture carry weight across all fourteen weeks. Your Week 1 strategy becomes an anchor the board audits at Week 13.",
+    title: "Nothing stays in its own week",
+    body: "A choice in Week 2 changes what Week 9 looks like. You will not always be told which one.",
   },
   {
     title: "Six advisors, six agendas",
     body: "Every advisor is compelling, and every one is protecting something. The most persuasive voice in the room may be the one steering you straight into a trap.",
   },
   {
-    title: "You claim only what you built",
-    body: "At Week 14 the engine takes the score you earned and caps it by the failures you carried in. Your ending is the lower of the two. Narrative can't outrun the record.",
+    title: "You are judged on the record",
+    body: "At the end you present your case to the board. They have watched the whole run. A good story cannot outrun what actually happened.",
   },
 ];
 
@@ -99,14 +99,14 @@ export default function Home() {
           </Reveal>
           <Reveal delay={130}>
             <h1 className={`mb-6 max-w-[17ch] ${DISPLAY} text-[clamp(3rem,7.5vw,5.4rem)] font-bold leading-[0.98] tracking-[0.01em]`}>
-              You inherit a transformation that&rsquo;s already gone sideways.
+              You inherit a transformation that has already failed once.
             </h1>
           </Reveal>
           <Reveal delay={220}>
             <p className="mb-[34px] max-w-[62ch] text-[clamp(1.05rem,1.6vw,1.2rem)] leading-[1.6] text-[var(--muted)]">
               You&rsquo;re the new CIO at DigitalCo, an industrial manufacturer with a stalled core migration, a factory
-              floor no one can see into, and a board that wants a real direction by the next meeting. Fourteen weeks,
-              one continuous strategy, and every decision compounds into the next.
+              floor you have no visibility into, and a board that wants a real direction by the next meeting. Fourteen
+              weeks, one continuous strategy, and every decision compounds into the next.
             </p>
           </Reveal>
           <Reveal delay={310}>
@@ -118,7 +118,7 @@ export default function Home() {
                 Take the CIO seat
               </a>
               <a
-                href="#arc"
+                href="#how-it-unfolds"
                 className={`rounded-[2px] border border-[var(--steel-line)] px-[22px] py-3.5 ${MONO} text-[12px] uppercase tracking-[0.14em] text-[var(--muted)] transition-colors duration-150 hover:border-[var(--steel-soft)] hover:bg-[var(--graphite-raised)] hover:text-[var(--paper)] ${FOCUS}`}
               >
                 How a run unfolds
@@ -127,7 +127,7 @@ export default function Home() {
           </Reveal>
         </section>
 
-        <section id="arc" className="mx-auto max-w-[1080px] px-6 pt-9 pb-[72px]">
+        <section id="how-it-unfolds" className="mx-auto max-w-[1080px] px-6 pt-9 pb-[72px]">
           <Reveal>
             <div className={`rounded-[3px] border border-[var(--steel-line)] bg-[var(--graphite-raised)] px-[26px] pt-[26px] pb-[22px] ${CARD_SHADOW}`}>
               <div className="mb-1.5 flex flex-wrap items-baseline justify-between gap-4">
@@ -136,22 +136,20 @@ export default function Home() {
                 </span>
                 <div className={`flex flex-wrap gap-[18px] ${MONO} text-[10px] uppercase tracking-[0.12em] text-[var(--muted)]`}>
                   <span className="inline-flex items-center gap-[7px]">
-                    <i className="h-2.5 w-2.5 rounded-[2px] bg-[var(--ok)]" />Open
+                    <i className="h-2.5 w-2.5 rounded-[2px] bg-[var(--ok)]" />Under control
                   </span>
                   <span className="inline-flex items-center gap-[7px]">
-                    <i className="h-2.5 w-2.5 rounded-[2px] bg-[var(--amber)] shadow-[0_0_8px_-1px_var(--amber)]" />Closed
+                    <i className="h-2.5 w-2.5 rounded-[2px] bg-[var(--amber)] shadow-[0_0_8px_-1px_var(--amber)]" />Going wrong
                   </span>
                   <span className="inline-flex items-center gap-[7px]">
-                    <i className="h-2.5 w-2.5 rounded-[2px] bg-[var(--signal-red)] shadow-[0_0_8px_-1px_var(--signal-red)]" />Detonated
+                    <i className="h-2.5 w-2.5 rounded-[2px] bg-[var(--signal-red)] shadow-[0_0_8px_-1px_var(--signal-red)]" />Past fixing
                   </span>
                 </div>
               </div>
               <ArcDiagram />
               <p className="mt-4 max-w-[68ch] text-[0.94rem] leading-[1.6] text-[var(--muted)]">
-                Read it left to right. Budget credibility holds the whole way, but the OT gate closes at Week 7 and
-                detonates at Week 10. Even with everything else sound, that single detonation caps the ending at{" "}
-                <strong className="font-semibold text-[var(--amber)]">Win with scars</strong>. That&rsquo;s the ceiling
-                doing its job.
+                If you ignore an early risk, it may not be fixable later. Your objective is to optimize fourteen weeks
+                of results, so focus on the entire simulation, not just on the immediate result.
               </p>
             </div>
           </Reveal>
@@ -160,15 +158,15 @@ export default function Home() {
         <section id="premise" className={SECTION}>
           <Reveal>
             <p className={KICKER}>The inheritance</p>
-            <h2 className={`${H2} max-w-[22ch]`}>A bold-but-vague mandate, sitting on a broken foundation.</h2>
+            <h2 className={`${H2} max-w-[22ch]`}>A bold mandate with no direction, on a broken foundation.</h2>
             <p className={`${BODY} mb-4`}>
               The CEO gives you thirty days to get a real read and come back with a direction. Underneath sits the mess
-              your predecessor left: a two-year-late core migration bleeding past budget, a connected-products platform
-              shipping data it never monetizes, a data lake turned dumping ground, and an IT org where only one or two
+              your predecessor left. A core migration two years late and past budget. A connected-products platform that
+              ships data nobody sells. A data lake used as a dumping ground. And an IT organisation where one or two
               people still understand the systems that run the plant.
             </p>
             <p className={`${BODY} border-l-2 border-[var(--steel-soft)] pl-3.5`}>
-              The private-equity owners want returns, the founding family is wary, and the board expects movement at the
+              The private-equity owners want returns. The founding family is wary. The board expects movement at the
               next meeting. Your first move has to create visibility{" "}
               <b className="font-semibold text-[var(--paper)]">without foreclosing the strategy you haven&rsquo;t written yet.</b>
             </p>
@@ -177,11 +175,11 @@ export default function Home() {
 
         <section id="endings" className={SECTION}>
           <Reveal>
-            <p className={KICKER}>One calculation at Week 14</p>
+            <p className={KICKER}>How it ends</p>
             <h2 className={`${H2} max-w-[22ch]`}>Four ways it can land.</h2>
             <p className={BODY}>
-              The engine maps your accumulated score to an earned tier, then caps it by whatever you broke along the
-              way. A detonated gate, a lost board vote, or an incoherent arc each pulls the ceiling down.
+              Your ending is earned across all fourteen weeks. Strong decisions build toward the best outcome.
+              Unaddressed risks and broken promises pull it down.
             </p>
           </Reveal>
           <div className="mt-7 grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
