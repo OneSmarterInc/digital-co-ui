@@ -185,6 +185,25 @@ export default function InviteesView({ gameId, detail, reload, notify }) {
       .catch(() => notify("Copy failed — select and copy manually"));
   }
 
+  // Separate from `copied` above, which tracks the cohort-wide registration
+  // link. This one holds the id of the invitation whose link was just copied,
+  // so the confirmation appears on that row only.
+  const [copiedInvite, setCopiedInvite] = useState(null);
+
+  async function copyInviteLink(inv) {
+    try {
+      await navigator.clipboard.writeText(inv.url);
+    } catch {
+      // Clipboard access is refused without https or a user gesture in some
+      // browsers. A prompt still gets the link into the instructor's hands,
+      // which is the point.
+      window.prompt("Copy this invitation link:", inv.url);
+      return;
+    }
+    setCopiedInvite(inv.id);
+    setTimeout(() => setCopiedInvite((c) => (c === inv.id ? null : c)), 2000);
+  }
+
   async function doResend(inv) {
     setBusy(true);
     try {
@@ -416,6 +435,18 @@ export default function InviteesView({ gameId, detail, reload, notify }) {
                       )}
                     </td>
                     <td className="py-3 pl-3 pr-6 text-right">
+                      {/* The same link that was emailed. Useful for checking a
+                          link actually works, and for handing it over by
+                          another route when mail fails or lands in spam. */}
+                      {inv.url && (
+                        <button
+                          onClick={() => copyInviteLink(inv)}
+                          className={`${GHOST_SM} mr-2`}
+                          title={inv.url}
+                        >
+                          {copiedInvite === inv.id ? "Copied ✓" : "Copy link"}
+                        </button>
+                      )}
                       {inv.status !== "ACCEPTED" && (
                         <button onClick={() => doResend(inv)} disabled={busy} className={GHOST_SM}>
                           Resend
