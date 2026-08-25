@@ -212,12 +212,19 @@ export function GradingModal({ score, gameId, onClose, onGraded }) {
     }
   }, [score.id]);
 
+  // Draft on open only when there is nothing there yet — a first grading, or a
+  // revise of a round graded before written feedback existed. Text that has
+  // already been published is never replaced without being asked for: an
+  // instructor reopening a round to change a number must not have the paragraph
+  // the firm already read silently rewritten underneath them. Redraft is right
+  // there when they do want a new one.
+  const published = score.feedback || "";
   const drafted = useRef(false);
   useEffect(() => {
-    if (drafted.current || score.feedback) return;
+    if (drafted.current || published) return;
     drafted.current = true;
     draft();
-  }, [draft, score.feedback]);
+  }, [draft, published]);
 
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && onClose();
@@ -375,16 +382,30 @@ export function GradingModal({ score, gameId, onClose, onGraded }) {
             <label htmlFor="grade-feedback" className={`${DISPLAY} text-[15px] font-semibold`}>
               Written feedback
             </label>
-            <button
-              onClick={draft}
-              disabled={drafting || busy}
-              className={`${MONO} text-[9px] uppercase tracking-[0.08em] text-[var(--amber,#E8A13C)] hover:underline disabled:opacity-50`}
-            >
-              {drafting ? "Drafting…" : feedback ? "Redraft" : "Draft"}
-            </button>
+            <span className="flex items-baseline gap-3">
+              {/* Only offered when the model has actually changed something,
+                  so it is a way back rather than a permanent extra control. */}
+              {published && feedback !== published && (
+                <button
+                  onClick={() => setFeedback(published)}
+                  disabled={busy}
+                  className={`${MONO} text-[9px] uppercase tracking-[0.08em] text-[var(--muted,#8A94A0)] hover:text-[var(--paper,#ECEFF2)] hover:underline disabled:opacity-50`}
+                >
+                  Restore published
+                </button>
+              )}
+              <button
+                onClick={draft}
+                disabled={drafting || busy}
+                className={`${MONO} text-[9px] uppercase tracking-[0.08em] text-[var(--amber,#E8A13C)] hover:underline disabled:opacity-50`}
+              >
+                {drafting ? "Drafting…" : feedback ? "Redraft" : "Draft"}
+              </button>
+            </span>
           </div>
           <p className={`mb-2 ${MONO} text-[9px] uppercase tracking-[0.08em] leading-[1.5] text-[var(--muted-dim,#5C6672)]`}>
             This is a draft to edit, not an adjustment. What you save here is what the firm reads.
+            {published && feedback !== published && " A new draft has replaced the published text."}
           </p>
           <textarea
             id="grade-feedback"
