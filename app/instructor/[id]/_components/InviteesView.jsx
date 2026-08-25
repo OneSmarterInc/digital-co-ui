@@ -190,6 +190,35 @@ export default function InviteesView({ gameId, detail, reload, notify }) {
   // so the confirmation appears on that row only.
   const [copiedInvite, setCopiedInvite] = useState(null);
 
+  const [exporting, setExporting] = useState(false);
+
+  async function exportPending() {
+    if (exporting) return;
+    setExporting(true);
+    try {
+      // Not a plain link: the endpoint needs the JWT, so fetch it and hand the
+      // browser a blob. The filename comes from the server so the sheet is
+      // named after the cohort rather than after the route.
+      const r = await api(`/instructor/simulations/${gameId}/invitations/export/`);
+      if (!r.ok) throw new Error(`Request failed (${r.status})`);
+      const disposition = r.headers.get("Content-Disposition") || "";
+      const named = /filename="([^"]+)"/.exec(disposition);
+      const blob = await r.blob();
+      const href = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = href;
+      a.download = named ? named[1] : "pending-invitations.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(href);
+    } catch (e) {
+      notify(`Export failed: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setExporting(false);
+    }
+  }
+
   async function copyInviteLink(inv) {
     try {
       await navigator.clipboard.writeText(inv.url);
@@ -376,6 +405,13 @@ export default function InviteesView({ gameId, detail, reload, notify }) {
                 className={`${MONO} text-[9.5px] font-semibold uppercase tracking-[0.1em] text-[var(--muted,#8A94A0)] transition hover:text-[var(--paper,#ECEFF2)]`}
               >
                 Clear
+              </button>
+            )}
+            {/* Every outstanding invitation with its link, for a mail merge or
+                a printed handout. Pending only — a redeemed token is spent. */}
+            {pending > 0 && (
+              <button onClick={exportPending} disabled={exporting} className={GHOST_SM}>
+                {exporting ? "Preparing…" : `Export ${pending} pending`}
               </button>
             )}
           </div>
