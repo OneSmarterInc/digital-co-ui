@@ -68,15 +68,31 @@ const GHOST = `rounded-[2px] border border-[var(--steel-line)] font-['IBM_Plex_M
 
 /* ---- helpers ---- */
 
-function closesIn(endStr) {
-  if (!endStr || endStr === "—") return null;
-  const end = new Date(endStr);
+function closesAt(round) {
+  // Prefer the server's exact instant, which carries the cohort's UTC offset.
+  // `end` alone is a bare date, and every client that parsed it landed on
+  // midnight UTC — the previous evening in New York, the same morning in Delhi.
+  const iso = round?.end_at || round?.end;
+  if (!iso || iso === "\u2014") return null;
+  const end = new Date(iso);
   if (Number.isNaN(end.getTime())) return null;
-  const ms = end.getTime() - Date.now();
-  if (ms <= 0) return "deadline passed";
-  const d = Math.floor(ms / 86400000);
-  const h = Math.floor((ms % 86400000) / 3600000);
-  return `closes in ${d}d ${h}h`;
+  if (end.getTime() - Date.now() <= 0) return "deadline passed";
+  try {
+    // Formatted in the cohort's own zone, and labelled with it, so nobody has
+    // to work out whose midnight this is. The abbreviation follows daylight
+    // saving on its own — EST in January, EDT in July.
+    return `closes ${new Intl.DateTimeFormat("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      timeZoneName: "short",
+      timeZone: round.timezone || undefined,
+    }).format(end)}`;
+  } catch {
+    return `closes ${end.toLocaleString()}`;
+  }
 }
 function statusOf(sim) {
   // Completed means the run is actually finished (marked COMPLETE or Week 14
@@ -424,7 +440,7 @@ export default function StudentCohortPage() {
               className={`hidden items-center gap-1.5 rounded-[2px] border border-[var(--amber-deep)] px-3 py-1.5 ${MONO} text-[9.5px] uppercase tracking-[0.12em] text-[var(--amber)] md:inline-flex`}
             >
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--amber)] shadow-[0_0_6px_-1px_var(--amber)]" />
-              R{current} {closesIn(rounds[current - 1]?.end) || "open"}
+              R{current} {closesAt(rounds[current - 1]) || "open"}
             </span>
           )}
           <span className={`hidden max-w-[200px] truncate ${MONO} text-[10.5px] uppercase tracking-[0.16em] text-[var(--muted)] sm:inline`}>
@@ -525,7 +541,7 @@ export default function StudentCohortPage() {
  * ================================================================== */
 
 function DashboardView({ sim, game, rounds, current, status, playable, gated, setSection, onRevisitTour }) {
-  const deadline = closesIn(rounds[current - 1]?.end);
+  const deadline = closesAt(rounds[current - 1]);
   const week = game?.week;
   const total = sim.total_rounds || rounds.length || 0;
   const completed = rounds.filter((r) => r.status === "Completed").length;
@@ -1042,7 +1058,7 @@ function ScheduleView({ sim, rounds, current }) {
                     <td className="px-3 py-3 text-sm text-[var(--muted)]">{r.end ?? "—"}</td>
                     <td className="py-3 pl-3 pr-6">
                       <StatusPill
-                        label={active && r.n === current ? `Active · ${closesIn(r.end) || "open"}` : r.status}
+                        label={active && r.n === current ? `Active · ${closesAt(r) || "open"}` : r.status}
                         tone={active ? "var(--amber)" : r.status === "Completed" ? "var(--muted)" : "var(--blueprint)"}
                       />
                     </td>

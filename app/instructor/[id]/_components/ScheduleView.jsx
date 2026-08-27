@@ -125,7 +125,7 @@ export default function ScheduleView({ gameId, detail, rounds, reload, notify })
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <MiniInfo label="Current round" value={`R${detail.current_round}`} sub={`of ${detail.total_rounds}`} />
         <MiniInfo label="Remaining" value={Math.max(0, detail.total_rounds - detail.current_round)} sub="rounds left" />
-        <MiniInfo label="This round" value={closesIn(rounds[detail.current_round - 1]?.end) || "—"} sub="deadline" />
+        <MiniInfo label="This round" value={closesIn(rounds[detail.current_round - 1]) || "—"} sub="deadline" />
         <MiniInfo label="Per student" value={fmtMoney(billing.price_per_student)} sub="billing rate" />
       </div>
 

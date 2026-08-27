@@ -108,7 +108,7 @@ export default function OverviewView({ detail, queue, gameId, rounds, reload, no
   const completed = rounds.filter((r) => r.status === "Completed").length;
   const pct = total ? Math.round((completed / total) * 100) : 0;
   const remaining = Math.max(0, total - completed);
-  const deadline = closesIn(rounds[current - 1]?.end);
+  const deadline = closesIn(rounds[current - 1]);
   const atMax = current >= total;
   const runComplete = Boolean(detail.completed);
   // At the final round the control finalizes the run rather than advancing; once

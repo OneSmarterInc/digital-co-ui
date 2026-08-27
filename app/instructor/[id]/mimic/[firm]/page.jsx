@@ -61,15 +61,29 @@ const SHEET =
 
 /* ---- helpers (mirroring the student page) ---- */
 
-function closesIn(endStr) {
-  if (!endStr || endStr === "—") return null;
-  const end = new Date(endStr);
+function closesIn(round) {
+  // `end_at` carries the cohort's UTC offset; a bare `end` date was parsed as
+  // midnight UTC, which is the wrong evening or morning depending on where the
+  // course actually is.
+  const row = typeof round === "string" ? { end: round } : round || {};
+  const iso = row.end_at || row.end;
+  if (!iso || iso === "\u2014") return null;
+  const end = new Date(iso);
   if (Number.isNaN(end.getTime())) return null;
-  const ms = end.getTime() - Date.now();
-  if (ms <= 0) return "deadline passed";
-  const d = Math.floor(ms / 86400000);
-  const h = Math.floor((ms % 86400000) / 3600000);
-  return `closes in ${d}d ${h}h`;
+  if (end.getTime() - Date.now() <= 0) return "deadline passed";
+  try {
+    return `closes ${new Intl.DateTimeFormat("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      timeZoneName: "short",
+      timeZone: row.timezone || undefined,
+    }).format(end)}`;
+  } catch {
+    return `closes ${end.toLocaleString()}`;
+  }
 }
 const fmtMoney = (n) => `$${Number(n ?? 0).toLocaleString()}`;
 
@@ -374,7 +388,7 @@ export default function MimicStudentViewPage() {
           {live && (
             <span className={`hidden items-center gap-1.5 rounded-[2px] border border-[var(--amber-deep)] px-3 py-1.5 ${MONO} text-[9.5px] uppercase tracking-[0.12em] text-[var(--amber)] md:inline-flex`}>
               <span className="h-1.5 w-1.5 rounded-full bg-[var(--amber)] shadow-[0_0_6px_-1px_var(--amber)]" />
-              R{current} {closesIn(rounds[current - 1]?.end) || "open"}
+              R{current} {closesIn(rounds[current - 1]) || "open"}
             </span>
           )}
           <span className={`${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--muted-dim)]`}>{game.firm.name} student</span>
@@ -432,7 +446,7 @@ export default function MimicStudentViewPage() {
  * ================================================================== */
 
 function MimicDashboard({ detail, game, rounds, current, total, status, setSection, advisorHours, advisorBilled }) {
-  const deadline = closesIn(rounds[current - 1]?.end);
+  const deadline = closesIn(rounds[current - 1]);
   const week = game.week;
   const completed = rounds.filter((r) => r.status === "Completed").length;
   const pct = total ? Math.round((completed / total) * 100) : 0;
@@ -810,7 +824,7 @@ function MimicSchedule({ detail, rounds, current }) {
                     <td className="px-3 py-3 text-sm text-[var(--muted)]">{r.end ?? "—"}</td>
                     <td className="py-3 pl-3 pr-6">
                       <StatusPill
-                        label={active && r.n === current ? `Active · ${closesIn(r.end) || "open"}` : r.status}
+                        label={active && r.n === current ? `Active · ${closesIn(r) || "open"}` : r.status}
                         tone={active ? "var(--amber)" : r.status === "Completed" ? "var(--muted)" : "var(--blueprint)"}
                       />
                     </td>

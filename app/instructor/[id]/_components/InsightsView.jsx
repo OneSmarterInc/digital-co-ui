@@ -109,7 +109,7 @@ export default function InsightsView({ gameId, detail, rounds }) {
   const total = detail.total_rounds || rounds.length || 0;
   const current = detail.current_round || 1;
   const students = (detail.students ?? []).length;
-  const deadline = closesIn(rounds[current - 1]?.end);
+  const deadline = closesIn(rounds[current - 1]);
 
   if (state !== "ready") {
     return (

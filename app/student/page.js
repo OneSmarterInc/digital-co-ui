@@ -76,15 +76,31 @@ function deriveRounds(sim) {
   }
   return rows;
 }
-function closesIn(endStr) {
-  if (!endStr || endStr === "—") return null;
-  const end = new Date(endStr);
+function closesAt(round) {
+  // Prefer the server's exact instant, which carries the cohort's UTC offset.
+  // `end` alone is a bare date, and every client that parsed it landed on
+  // midnight UTC — the previous evening in New York, the same morning in Delhi.
+  const iso = round?.end_at || round?.end;
+  if (!iso || iso === "\u2014") return null;
+  const end = new Date(iso);
   if (Number.isNaN(end.getTime())) return null;
-  const ms = end.getTime() - Date.now();
-  if (ms <= 0) return "deadline passed";
-  const d = Math.floor(ms / 86400000);
-  const h = Math.floor((ms % 86400000) / 3600000);
-  return `closes in ${d}d ${h}h`;
+  if (end.getTime() - Date.now() <= 0) return "deadline passed";
+  try {
+    // Formatted in the cohort's own zone, and labelled with it, so nobody has
+    // to work out whose midnight this is. The abbreviation follows daylight
+    // saving on its own — EST in January, EDT in July.
+    return `closes ${new Intl.DateTimeFormat("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      timeZoneName: "short",
+      timeZone: round.timezone || undefined,
+    }).format(end)}`;
+  } catch {
+    return `closes ${end.toLocaleString()}`;
+  }
 }
 function statusOf(sim) {
   // Completed means the run is actually finished (marked COMPLETE or Week 14
@@ -427,7 +443,7 @@ export default function StudentHomePage() {
                   const rounds = sim.rounds?.length ? sim.rounds : deriveRounds(sim);
                   const current = sim.current_round || 1;
                   const total = sim.total_rounds || rounds.length || 0;
-                  const deadline = status.live ? closesIn(rounds[current - 1]?.end) : null;
+                  const deadline = status.live ? closesAt(rounds[current - 1]) : null;
                   const finished = status.label === "Completed";
                   const enterable = (status.live || finished) && sim.paid !== false && !sim.blocked;
                   return (

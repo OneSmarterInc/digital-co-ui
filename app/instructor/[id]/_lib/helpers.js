@@ -59,15 +59,32 @@ export function deriveRounds(detail) {
   return rows;
 }
 
-export function closesIn(endStr) {
-  if (!endStr || endStr === "—") return null;
-  const end = new Date(endStr);
+export function closesIn(round) {
+  // Takes the round row, not a bare date string. `end_at` carries the cohort's
+  // UTC offset; `end` alone was parsed as midnight UTC by every client, which
+  // is the previous evening in New York and the same morning in Delhi.
+  const row = typeof round === "string" ? { end: round } : round || {};
+  const iso = row.end_at || row.end;
+  if (!iso || iso === "—") return null;
+  const end = new Date(iso);
   if (Number.isNaN(end.getTime())) return null;
-  const ms = end.getTime() - Date.now();
-  if (ms <= 0) return "deadline passed";
-  const d = Math.floor(ms / 86400000);
-  const h = Math.floor((ms % 86400000) / 3600000);
-  return `closes in ${d}d ${h}h`;
+  if (end.getTime() - Date.now() <= 0) return "deadline passed";
+  try {
+    // Rendered in the course's zone and labelled with it, so an instructor
+    // abroad reads the deadline their students have. The abbreviation tracks
+    // daylight saving on its own — EST in January, EDT in July.
+    return `closes ${new Intl.DateTimeFormat("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      timeZoneName: "short",
+      timeZone: row.timezone || undefined,
+    }).format(end)}`;
+  } catch {
+    return `closes ${end.toLocaleString()}`;
+  }
 }
 
 export function statusOf(detail) {

@@ -199,7 +199,7 @@ export default function SimulationDetailPage() {
   }
 
   const rounds = detail.rounds?.length ? detail.rounds : deriveRounds(detail);
-  const deadline = closesIn(rounds[detail.current_round - 1]?.end);
+  const deadline = closesIn(rounds[detail.current_round - 1]);
   const viewProps = { gameId, detail, queue, rounds, reload, notify, setSection };
 
   return (
