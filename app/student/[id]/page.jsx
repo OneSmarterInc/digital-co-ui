@@ -210,6 +210,10 @@ const BENCHMARK_ROUNDS = [4, 8, 11, 14];
 const SECTIONS = [
   ["dashboard", "Dashboard"],
   ["week", "This Week"],
+  // Who else is in the firm. Students invited by email land in a team without
+  // ever being told who they are working with, and the week's rules depend on
+  // knowing — one decision per firm, advisors split between them.
+  ["firm", "My firm"],
   ["advisors", "Advisors"],
   ["performance", "Performance"],
   // Only appears once a checkpoint round exists. The reveal is staged as a
@@ -459,7 +463,10 @@ export default function StudentCohortPage() {
           <nav className="flex flex-col gap-1">
             {SECTIONS.filter(([key]) => {
               if (completed) return key === "debrief" || key === "standings";
-              if (awaitingFirm) return key === "dashboard";
+              // An unplaced student keeps "My firm" as well: that screen is
+              // where they find out they are waiting on placement, which is
+              // otherwise the one question they have and cannot answer.
+              if (awaitingFirm) return key === "dashboard" || key === "firm";
               // Checkpoints land after rounds 4, 8, 11 and 14. Before the
               // first one there is nothing to show, and an empty section is
               // worse than no section.
@@ -513,6 +520,7 @@ export default function StudentCohortPage() {
           <div className={`mx-auto ${WIDE_SECTIONS.has(displaySection) ? "max-w-[1440px]" : "max-w-[860px]"}`}>
             {displaySection === "dashboard" && <DashboardView {...sectionProps} />}
             {displaySection === "week" && <WeekConsole {...sectionProps} />}
+            {displaySection === "firm" && <FirmView {...sectionProps} />}
             {displaySection === "performance" && <PerformanceView {...sectionProps} />}
             {displaySection === "standings" && <StandingsView {...sectionProps} />}
             {displaySection === "advisors" && <AdvisorsConsole {...sectionProps} />}
@@ -838,6 +846,115 @@ function PerformanceView({ game, cohortId }) {
             ))}
           </div>
         </>
+      )}
+    </div>
+  );
+}
+
+
+
+/* ================================================================== *
+ * My firm — who you are working with
+ * ================================================================== */
+
+function FirmView({ cohortId, sim }) {
+  const [data, setData] = useState(null);
+  const [state, setState] = useState("loading");
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const r = await api(`/student/firm/?cohort=${cohortId}`);
+        if (!r.ok) throw new Error(String(r.status));
+        const j = await r.json();
+        if (alive) {
+          setData(j);
+          setState("ready");
+        }
+      } catch {
+        if (alive) setState("error");
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [cohortId]);
+
+  if (state !== "ready") {
+    return (
+      <p className={`${MONO} text-[11px] uppercase tracking-[0.16em] text-[var(--muted)]`}>
+        {state === "error" ? "Couldn't load your firm — try again shortly." : "Loading your firm…"}
+      </p>
+    );
+  }
+
+  if (data.awaiting_placement) {
+    return (
+      <div className="space-y-7">
+        <SectionHeader eyebrow="Your team" title="My firm" subtitle="Who you are running DigitalCo with." />
+        <Notice tone="var(--amber)">
+          You haven&rsquo;t been placed in a firm yet. Your instructor assigns firms before the first
+          round opens — until then you can look around, but you can&rsquo;t commit a decision.
+        </Notice>
+      </div>
+    );
+  }
+
+  const members = data.members ?? [];
+
+  return (
+    <div className="space-y-7">
+      <SectionHeader
+        eyebrow="Your team"
+        title={data.firm || "My firm"}
+        subtitle="Who you are running DigitalCo with. The firm commits one decision each round, so these are the people you have to agree with."
+      />
+
+      <div className="grid grid-cols-2 gap-4">
+        <MiniInfo label="Firm" value={data.firm || "—"} sub={sim?.tier?.toLowerCase() || "your team"} />
+        <MiniInfo label="Members" value={members.length} sub={members.length === 1 ? "just you so far" : "in this firm"} />
+      </div>
+
+      <div className={`overflow-hidden ${PANEL}`}>
+        {members.map((m, i) => (
+          <div
+            key={m.id}
+            className={`flex items-center gap-3 px-6 py-4 ${
+              i > 0 ? "border-t border-[var(--steel-line)]" : ""
+            } ${m.is_you ? "bg-[rgba(232,161,60,0.06)]" : ""}`}
+          >
+            <span
+              className={`flex h-9 w-9 flex-none items-center justify-center rounded-full border ${MONO} text-[11px] font-bold ${
+                m.is_you
+                  ? "border-[var(--amber-deep)] bg-[var(--amber)] text-[var(--graphite)]"
+                  : "border-[var(--steel-soft)] bg-[var(--graphite)] text-[var(--muted)]"
+              }`}
+            >
+              {m.named ? m.name.trim().slice(0, 1).toUpperCase() : "·"}
+            </span>
+            <span className={`${DISPLAY} text-[17px] font-semibold`}>
+              {m.name}
+              {m.is_you && (
+                <span className={`ml-2 ${MONO} text-[8.5px] uppercase tracking-[0.1em] text-[var(--amber)]`}>
+                  you
+                </span>
+              )}
+            </span>
+            {!m.named && (
+              <span className={`ml-auto ${MONO} text-[9px] uppercase tracking-[0.1em] text-[var(--muted-dim)]`}>
+                hasn&rsquo;t signed in yet
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {members.length === 1 && (
+        <Notice tone="var(--blueprint)">
+          You&rsquo;re the only one here so far. Your instructor may still be placing people — check
+          back before the round closes.
+        </Notice>
       )}
     </div>
   );
