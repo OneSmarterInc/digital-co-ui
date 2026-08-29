@@ -215,9 +215,13 @@ function IconBack({ size = 16 }) {
   );
 }
 
+// Mirrors the student sidebar. Mimicking a firm is only useful if it shows what
+// that firm sees, so anything added there belongs here too — this list had
+// already drifted, missing the firm roster the students have.
 const SECTIONS = [
   ["dashboard", "Dashboard"],
   ["week", "This Week"],
+  ["firm", "My firm"],
   ["performance", "Performance"],
   ["advisors", "Advisors"],
   ["schedule", "Schedule"],
@@ -430,6 +434,7 @@ export default function MimicStudentViewPage() {
           <div className="mx-auto max-w-[860px]">
             {section === "dashboard" && <MimicDashboard {...ctx} />}
             {section === "week" && <MimicWeek {...ctx} />}
+            {section === "firm" && <MimicFirm {...ctx} />}
             {section === "performance" && <MimicPerformance {...ctx} />}
             {section === "advisors" && <MimicAdvisors {...ctx} />}
             {section === "schedule" && <MimicSchedule {...ctx} />}
@@ -783,6 +788,62 @@ function MimicAdvisors({ detail, game }) {
 /* ================================================================== *
  * Schedule
  * ================================================================== */
+
+function MimicFirm({ game }) {
+  // The roster arrives on the mimic run payload, not the simulation detail —
+  // `detail` describes the cohort, `game` describes the firm being viewed.
+  const firm = game?.firm || {};
+  const members = firm.members ?? [];
+
+  return (
+    <div className="space-y-7">
+      <SectionHeader
+        eyebrow="Their team"
+        title={firm.name || "Firm"}
+        subtitle="Who this firm is running DigitalCo with — the roster its students see on their own My firm screen."
+      />
+
+      <div className="grid grid-cols-2 gap-4">
+        <MiniInfo label="Firm" value={firm.name || "—"} sub="this team" />
+        <MiniInfo
+          label="Members"
+          value={members.length}
+          sub={members.length === 1 ? "one student" : "in this firm"}
+        />
+      </div>
+
+      {members.length === 0 ? (
+        <Notice tone="var(--amber)">
+          Nobody is placed in this firm yet. Students see an explanation rather than an empty
+          roster, and cannot commit a decision until you place them.
+        </Notice>
+      ) : (
+        <div className={`overflow-hidden ${PANEL}`}>
+          {members.map((m, i) => (
+            <div
+              key={m.id}
+              className={`flex items-center gap-3 px-6 py-4 ${
+                i > 0 ? "border-t border-[var(--steel-line)]" : ""
+              }`}
+            >
+              <span
+                className={`flex h-9 w-9 flex-none items-center justify-center rounded-full border border-[var(--steel-soft)] bg-[var(--graphite)] ${MONO} text-[11px] font-bold text-[var(--muted)]`}
+              >
+                {m.named ? m.name.trim().slice(0, 1).toUpperCase() : "·"}
+              </span>
+              <span className={`${DISPLAY} text-[17px] font-semibold`}>{m.name}</span>
+              {!m.named && (
+                <span className={`ml-auto ${MONO} text-[9px] uppercase tracking-[0.1em] text-[var(--muted-dim)]`}>
+                  hasn&rsquo;t signed in yet
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function MimicSchedule({ detail, rounds, current }) {
   return (
