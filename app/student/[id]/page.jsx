@@ -7,7 +7,6 @@ import DebriefConsole from "./DebriefConsole";
 import AdvisorsConsole from "./AdvisorsConsole";
 import AdvisorAvatar from "./AdvisorAvatar";
 import ExhibitsPage from "./exhibits/page";
-import ArtifactsWeek1 from "./ArtifactsWeek1";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 // Adjust to wherever your api client lives.
 import { fetchMe, api, logout } from "../../../lib/api";
@@ -348,6 +347,24 @@ export default function StudentCohortPage() {
     }
   }, [load, notify]);
 
+  // Above the early return below: a hook after a conditional return runs on
+  // some renders and not others, which is what "rendered more hooks than
+  // during the previous render" means.
+  // This round's files plus every earlier round, newest first. Both halves come
+  // from the run payload, so there is one source of truth for what has been
+  // released and no second request.
+  const referenceRounds = useMemo(() => {
+    if (!game) return [];
+    const now = {
+      week: game.week?.week_number,
+      title: game.briefing?.title || "",
+      artifacts: game.artifacts ?? [],
+    };
+    return [now, ...(game.earlier_artifacts ?? [])].filter(
+      (r) => r.week && r.artifacts?.length
+    );
+  }, [game]);
+
   const finishTour = useCallback(() => {
     try { localStorage.setItem(introKey, "1"); } catch {}
     setIntroDone(true);
@@ -527,11 +544,16 @@ export default function StudentCohortPage() {
             {displaySection === "advisors" && <AdvisorsConsole {...sectionProps} />}
             {/* Students get exhibits up to their current week only, and never
                 the design notes — those name every trap in the course. */}
+            {/* Reference files and case exhibits render as one document, in
+                one visual language — the memos and the numbers they argue
+                from. Built from the run payload the page already has, so the
+                archive and the briefing cannot disagree about what is out. */}
             {displaySection === "exhibits" && (
-              <div className="space-y-10">
-                <ReferenceArchive game={game} />
-                <ExhibitsPage currentWeek={current} showDesignNotes={false} />
-              </div>
+              <ExhibitsPage
+                currentWeek={current}
+                showDesignNotes={false}
+                referenceRounds={referenceRounds}
+              />
             )}
             {displaySection === "schedule" && <ScheduleView {...sectionProps} />}
             {displaySection === "debrief" && <DebriefConsole {...sectionProps} />}
@@ -857,114 +879,6 @@ function PerformanceView({ game, cohortId }) {
 
 
 
-
-
-/* ================================================================== *
- * Reference archive — every round's files, in one place
- * ================================================================== */
-
-function ReferenceArchive({ game }) {
-  // Built from the run payload the page already has rather than its own
-  // endpoint: `artifacts` is this round, `earlier_artifacts` is everything
-  // before it. One source, so the archive and the briefing cannot disagree
-  // about what has been released.
-  const rounds = useMemo(() => {
-    if (!game) return [];
-    const current = {
-      week: game.week?.week_number,
-      title: game.briefing?.title || "",
-      artifacts: game.artifacts ?? [],
-      current: true,
-    };
-    const earlier = (game.earlier_artifacts ?? []).map((r) => ({ ...r, current: false }));
-    return [current, ...earlier].filter((r) => r.week && r.artifacts.length);
-  }, [game]);
-
-  // The round in play opens by default; the rest are one click away, because
-  // by the final round this list is thirteen rounds and forty-five documents.
-  const [open, setOpen] = useState(() => new Set());
-  useEffect(() => {
-    const now = rounds.find((r) => r.current);
-    if (now) setOpen(new Set([now.week]));
-  }, [rounds]);
-
-  if (rounds.length === 0) return null;
-
-  const toggle = (week) =>
-    setOpen((prev) => {
-      const next = new Set(prev);
-      next.has(week) ? next.delete(week) : next.add(week);
-      return next;
-    });
-
-  return (
-    <div className="space-y-4">
-      <SectionHeader
-        eyebrow="Reference files"
-        title="Everything released so far"
-        subtitle="Every round's files stay here once released. They also sit under the round's own briefing on This Week."
-      />
-
-      {rounds.map((r) => {
-        const isOpen = open.has(r.week);
-        const count = r.week === 1 ? 4 : r.artifacts.length;
-        return (
-          <div key={r.week} className={`overflow-hidden ${PANEL}`}>
-            <button
-              onClick={() => toggle(r.week)}
-              aria-expanded={isOpen}
-              className="flex w-full items-center justify-between gap-3 px-6 py-4 text-left transition hover:bg-[var(--graphite-high)]"
-            >
-              <span className="flex flex-wrap items-baseline gap-3">
-                <span className={`${DISPLAY} text-[17px] font-semibold`}>Round {r.week}</span>
-                <span className="text-[0.88rem] text-[var(--muted)]">{r.title}</span>
-                {r.current && (
-                  <span className={`${MONO} text-[8.5px] uppercase tracking-[0.1em] text-[var(--amber)]`}>
-                    this round
-                  </span>
-                )}
-              </span>
-              <span className={`${MONO} shrink-0 text-[9px] uppercase tracking-[0.1em] text-[var(--muted-dim)]`}>
-                {count} file{count === 1 ? "" : "s"} {isOpen ? "−" : "+"}
-              </span>
-            </button>
-
-            {isOpen && (
-              <div className="border-t border-[var(--steel-line)]">
-                {/* Round 1 has the real documents behind it — the portfolio
-                    table, the dashboards, the spend figures. Its artifact
-                    bodies are one-line summaries of those, so the same branch
-                    the briefing uses applies here. */}
-                {r.week === 1 ? (
-                  <div className="dc-console">
-                    <div className="dossier">
-                      <ArtifactsWeek1 />
-                    </div>
-                  </div>
-                ) : (
-                  r.artifacts.map((a, i) => (
-                    <div
-                      key={a.title}
-                      className={`px-6 py-4 ${i > 0 ? "border-t border-[var(--steel-line)]" : ""}`}
-                    >
-                      <p className={`${MONO} text-[9px] uppercase tracking-[0.14em] text-[var(--muted-dim)]`}>
-                        {a.kind}
-                      </p>
-                      <p className={`mt-1 ${DISPLAY} text-[16px] font-semibold`}>{a.title}</p>
-                      <p className="mt-1.5 whitespace-pre-line text-[0.9rem] leading-[1.7] text-[var(--paper)]">
-                        {a.body}
-                      </p>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
 
 
 /* ================================================================== *

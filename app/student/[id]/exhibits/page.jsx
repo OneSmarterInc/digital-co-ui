@@ -38,7 +38,47 @@ function Exhibit({ week, title, intent, currentWeek, showDesignNotes, children }
   );
 }
 
-export default function ExhibitsPage({ currentWeek = 1, showDesignNotes = false }) {
+/* A reference file, rendered in the same language as the case exhibits.
+ *
+ * These arrive as engine artifacts rather than hand-built JSX, so they carry a
+ * title, a kind and a body and nothing else. Presenting them as plain cards
+ * beside the exhibits made them read as a different, lesser class of document,
+ * when they are the memos the exhibits are evidence for. */
+function ReferenceFile({ round, artifact, index }) {
+  return (
+    <section className={styles.reviewItem}>
+      <div className={styles.reviewHead}>
+        {/* Same shape as the case exhibits below. Week 1's start at F5 because
+            F1-F4 are its reference files, so reference files and exhibits share
+            one numbering sequence per week rather than two competing ones. */}
+        <h2>
+          Week {round.week} · Exhibit F{index + 1} — {artifact.title}
+        </h2>
+      </div>
+      <div className={styles.artPane}>
+        <div className={styles.sheet}>
+          <div className={styles.sheetBar}>
+            <span className={styles.sheetT}>{artifact.title}</span>
+            <span className={styles.sheetStamp}>{artifact.kind}</span>
+          </div>
+          <div
+            className={styles.tblNote}
+            style={{ borderTop: "none", fontSize: "13px", whiteSpace: "pre-line" }}
+          >
+            {artifact.body}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+export default function ExhibitsPage({
+  currentWeek = 1,
+  showDesignNotes = false,
+  referenceRounds = [],
+}) {
   // Give every Exhibit the gate values without threading them through by hand.
   const gate = { currentWeek, showDesignNotes };
   return (
@@ -52,6 +92,20 @@ export default function ExhibitsPage({ currentWeek = 1, showDesignNotes = false 
               : `DigitalCo · the reference documents behind your briefings, through Week ${currentWeek}`}
           </div>
         </div>
+
+        {/* Ascending by week, matching the case exhibits below, so the whole
+            page reads in the order the documents were issued. Week 1's four
+            reference files are hand-built and render in its own briefing, which
+            is why its exhibits below begin at F5. */}
+        {[...referenceRounds]
+          .sort((a, b) => a.week - b.week)
+          .map((r) =>
+            r.week === 1
+              ? null
+              : r.artifacts.map((a, i) => (
+                  <ReferenceFile key={`${r.week}-${a.title}`} round={r} artifact={a} index={i} />
+                ))
+          )}
 
         {/* Week 1 · Exhibit F5 */}
         <Exhibit {...gate} week={1} title="Week 1 · Exhibit F5 — Industry & Competitive Note" intent={"the HBS-style industry framing. The bait is the associate's \"$12M at Meridian's rate\" claim — checking it against the 31,400 capable units is the first calculation of the course."}>
