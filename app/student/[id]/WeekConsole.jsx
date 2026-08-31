@@ -138,6 +138,7 @@ export default function WeekConsole({ game, cohortId, playable, reload, notify, 
   const briefing = game?.briefing;
   const spec = game?.decision_spec;
   const artifacts = game?.artifacts ?? [];
+  const earlier = game?.earlier_artifacts ?? [];
   const submitted = !!week?.submitted;
   const weekNo = week?.week_number ?? 1;
 
@@ -256,6 +257,33 @@ export default function WeekConsole({ game, cohortId, playable, reload, notify, 
                       <FileCard key={i} ix={i + 1} artifact={a} />
                     ))}
                   </div>
+                )}
+
+                {/* Earlier rounds, below this week's own files and clearly
+                    marked as earlier. This week's memos argue from numbers
+                    issued in earlier rounds, and a firm could previously read
+                    the argument without reaching the evidence. */}
+                {earlier.length > 0 && (
+                  <>
+                    <div className="band">
+                      <span className="band__n">
+                        {pad2(earlier.reduce((n, r) => n + r.artifacts.length, 0))}
+                      </span>
+                      Released earlier — still on file
+                    </div>
+                    {earlier.map((r) => (
+                      <div key={r.week}>
+                        <div className="files__round mono">
+                          Round {pad2(r.week)} · {r.title}
+                        </div>
+                        <div className="files">
+                          {r.artifacts.map((a, i) => (
+                            <FileCard key={`${r.week}-${i}`} ix={i + 1} artifact={a} />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </>
                 )}
 
                 {/* The prose files above summarise; this is the actual document,

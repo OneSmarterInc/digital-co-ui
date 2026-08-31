@@ -128,6 +128,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 
 /* ---------- generic artifact files ---------- */
 .files{padding:8px 34px 32px}
+/* The round a set of reference files was issued in. Sits above its group so a
+   reader can tell this week's desk from what is merely still on file. */
+.files__round{padding:14px 34px 6px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-dim)}
 .file{border:1px solid #D4DAE0;border-radius:var(--r);margin-top:12px;overflow:hidden;background:var(--paper)}
 .file__head{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:14px 17px;transition:.15s}
 .file__head:hover{background:var(--paper-tint)}
