@@ -267,7 +267,14 @@ export default function WeekConsole({ game, cohortId, playable, reload, notify, 
                   <>
                     <div className="band">
                       <span className="band__n">
-                        {pad2(earlier.reduce((n, r) => n + r.artifacts.length, 0))}
+                        {/* Round 1 renders four documents regardless of how
+                            many summary bodies the engine returns for it. */}
+                        {pad2(
+                          earlier.reduce(
+                            (n, r) => n + (r.week === 1 ? 4 : r.artifacts.length),
+                            0
+                          )
+                        )}
                       </span>
                       Released earlier — still on file
                     </div>
@@ -276,11 +283,24 @@ export default function WeekConsole({ game, cohortId, playable, reload, notify, 
                         <div className="files__round mono">
                           Round {pad2(r.week)} · {r.title}
                         </div>
-                        <div className="files">
-                          {r.artifacts.map((a, i) => (
-                            <FileCard key={`${r.week}-${i}`} ix={i + 1} artifact={a} />
-                          ))}
-                        </div>
+                        {/* Round 1 has a hand-built renderer carrying the real
+                            documents — the portfolio table with run costs and
+                            retirement columns, the dashboards, the spend
+                            figures. The engine's artifact bodies are one-line
+                            summaries of those, so rendering them as plain cards
+                            here showed a description of the evidence instead of
+                            the evidence. Same branch the current round uses. */}
+                        {r.week === 1 ? (
+                          <div style={{ padding: "0 34px 30px" }}>
+                            <ArtifactsWeek1 />
+                          </div>
+                        ) : (
+                          <div className="files">
+                            {r.artifacts.map((a, i) => (
+                              <FileCard key={`${r.week}-${i}`} ix={i + 1} artifact={a} />
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </>
