@@ -526,11 +526,11 @@ export default function StudentCohortPage() {
             {displaySection === "advisors" && <AdvisorsConsole {...sectionProps} />}
             {/* Students get exhibits up to their current week only, and never
                 the design notes — those name every trap in the course. */}
+            {/* Case exhibits only. The reference memos moved to This Week,
+                beneath the round's own files, where the decision that needs
+                them is. */}
             {displaySection === "exhibits" && (
-              <div className="space-y-10">
-                <ReferenceArchive cohortId={cohortId} />
-                <ExhibitsPage currentWeek={current} showDesignNotes={false} />
-              </div>
+              <ExhibitsPage currentWeek={current} showDesignNotes={false} />
             )}
             {displaySection === "schedule" && <ScheduleView {...sectionProps} />}
             {displaySection === "debrief" && <DebriefConsole {...sectionProps} />}
@@ -855,109 +855,6 @@ function PerformanceView({ game, cohortId }) {
 }
 
 
-
-
-/* ================================================================== *
- * Reference archive — every round's files, still reachable
- * ================================================================== */
-
-function ReferenceArchive({ cohortId }) {
-  const [rounds, setRounds] = useState(null);
-  const [open, setOpen] = useState(() => new Set());
-
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const r = await api(`/student/artifacts/?cohort=${cohortId}`);
-        if (!r.ok) throw new Error(String(r.status));
-        const j = await r.json();
-        if (alive) {
-          setRounds(j.rounds ?? []);
-          // The round in play is the one being read now; earlier rounds are
-          // there to be checked against, not scrolled past.
-          const current = (j.rounds ?? []).find((x) => x.current);
-          if (current) setOpen(new Set([current.week]));
-        }
-      } catch {
-        if (alive) setRounds([]);
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [cohortId]);
-
-  if (rounds === null) {
-    return (
-      <p className={`${MONO} text-[11px] uppercase tracking-[0.16em] text-[var(--muted)]`}>
-        Loading reference files…
-      </p>
-    );
-  }
-  if (rounds.length === 0) return null;
-
-  const toggle = (week) =>
-    setOpen((prev) => {
-      const next = new Set(prev);
-      next.has(week) ? next.delete(week) : next.add(week);
-      return next;
-    });
-
-  return (
-    <div className="space-y-4">
-      <SectionHeader
-        eyebrow="Reference files"
-        title="Everything released so far"
-        subtitle="Every round's files stay here once released. The current round's are also on This Week, where they always were."
-      />
-
-      {rounds.map((r) => {
-        const isOpen = open.has(r.week);
-        return (
-          <div key={r.week} className={`overflow-hidden ${PANEL}`}>
-            <button
-              onClick={() => toggle(r.week)}
-              className="flex w-full items-center justify-between gap-3 px-6 py-4 text-left transition hover:bg-[var(--graphite-high)]"
-            >
-              <span className="flex items-baseline gap-3">
-                <span className={`${DISPLAY} text-[17px] font-semibold`}>Round {r.week}</span>
-                <span className="text-[0.88rem] text-[var(--muted)]">{r.title}</span>
-                {r.current && (
-                  <span className={`${MONO} text-[8.5px] uppercase tracking-[0.1em] text-[var(--amber)]`}>
-                    this round
-                  </span>
-                )}
-              </span>
-              <span className={`${MONO} text-[9px] uppercase tracking-[0.1em] text-[var(--muted-dim)]`}>
-                {r.artifacts.length} file{r.artifacts.length === 1 ? "" : "s"} {isOpen ? "−" : "+"}
-              </span>
-            </button>
-
-            {isOpen && (
-              <div className="border-t border-[var(--steel-line)]">
-                {r.artifacts.map((a, i) => (
-                  <div
-                    key={a.title}
-                    className={`px-6 py-4 ${i > 0 ? "border-t border-[var(--steel-line)]" : ""}`}
-                  >
-                    <p className={`${MONO} text-[9px] uppercase tracking-[0.14em] text-[var(--muted-dim)]`}>
-                      {a.kind}
-                    </p>
-                    <p className={`mt-1 ${DISPLAY} text-[16px] font-semibold`}>{a.title}</p>
-                    <p className="mt-1.5 whitespace-pre-line text-[0.9rem] leading-[1.7] text-[var(--paper)]">
-                      {a.body}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
 
 
 /* ================================================================== *
