@@ -55,7 +55,7 @@ export default function GradingView({ gameId, queue, reload, notify }) {
         subtitle={
           waiting
             ? `${waiting} submitted week${waiting === 1 ? "" : "s"} waiting for a grade across your firms.`
-            : "Submitted weeks land here for grading. Week 1 asks for its anchor before it can be saved."
+            : "Submitted weeks land here for grading. Week 1 asks you to grade the anchor's strength before it can be saved."
         }
       />
 
@@ -68,7 +68,7 @@ export default function GradingView({ gameId, queue, reload, notify }) {
         <div className="grid grid-cols-3 gap-4">
           <MiniInfo label="Waiting" value={waiting} sub={`week${waiting === 1 ? "" : "s"}`} />
           <MiniInfo label="Trap flags" value={flags} sub="across queue" />
-          <MiniInfo label="Need anchor" value={needAnchor} sub="week 1" />
+          <MiniInfo label="Anchor to set" value={needAnchor} sub="week 1 rounds" />
         </div>
       )}
 
@@ -127,10 +127,15 @@ export default function GradingView({ gameId, queue, reload, notify }) {
 
                 {showMeta && (
                   <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                    {/* Not a finding about the submission: this is on every
+                        week 1 row. It means the grader must judge the anchor's
+                        strength before the grade will save. Read as "this firm
+                        failed to name an anchor", which is a different claim
+                        and was untrue of a firm that had named one. */}
                     {row.week_number === 1 && (
                       <span className={`${FLAG} border-[var(--amber-deep,#C4791F)] text-[var(--amber,#E8A13C)]`}>
                         <span className="h-1.5 w-1.5 rounded-full bg-[var(--amber,#E8A13C)] shadow-[0_0_6px_-1px_var(--amber,#E8A13C)]" />
-                        Anchor required
+                        Set anchor strength
                       </span>
                     )}
                     {rowFlags.map((f, i) => (

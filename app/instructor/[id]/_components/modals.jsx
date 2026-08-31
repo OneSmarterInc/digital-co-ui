@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../_lib/api";
 import { SCORE_LABELS, ANCHOR_OPTIONS } from "../_lib/helpers";
+import { choiceLabel } from "../_lib/choiceLabels";
 
 /* Dialogs live together so views only import the ones they open. Each closes
  * on backdrop click and Escape.
@@ -201,10 +202,12 @@ export function GradingModal({ score, gameId, onClose, onGraded }) {
       const r = await api(`/instructor/score/${score.id}/feedback-draft/`, { method: "POST" });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j.detail || `Request failed (${r.status})`);
-      if (j.feedback) setFeedback(j.feedback);
-      // A draft that could not be written is not an error the instructor has to
-      // clear — they can simply write their own.
-      else setDraftNote(j.problem || "No draft was produced. Write your own below.");
+      if (j.feedback) {
+        setFeedback(j.feedback);
+        setDraftNote("");
+      } else {
+        setDraftNote(j.problem || "the generator returned nothing");
+      }
     } catch (e) {
       setDraftNote(e instanceof Error ? e.message : String(e));
     } finally {
@@ -317,6 +320,36 @@ export function GradingModal({ score, gameId, onClose, onGraded }) {
             </p>
           </div>
         )}
+        {/* What the firm actually chose. Without this a grader could see the
+            engine's read and its flags but not the submission behind them, so
+            checking a flag meant leaving the grading flow for mimic mode. The
+            panel already existed on the graded record — it was simply on the
+            wrong side of the save. */}
+        {Object.keys(score.decisions || {}).length > 0 && (
+          <div className="rounded-[3px] border border-[var(--steel-line,#2C323A)] bg-[var(--graphite,#16191D)] p-3.5">
+            <p className={`mb-2 ${MONO} text-[9px] uppercase tracking-[0.14em] text-[var(--muted-dim,#5C6672)]`}>
+              What they submitted
+            </p>
+            <div className="space-y-1">
+              {Object.entries(score.decisions)
+                .filter(([, v]) => !(typeof v === "string" && v.length > 60))
+                .map(([k, v]) => (
+                  <div
+                    key={k}
+                    className="flex flex-wrap items-baseline justify-between gap-3 border-b border-[var(--steel-line,#2C323A)] py-1 last:border-b-0"
+                  >
+                    <span className={`${MONO} text-[9px] uppercase tracking-[0.08em] text-[var(--muted-dim,#5C6672)]`}>
+                      {k.replace(/_/g, " ")}
+                    </span>
+                    <span className="text-[0.82rem] text-[var(--paper,#ECEFF2)]">
+                      {typeof v === "boolean" ? (v ? "Yes" : "No") : choiceLabel(v, k)}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+
         <p className={`${MONO} text-[9px] uppercase tracking-[0.08em] leading-[1.5] text-[var(--muted-dim,#5C6672)]`}>
           The box is an adjustment, not the score. Leave it at 0 to accept the engine&rsquo;s
           proposal as it stands.
@@ -415,8 +448,27 @@ export function GradingModal({ score, gameId, onClose, onGraded }) {
             placeholder={drafting ? "" : "What held, what was thin, what to carry forward."}
             className={`w-full resize-y px-2.5 py-2 text-[0.85rem] leading-[1.6] ${INPUT}`}
           />
+          {/* A failed draft used to report itself in 9px muted text under the
+              box, which read as nothing having happened at all — an instructor
+              pressed Draft, saw no text and no error, and could save a grade
+              with no feedback without noticing. A failure is now as visible as
+              the box it failed to fill, and offers the retry directly. */}
+          {draftNote && (
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-3 rounded-[2px] border border-[var(--amber-deep,#C4791F)] bg-[rgba(232,161,60,0.08)] px-3 py-2">
+              <span className="text-[0.8rem] leading-[1.5] text-[var(--paper,#ECEFF2)]">
+                No draft was written — {draftNote}. Write your own, or try again.
+              </span>
+              <button
+                onClick={draft}
+                disabled={drafting || busy}
+                className={`${MONO} shrink-0 text-[9px] font-bold uppercase tracking-[0.1em] text-[var(--amber,#E8A13C)] hover:underline disabled:opacity-50`}
+              >
+                {drafting ? "Trying…" : "Try again"}
+              </button>
+            </div>
+          )}
           <div className={`mt-1.5 flex items-baseline justify-between gap-3 ${MONO} text-[9px] text-[var(--muted-dim,#5C6672)]`}>
-            <span>{draftNote}</span>
+            <span>{drafting ? "Drafting…" : ""}</span>
             <span className="shrink-0">
               {feedback.trim() ? `${feedback.trim().split(/\s+/).length} words` : "Optional"}
             </span>
