@@ -38,7 +38,7 @@ const F1_ROWS = [
 
 const Pill = ({ tone, children }) => <span className={`pill pill--${tone}`}>{children}</span>;
 
-function F1() {
+export function F1() {
   return (
     <>
       <p className="provenance">
@@ -107,7 +107,7 @@ const KPI = ({ k, v, tone, small }) => (
   </div>
 );
 
-function F2() {
+export function F2() {
   return (
     <>
       <p className="provenance">
@@ -202,7 +202,7 @@ function F2() {
   );
 }
 
-function F3() {
+export function F3() {
   return (
     <>
       <p className="provenance">
@@ -271,7 +271,7 @@ function Slide({ n, at, children }) {
   );
 }
 
-function F4() {
+export function F4() {
   const [at, setAt] = useState(0);
   const go = (d) => setAt((c) => Math.max(0, Math.min(SLIDES - 1, c + d)));
   return (

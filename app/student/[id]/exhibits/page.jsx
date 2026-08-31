@@ -1,6 +1,7 @@
 "use client";
 
 import styles from "./exhibits.module.css";
+import { F1, F2, F3, F4 } from "../ArtifactsWeek1";
 
 /* The case exhibits — the quantitative layer behind each week's briefing.
  *
@@ -44,6 +45,35 @@ function Exhibit({ week, title, intent, currentWeek, showDesignNotes, children }
  * title, a kind and a body and nothing else. Presenting them as plain cards
  * beside the exhibits made them read as a different, lesser class of document,
  * when they are the memos the exhibits are evidence for. */
+const WEEK1_HANDBUILT = [
+  ["Application Portfolio Map", F1],
+  ["Project Dashboards", F2],
+  ["Digital Spend & Return", F3],
+  ["Bryce Transformation Deck", F4],
+];
+
+
+/* Week 1's reference files are hand-built documents — real tables, not the
+ * one-line summaries the engine stores for them — so they render from their own
+ * components. Numbered F1-F4, which is why this week's case exhibits below are
+ * F5 and F6. */
+function Week1ReferenceFiles({ currentWeek }) {
+  if (currentWeek < 1) return null;
+  return WEEK1_HANDBUILT.map(([title, Doc], i) => (
+    <section key={title} className={styles.reviewItem}>
+      <div className={styles.reviewHead}>
+        <h2>Week 1 · Exhibit F{i + 1} — {title}</h2>
+      </div>
+      <div className={styles.artPane}>
+        <div className="dc-console">
+          <Doc />
+        </div>
+      </div>
+    </section>
+  ));
+}
+
+
 function ReferenceFile({ round, artifact, index }) {
   return (
     <section className={styles.reviewItem}>
@@ -81,6 +111,15 @@ export default function ExhibitsPage({
 }) {
   // Give every Exhibit the gate values without threading them through by hand.
   const gate = { currentWeek, showDesignNotes };
+  // One week's memos, in the same format as the exhibits. Placed by hand at the
+  // week boundaries below so the whole page stays in issue order.
+  const refs = (week) => {
+    const round = referenceRounds.find((r) => r.week === week);
+    if (!round || week > currentWeek) return null;
+    return round.artifacts.map((a, i) => (
+      <ReferenceFile key={`${week}-${a.title}`} round={round} artifact={a} index={i} />
+    ));
+  };
   return (
     <div className={styles.dcConsole}>
       <div className={styles.reviewWrap}>
@@ -93,19 +132,12 @@ export default function ExhibitsPage({
           </div>
         </div>
 
-        {/* Ascending by week, matching the case exhibits below, so the whole
-            page reads in the order the documents were issued. Week 1's four
-            reference files are hand-built and render in its own briefing, which
-            is why its exhibits below begin at F5. */}
-        {[...referenceRounds]
-          .sort((a, b) => a.week - b.week)
-          .map((r) =>
-            r.week === 1
-              ? null
-              : r.artifacts.map((a, i) => (
-                  <ReferenceFile key={`${r.week}-${a.title}`} round={r} artifact={a} index={i} />
-                ))
-          )}
+        {/* Each week's reference files sit immediately before that week's case
+            exhibits, so the page reads strictly in the order the documents were
+            issued: Week 1 F1-F6, then Week 2 F1-F3, and so on. `refs` emits one
+            week's memos; the hard-coded exhibits below are already in ascending
+            week order, so the two interleave by placement. */}
+        <Week1ReferenceFiles currentWeek={currentWeek} />
 
         {/* Week 1 · Exhibit F5 */}
         <Exhibit {...gate} week={1} title="Week 1 · Exhibit F5 — Industry & Competitive Note" intent={"the HBS-style industry framing. The bait is the associate's \"$12M at Meridian's rate\" claim — checking it against the 31,400 capable units is the first calculation of the course."}>
@@ -461,6 +493,8 @@ export default function ExhibitsPage({
           </div>
         </Exhibit>
 
+        {refs(2)}
+        {refs(3)}
         {/* Week 3 · Case Exhibit */}
         <Exhibit {...gate} week={3} title="Week 3 · Case Exhibit — The Integrator's Accelerator Memo" intent={"sunk-cost bait wired to the take_accelerator trap. The memo's arithmetic is correct; the guarantee, the scope exclusion, and the closing paragraph are the lesson."}>
           <div className={styles.artPane}>
@@ -563,6 +597,7 @@ export default function ExhibitsPage({
           </div>
         </Exhibit>
 
+        {refs(4)}
         {/* Week 4 · Case Exhibit */}
         <Exhibit {...gate} week={4} title="Week 4 · Case Exhibit — The Sweet Deal TCO Workbook" intent={"the savings are honest; the exhibit is the missing rows. Wired to the sweet_deal_as_written trap and priced again at Week 12."}>
           <div className={styles.artPane}>
@@ -722,6 +757,8 @@ export default function ExhibitsPage({
           </div>
         </Exhibit>
 
+        {refs(5)}
+        {refs(6)}
         {/* Week 6 · Case Exhibit */}
         <Exhibit {...gate} week={6} title="Week 6 · Case Exhibit — Platform Sizing One-Pager" intent={"the same NPV model, three assumption sets. The biggest number on the page is computed on the assumptions that produced the last three years."}>
           <div className={styles.artPane}>
@@ -825,6 +862,8 @@ export default function ExhibitsPage({
           </div>
         </Exhibit>
 
+        {refs(7)}
+        {refs(8)}
         {/* Week 8 · Case Exhibit */}
         <Exhibit {...gate} week={8} title="Week 8 · Case Exhibit — Data Monetization Pro Formas" intent={"Column A wins every comparison ending inside twelve months and loses every one that doesn't. The Week 11 revolt sits in the rows marked 'not modeled'."}>
           <div className={styles.artPane}>
@@ -929,6 +968,10 @@ export default function ExhibitsPage({
           </div>
         </Exhibit>
 
+        {refs(9)}
+        {refs(10)}
+        {refs(11)}
+        {refs(12)}
         {/* Week 12 · Case Exhibit */}
         <Exhibit {...gate} week={12} title="Week 12 · Case Exhibit — The Bill at Fleet Scale" intent={"one exhibit, two documents. A decision memo to portable firms, a hostage note to locked-in ones — the Week 4 decision, priced."}>
           <div className={styles.artPane}>
@@ -1078,6 +1121,8 @@ export default function ExhibitsPage({
             </div>
           </div>
         </Exhibit>
+        {refs(13)}
+        {refs(14)}
       </div>
     </div>
   );
