@@ -139,6 +139,7 @@ export default function WeekConsole({ game, cohortId, playable, reload, notify, 
   const spec = game?.decision_spec;
   const artifacts = game?.artifacts ?? [];
   const earlier = game?.earlier_artifacts ?? [];
+  const [openRounds, setOpenRounds] = useState(() => new Set());
   const submitted = !!week?.submitted;
   const weekNo = week?.week_number ?? 1;
 
@@ -280,9 +281,33 @@ export default function WeekConsole({ game, cohortId, playable, reload, notify, 
                     </div>
                     {earlier.map((r) => (
                       <div key={r.week}>
-                        <div className="files__round mono">
-                          Round {pad2(r.week)} · {r.title}
-                        </div>
+                        {/* Collapsed by default. Expanded, thirteen earlier
+                            rounds is forty-five documents under the briefing by
+                            the end of the run — everything reachable, nothing
+                            readable. The round in play stays open above. */}
+                        <button
+                          type="button"
+                          className="files__round files__round--toggle mono"
+                          aria-expanded={openRounds.has(r.week)}
+                          onClick={() =>
+                            setOpenRounds((prev) => {
+                              const next = new Set(prev);
+                              next.has(r.week) ? next.delete(r.week) : next.add(r.week);
+                              return next;
+                            })
+                          }
+                        >
+                          <span>
+                            Round {pad2(r.week)} · {r.title}
+                          </span>
+                          <span>
+                            {r.week === 1 ? 4 : r.artifacts.length} file
+                            {(r.week === 1 ? 4 : r.artifacts.length) === 1 ? "" : "s"}{" "}
+                            {openRounds.has(r.week) ? "−" : "+"}
+                          </span>
+                        </button>
+                        {openRounds.has(r.week) && (
+                          <>
                         {/* Round 1 has a hand-built renderer carrying the real
                             documents — the portfolio table with run costs and
                             retirement columns, the dashboards, the spend
@@ -300,6 +325,8 @@ export default function WeekConsole({ game, cohortId, playable, reload, notify, 
                               <FileCard key={`${r.week}-${i}`} ix={i + 1} artifact={a} />
                             ))}
                           </div>
+                        )}
+                          </>
                         )}
                       </div>
                     ))}

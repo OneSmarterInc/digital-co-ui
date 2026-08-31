@@ -131,6 +131,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 /* The round a set of reference files was issued in. Sits above its group so a
    reader can tell this week's desk from what is merely still on file. */
 .files__round{padding:14px 34px 6px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-dim)}
+.files__round--toggle{display:flex;width:100%;align-items:center;justify-content:space-between;gap:12px;background:none;border:0;text-align:left;cursor:pointer;padding:12px 34px}
+.files__round--toggle:hover{color:var(--ink);background:rgba(0,0,0,.03)}
 .file{border:1px solid #D4DAE0;border-radius:var(--r);margin-top:12px;overflow:hidden;background:var(--paper)}
 .file__head{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:14px 17px;transition:.15s}
 .file__head:hover{background:var(--paper-tint)}
