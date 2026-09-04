@@ -3,32 +3,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { fetchMe, api, logout } from "../../../../lib/api";
+import ThemeToggle from "../../../ThemeToggle";
 
 /* Simulation detail in the dark console theme (matches .dc-console in
  * app/console.css). Same conventions as the restyled AdminConsole:
- * palette as CSS vars on the wrapper, [color-scheme:dark] for native
+ * palette as CSS vars on the wrapper, for native
  * controls, amber = current/primary, ok-green = live/healthy,
  * blueprint = completed progress, signal-red = destructive.
  * Team dot colors are re-picked from the console palette so badges
  * stay legible on graphite. All handlers and data flow unchanged.
  */
 
-const THEME = {
-  "--graphite": "#16191D",
-  "--graphite-raised": "#1E2228",
-  "--graphite-high": "#252B32",
-  "--steel-line": "#2C323A",
-  "--steel-soft": "#363E48",
-  "--paper": "#ECEFF2",
-  "--muted": "#8A94A0",
-  "--muted-dim": "#5C6672",
-  "--amber": "#E8A13C",
-  "--amber-deep": "#C4791F",
-  "--signal-red": "#D2564B",
-  "--blueprint": "#5BA3C4",
-  "--blueprint-deep": "#3B7E9C",
-  "--ok": "#7FB08A",
-};
 
 const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
 const DISPLAY = "font-['Saira_Condensed',sans-serif]";
@@ -202,7 +187,7 @@ export default function AdminSimulationDetail() {
 
   if (phase === "loading" || phase === "redirect") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--graphite)] text-[var(--paper)]" style={THEME}>
+      <div className="flex min-h-screen items-center justify-center bg-[var(--graphite)] text-[var(--paper)]">
         <p className={`${MONO} text-[12px] uppercase tracking-[0.16em] text-[var(--muted)]`}>
           {phase === "redirect" ? "Redirecting\u2026" : "Loading simulation\u2026"}
         </p>
@@ -214,7 +199,6 @@ export default function AdminSimulationDetail() {
     return (
       <div
         className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)]"
-        style={THEME}
       >
         <p className={`${DISPLAY} text-[1.6rem] font-semibold`}>That simulation doesn&rsquo;t exist.</p>
         <button
@@ -232,10 +216,9 @@ export default function AdminSimulationDetail() {
 
   return (
     <div
-      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased [color-scheme:dark] selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
-      style={THEME}
+      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
     >
-      <header className="flex items-center justify-between border-b border-[var(--steel-line)] bg-gradient-to-b from-[#1B1F25] to-[#15181C] px-8 py-4">
+      <header className="flex items-center justify-between border-b border-[var(--steel-line)] bg-gradient-to-b from-[var(--surface-inset)] to-[var(--surface-rail)] px-8 py-4">
         <div className="flex items-center gap-3">
           <img src="/logo-1x.svg" alt="FLEXEE · DigitalCo" className="h-[30px] w-[30px] flex-shrink-0" />
           {/* Primary lockup — the same platform · sim treatment the opening tour uses. */}
@@ -250,6 +233,7 @@ export default function AdminSimulationDetail() {
         </div>
         <div className="flex items-center gap-5">
           <span className={`${MONO} text-[11px] uppercase tracking-[0.16em] text-[var(--muted)]`}>{me.username}</span>
+          <ThemeToggle />
           <button
             onClick={signOut}
             className={`rounded-[2px] border border-[var(--steel-line)] px-4 py-2 ${MONO} text-[11px] uppercase tracking-[0.14em] text-[var(--muted)] transition-colors hover:border-[var(--steel-soft)] hover:bg-[var(--graphite-raised)] hover:text-[var(--paper)]`}
@@ -272,7 +256,7 @@ export default function AdminSimulationDetail() {
           <span
             className={`${FLAG} ${
               sim.status === "active"
-                ? "border-[#3f5e46] text-[var(--ok)]"
+                ? "border-[var(--ok-line)] text-[var(--ok)]"
                 : "border-[var(--steel-line)] text-[var(--muted)]"
             }`}
           >
@@ -287,7 +271,7 @@ export default function AdminSimulationDetail() {
           <span
             className={`${FLAG} ${
               sim.deployment_status === "students"
-                ? "border-[#3f5e46] text-[var(--ok)]"
+                ? "border-[var(--ok-line)] text-[var(--ok)]"
                 : sim.deployment_status === "faculty"
                   ? "border-[var(--amber-deep)] text-[var(--amber)]"
                   : "border-[var(--steel-line)] text-[var(--muted)]"
@@ -338,7 +322,7 @@ export default function AdminSimulationDetail() {
               <button
                 onClick={deployFaculty}
                 disabled={deploying}
-                className={`shrink-0 rounded-[2px] bg-[var(--amber)] px-5 py-2.5 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.04em] text-[var(--graphite)] transition duration-150 hover:bg-[#F0B052] disabled:opacity-60`}
+                className={`shrink-0 rounded-[2px] bg-[var(--amber)] px-5 py-2.5 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.04em] text-[var(--graphite)] transition duration-150 hover:bg-[var(--amber-hover)] disabled:opacity-60`}
               >
                 {deploying ? "Deploying\u2026" : "Deploy for faculty"}
               </button>
@@ -403,7 +387,7 @@ export default function AdminSimulationDetail() {
                     <p className={`${MONO} text-[10px] uppercase tracking-[0.1em] text-[var(--muted-dim)]`}>{f.email || "\u2014"}</p>
                   </div>
                 </div>
-                <span className={`${FLAG} border-[#3f5e46] text-[var(--ok)]`}>
+                <span className={`${FLAG} border-[var(--ok-line)] text-[var(--ok)]`}>
                   <span className="h-1.5 w-1.5 rounded-full bg-[var(--ok)] shadow-[0_0_6px_-1px_var(--ok)]" />
                   Active
                 </span>
@@ -482,7 +466,7 @@ export default function AdminSimulationDetail() {
           )}
         </Card>
 
-        <section className="mt-6 mb-4 rounded-[3px] border border-[rgba(210,86,75,0.5)] bg-[rgba(210,86,75,0.07)] px-6 py-5">
+        <section className="mt-6 mb-4 rounded-[3px] border border-[color-mix(in_srgb,var(--signal-red)_50%,transparent)] bg-[color-mix(in_srgb,var(--signal-red)_7%,transparent)] px-6 py-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <h2 className={`${DISPLAY} text-[1.35rem] font-semibold leading-none text-[var(--signal-red)]`}>
@@ -496,7 +480,7 @@ export default function AdminSimulationDetail() {
             <button
               onClick={deleteSim}
               disabled={deleting}
-              className={`shrink-0 rounded-[2px] border border-[var(--signal-red)] px-4 py-2.5 ${MONO} text-[10.5px] font-bold uppercase tracking-[0.14em] text-[var(--signal-red)] transition-colors hover:bg-[rgba(210,86,75,0.12)] disabled:opacity-50`}
+              className={`shrink-0 rounded-[2px] border border-[var(--signal-red)] px-4 py-2.5 ${MONO} text-[10.5px] font-bold uppercase tracking-[0.14em] text-[var(--signal-red)] transition-colors hover:bg-[color-mix(in_srgb,var(--signal-red)_12%,transparent)] disabled:opacity-50`}
             >
               {deleting ? "Deleting\u2026" : "Delete simulation"}
             </button>

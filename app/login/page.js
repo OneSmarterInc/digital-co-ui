@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Reveal from "../Reveal";
 import { login, fetchMe, canAccess } from "../../lib/api";
+import ThemeToggle from "../ThemeToggle";
 
 /* Login in the dark console theme — follows the .login-wrap / .login-card /
  * .login-form patterns from app/console.css: centered Saira Condensed title,
@@ -12,20 +13,6 @@ import { login, fetchMe, canAccess } from "../../lib/api";
  * Palette is set as CSS vars on the wrapper so this page is self-contained.
  */
 
-const THEME = {
-  "--graphite": "#16191D",
-  "--graphite-raised": "#1E2228",
-  "--graphite-high": "#252B32",
-  "--steel-line": "#2C323A",
-  "--steel-soft": "#363E48",
-  "--paper": "#ECEFF2",
-  "--muted": "#8A94A0",
-  "--muted-dim": "#5C6672",
-  "--amber": "#E8A13C",
-  "--signal-red": "#D2564B",
-  "--blueprint": "#5BA3C4",
-  "--blueprint-deep": "#3B7E9C",
-};
 
 const ROLES = [
   { key: "student", label: "Student" },
@@ -82,7 +69,6 @@ export default function LoginPage() {
   return (
     <div
       className="flex min-h-screen flex-col bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
-      style={THEME}
     >
       <header className="mx-auto flex h-[72px] w-full max-w-[1080px] items-center justify-between border-b border-[var(--steel-line)] px-6">
         <a href="/" className={`flex items-center gap-3 ${FOCUS}`}>
@@ -100,6 +86,7 @@ export default function LoginPage() {
         >
           Overview
         </a>
+        <ThemeToggle className="ml-3" />
       </header>
 
       <main className="flex flex-1 items-center justify-center px-6 py-14">
@@ -173,7 +160,7 @@ export default function LoginPage() {
               </label>
 
               {error ? (
-                <p className="rounded-[2px] border border-[var(--signal-red)] bg-[rgba(210,86,75,0.12)] px-3 py-2.5 text-[13px] text-[var(--paper)]">
+                <p className="rounded-[2px] border border-[var(--signal-red)] bg-[color-mix(in_srgb,var(--signal-red)_12%,transparent)] px-3 py-2.5 text-[13px] text-[var(--paper)]">
                   {error}
                 </p>
               ) : null}
@@ -181,7 +168,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className={`mt-1 w-full rounded-[2px] bg-[var(--amber)] px-4 py-[13px] ${DISPLAY} text-[15px] font-bold uppercase tracking-[0.03em] text-[var(--graphite)] transition duration-150 hover:bg-[#F0B052] disabled:cursor-not-allowed disabled:opacity-60 ${FOCUS}`}
+                className={`mt-1 w-full rounded-[2px] bg-[var(--amber)] px-4 py-[13px] ${DISPLAY} text-[15px] font-bold uppercase tracking-[0.03em] text-[var(--graphite)] transition duration-150 hover:bg-[var(--amber-hover)] disabled:cursor-not-allowed disabled:opacity-60 ${FOCUS}`}
               >
                 {loading ? "Signing in\u2026" : "Sign in"}
               </button>

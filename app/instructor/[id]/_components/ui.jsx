@@ -60,7 +60,7 @@ export function StatCard({ icon, label, value, accent, pad }) {
       </div>
       <div
         className={`mt-3 ${DISPLAY} text-[2.1rem] font-bold leading-none`}
-        style={{ color: accent || "var(--paper, #ECEFF2)" }}
+        style={{ color: accent || "var(--paper)" }}
       >
         {pad ? (value < 10 ? `0${value}` : value) : value}
       </div>
@@ -173,7 +173,7 @@ export function MetaChip({ label, value }) {
 export function DeploymentBanner({ status, busy, onDeploy }) {
   if (status === "students") {
     return (
-      <div className="flex items-center gap-2.5 rounded-[3px] border border-[#3f5e46] bg-[var(--graphite-raised,#1E2228)] px-5 py-3.5">
+      <div className="flex items-center gap-2.5 rounded-[3px] border border-[var(--ok-line)] bg-[var(--graphite-raised,#1E2228)] px-5 py-3.5">
         <span className="h-2 w-2 rounded-full bg-[var(--ok,#7FB08A)] shadow-[0_0_8px_-1px_var(--ok,#7FB08A)]" />
         <span className={`${MONO} text-[10.5px] uppercase tracking-[0.12em] text-[var(--ok,#7FB08A)]`}>Live for students</span>
         <span className="text-sm text-[var(--muted,#8A94A0)]">Students can log in and play this simulation.</span>
@@ -192,7 +192,7 @@ export function DeploymentBanner({ status, busy, onDeploy }) {
         <button
           onClick={onDeploy}
           disabled={busy}
-          className={`rounded-[2px] bg-[var(--amber,#E8A13C)] px-4 py-2 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.04em] text-[var(--graphite,#16191D)] transition duration-150 hover:bg-[#F0B052] disabled:opacity-60`}
+          className={`rounded-[2px] bg-[var(--amber,#E8A13C)] px-4 py-2 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.04em] text-[var(--graphite,#16191D)] transition duration-150 hover:bg-[var(--amber-hover)] disabled:opacity-60`}
         >
           {busy ? "Deploying…" : "Deploy for students"}
         </button>

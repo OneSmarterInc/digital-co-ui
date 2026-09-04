@@ -108,7 +108,7 @@ export default function HelpHub({ open, onClose, exitLabel = "Close" }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-[rgba(10,12,14,0.72)] px-4 py-10"
+      className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-[var(--modal-scrim)] px-4 py-10"
       role="dialog"
       aria-modal="true"
       aria-label="How this works"
@@ -277,7 +277,7 @@ export default function HelpHub({ open, onClose, exitLabel = "Close" }) {
               <button
                 onClick={ask}
                 disabled={asking || !question.trim()}
-                className={`flex-none rounded-[2px] bg-[var(--amber)] px-5 py-2 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.06em] text-[var(--graphite)] transition hover:bg-[#F0B052] disabled:opacity-40`}
+                className={`flex-none rounded-[2px] bg-[var(--amber)] px-5 py-2 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.06em] text-[var(--graphite)] transition hover:bg-[var(--amber-hover)] disabled:opacity-40`}
               >
                 {asking ? "…" : "Ask"}
               </button>

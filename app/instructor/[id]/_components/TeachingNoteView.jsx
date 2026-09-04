@@ -578,7 +578,7 @@ function ExhibitModal({ weekNumber, onClose }) {
   const exhibit = EXHIBIT_CONTENT[weekNumber];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.7)] p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--modal-scrim)] p-4">
       <div className="max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-[3px] border border-[var(--steel-line,#2C323A)] bg-[var(--graphite-raised,#1E2228)] shadow-[0_20px_60px_-12px_rgba(0,0,0,0.8)]">
         {/* Header */}
         <div className="sticky top-0 z-10 border-b border-[var(--steel-line,#2C323A)] bg-[var(--graphite-raised,#1E2228)] px-6 py-5 flex items-center justify-between">
@@ -610,7 +610,7 @@ function ExhibitModal({ weekNumber, onClose }) {
                 <div className="overflow-x-auto bg-[var(--graphite,#16191D)] border border-[var(--steel-line,#2C323A)] rounded-[2px]">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-[var(--steel-line,#2C323A)] bg-[#1B1F24]">
+                      <tr className="border-b border-[var(--steel-line,#2C323A)] bg-[var(--surface-inset)]">
                         {section.table.headers.map((header, i) => (
                           <th
                             key={i}
@@ -626,7 +626,7 @@ function ExhibitModal({ weekNumber, onClose }) {
                         <tr
                           key={rowIdx}
                           className={`border-b border-[var(--steel-line,#2C323A)] ${
-                            rowIdx % 2 === 1 ? "bg-[#1E2228]" : ""
+                            rowIdx % 2 === 1 ? "bg-[var(--graphite-raised)]" : ""
                           }`}
                         >
                           {row.map((cell, cellIdx) => (

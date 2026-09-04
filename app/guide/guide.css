@@ -2,14 +2,9 @@
  * Every rule is scoped under .guide-doc: the source uses generic class names
  * (.top, .hero, .move, .note, .team, .foot) that would otherwise collide with
  * the console stylesheet in app/console.css. */
-.guide-doc{
-    --graphite:#16191D; --graphite-raised:#1E2228; --graphite-high:#252B32;
-    --steel-line:#2C323A; --steel-soft:#363E48;
-    --paper:#ECEFF2; --ink:#14171B; --ink-soft:#3A424C;
-    --muted:#8A94A0; --muted-dim:#5C6672;
-    --amber:#E8A13C; --amber-deep:#C4791F; --signal-red:#D2564B;
-    --blueprint:#5BA3C4; --ok:#7FB08A; --r:4px;
-  }
+/* Tokens come from :root in globals.css so this page follows the global
+   light/dark switch. A local copy here would win over the light palette. */
+.guide-doc{--r:4px}
 .guide-doc *{box-sizing:border-box;margin:0;padding:0}
 .guide-doc{
     background:var(--graphite);color:var(--paper);

@@ -30,26 +30,6 @@ import { fetchMe, api, logout } from "../../../../../lib/api";
  * All data flow and the section routing unchanged.
  * ================================================================== */
 
-const THEME = {
-  "--graphite": "#16191D",
-  "--graphite-raised": "#1E2228",
-  "--graphite-high": "#252B32",
-  "--steel-line": "#2C323A",
-  "--steel-soft": "#363E48",
-  "--paper": "#ECEFF2",
-  "--paper-tint": "#E1E6EB",
-  "--ink": "#14171B",
-  "--ink-soft": "#3A424C",
-  "--ink-faint": "#6B7580",
-  "--muted": "#8A94A0",
-  "--muted-dim": "#5C6672",
-  "--amber": "#E8A13C",
-  "--amber-deep": "#C4791F",
-  "--signal-red": "#D2564B",
-  "--blueprint": "#5BA3C4",
-  "--blueprint-deep": "#3B7E9C",
-  "--ok": "#7FB08A",
-};
 
 const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
 const DISPLAY = "font-['Saira_Condensed',sans-serif]";
@@ -57,7 +37,7 @@ const PANEL =
   "rounded-[3px] border border-[var(--steel-line)] bg-[var(--graphite-raised)] shadow-[0_1px_0_rgba(0,0,0,0.4),0_8px_24px_-12px_rgba(0,0,0,0.6)]";
 /* Light "paper" documents on the dark console — the student console's dossier material. */
 const SHEET =
-  "rounded-[3px] bg-[var(--paper)] text-[var(--ink)] shadow-[0_1px_0_rgba(0,0,0,0.4),0_8px_24px_-12px_rgba(0,0,0,0.6)]";
+  "rounded-[3px] bg-[var(--doc-bg)] text-[var(--doc-ink)] shadow-[0_1px_0_rgba(0,0,0,0.4),0_8px_24px_-12px_rgba(0,0,0,0.6)]";
 
 /* ---- helpers (mirroring the student page) ---- */
 
@@ -308,7 +288,7 @@ export default function MimicStudentViewPage() {
 
   if (phase !== "ready") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#16191D] px-6 text-[#ECEFF2]" style={THEME}>
+      <div className="flex min-h-screen items-center justify-center bg-[var(--graphite)] px-6 text-[var(--paper)]">
         <p className={`${MONO} text-[12px] uppercase tracking-[0.16em] text-[var(--muted,#8A94A0)]`}>
           {phase === "error" ? `Couldn't open the student view. ${error ?? ""}` : "Opening student view…"}
         </p>
@@ -334,11 +314,10 @@ export default function MimicStudentViewPage() {
 
   return (
     <div
-      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased [color-scheme:dark] selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
-      style={THEME}
+      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
     >
       {/* mimic banner — unmissable, so this is never mistaken for a real student session */}
-      <div className="sticky top-0 z-50 flex flex-wrap items-center justify-between gap-2 border-b border-[var(--amber-deep)] bg-[rgba(232,161,60,0.12)] px-7 py-2 backdrop-blur">
+      <div className="sticky top-0 z-50 flex flex-wrap items-center justify-between gap-2 border-b border-[var(--amber-deep)] bg-[color-mix(in_srgb,var(--amber)_12%,transparent)] px-7 py-2 backdrop-blur">
         <span className={`flex items-center gap-2 ${MONO} text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--amber)]`}>
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--amber)] shadow-[0_0_8px_-1px_var(--amber)]" />
           Mimic — viewing as a {game.firm.name} student · read-only, nothing here touches their run
@@ -351,7 +330,7 @@ export default function MimicStudentViewPage() {
               className={`rounded-[2px] px-2.5 py-1 ${MONO} text-[9px] font-semibold uppercase tracking-[0.08em] transition ${
                 t.number === firmNo
                   ? "border border-[var(--amber-deep)] bg-[var(--amber)] text-[var(--graphite)]"
-                  : "border border-[var(--amber-deep)] bg-transparent text-[var(--amber)] hover:bg-[rgba(232,161,60,0.12)]"
+                  : "border border-[var(--amber-deep)] bg-transparent text-[var(--amber)] hover:bg-[color-mix(in_srgb,var(--amber)_12%,transparent)]"
               }`}
             >
               {t.name ?? `Firm ${t.number}`}
@@ -359,7 +338,7 @@ export default function MimicStudentViewPage() {
           ))}
           <button
             onClick={() => router.push(`/instructor/${gameId}?section=firms`)}
-            className={`rounded-[2px] border border-[var(--amber)] px-2.5 py-1 ${MONO} text-[9px] font-bold uppercase tracking-[0.08em] text-[var(--amber)] transition hover:bg-[rgba(232,161,60,0.15)]`}
+            className={`rounded-[2px] border border-[var(--amber)] px-2.5 py-1 ${MONO} text-[9px] font-bold uppercase tracking-[0.08em] text-[var(--amber)] transition hover:bg-[color-mix(in_srgb,var(--amber)_15%,transparent)]`}
           >
             Exit mimic
           </button>
@@ -367,7 +346,7 @@ export default function MimicStudentViewPage() {
       </div>
 
       {/* student header, faithfully — the console bar */}
-      <header className="flex items-center justify-between border-b border-[var(--steel-line)] bg-gradient-to-b from-[#1B1F25] to-[#15181C] px-7 py-4">
+      <header className="flex items-center justify-between border-b border-[var(--steel-line)] bg-gradient-to-b from-[var(--surface-inset)] to-[var(--surface-rail)] px-7 py-4">
         <div className="flex min-w-0 items-center gap-3">
           <button
             onClick={() => router.push(`/instructor/${gameId}?section=firms`)}
@@ -401,7 +380,7 @@ export default function MimicStudentViewPage() {
 
       <div className="flex">
         {/* the student rail */}
-        <aside className="w-[220px] shrink-0 border-r border-[var(--steel-line)] bg-[#14171B] px-5 py-8">
+        <aside className="w-[220px] shrink-0 border-r border-[var(--steel-line)] bg-[var(--surface-deep)] px-5 py-8">
           <p className={`mb-4 px-3 ${MONO} text-[9.5px] uppercase tracking-[0.2em] text-[var(--muted-dim)]`}>Cohort</p>
           <nav className="flex flex-col gap-1">
             {SECTIONS.filter(([key]) => key !== "debrief" || game.debrief_available).map(([key, label]) => {
@@ -569,23 +548,23 @@ function MimicWeek({ game }) {
         <div className={`overflow-hidden ${SHEET}`}>
           <div className="h-1 bg-[var(--amber)]" />
           <div className="p-7">
-            <p className="whitespace-pre-wrap text-[1rem] leading-[1.7] text-[var(--ink)]">{game.briefing.body}</p>
+            <p className="whitespace-pre-wrap text-[1rem] leading-[1.7] text-[var(--doc-ink)]">{game.briefing.body}</p>
             {(game.briefing.exec_reads?.length ?? 0) > 0 && (
-              <div className="mt-5 border-t border-[#D4DAE0] pt-4">
-                <p className={`mb-2 ${MONO} text-[9px] uppercase tracking-[0.2em] text-[var(--ink-soft)]`}>Exec reads</p>
+              <div className="mt-5 border-t border-[var(--steel-soft)] pt-4">
+                <p className={`mb-2 ${MONO} text-[9px] uppercase tracking-[0.2em] text-[var(--doc-ink-soft)]`}>Exec reads</p>
                 {game.briefing.exec_reads.map((r, i) => (
-                  <p key={i} className="mt-1.5 text-sm leading-[1.55] text-[var(--ink-soft)]">
+                  <p key={i} className="mt-1.5 text-sm leading-[1.55] text-[var(--doc-ink-soft)]">
                     {r}
                   </p>
                 ))}
               </div>
             )}
             {(game.briefing.signals?.length ?? 0) > 0 && (
-              <div className="mt-5 border-t border-[#D4DAE0] pt-4">
-                <p className={`mb-2 ${MONO} text-[9px] uppercase tracking-[0.2em] text-[var(--ink-soft)]`}>Signals</p>
+              <div className="mt-5 border-t border-[var(--steel-soft)] pt-4">
+                <p className={`mb-2 ${MONO} text-[9px] uppercase tracking-[0.2em] text-[var(--doc-ink-soft)]`}>Signals</p>
                 <div className="flex flex-wrap gap-1.5">
                   {game.briefing.signals.map((s, i) => (
-                    <span key={i} className={`rounded-[2px] border border-[#D4DAE0] bg-[var(--paper-tint)] px-2.5 py-1 ${MONO} text-[10px] text-[var(--ink-soft)]`}>
+                    <span key={i} className={`rounded-[2px] border border-[var(--steel-soft)] bg-[var(--doc-bg-tint)] px-2.5 py-1 ${MONO} text-[10px] text-[var(--doc-ink-soft)]`}>
                       {s}
                     </span>
                   ))}
@@ -601,10 +580,10 @@ function MimicWeek({ game }) {
           <p className={`${MONO} text-[9px] uppercase tracking-[0.2em] text-[var(--muted)]`}>Artifacts</p>
           {game.artifacts.map((a, i) => (
             <details key={i} className={`px-5 py-4 ${SHEET}`}>
-              <summary className={`cursor-pointer ${DISPLAY} text-[15px] font-semibold text-[var(--ink)]`}>
-                {a.title} <span className={`ml-1 ${MONO} text-[9px] uppercase text-[var(--ink-faint)]`}>{a.kind}</span>
+              <summary className={`cursor-pointer ${DISPLAY} text-[15px] font-semibold text-[var(--doc-ink)]`}>
+                {a.title} <span className={`ml-1 ${MONO} text-[9px] uppercase text-[var(--doc-ink-faint)]`}>{a.kind}</span>
               </summary>
-              <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-[var(--ink-soft)]">{a.body}</p>
+              <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-[var(--doc-ink-soft)]">{a.body}</p>
             </details>
           ))}
         </div>
@@ -623,7 +602,7 @@ function MimicWeek({ game }) {
             if (f.field_type === "boolean") {
               return (
                 <label key={f.key} className="flex items-center gap-3 rounded-[2px] border border-[var(--steel-line)] px-4 py-3 opacity-90">
-                  <input type="checkbox" checked={!!submitted[f.key]} disabled className="h-4 w-4 accent-[#E8A13C]" />
+                  <input type="checkbox" checked={!!submitted[f.key]} disabled className="h-4 w-4 accent-[var(--amber)]" />
                   <span className="text-sm font-medium text-[var(--paper)]">{f.label}</span>
                 </label>
               );
@@ -709,7 +688,7 @@ function MimicPerformance({ game }) {
               <div key={w.week_number} className={`p-5 ${PANEL}`}>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <span className={`flex h-9 w-9 flex-none items-center justify-center rounded-[2px] border border-[#3f5e46] bg-[var(--graphite)] ${MONO} text-[10.5px] font-bold text-[var(--ok)]`}>
+                    <span className={`flex h-9 w-9 flex-none items-center justify-center rounded-[2px] border border-[var(--ok-line)] bg-[var(--graphite)] ${MONO} text-[10.5px] font-bold text-[var(--ok)]`}>
                       R{w.week_number}
                     </span>
                     <p className={`${DISPLAY} text-[17px] font-semibold`}>Round {w.week_number}</p>
@@ -872,7 +851,7 @@ function MimicSchedule({ detail, rounds, current }) {
               {rounds.map((r) => {
                 const active = r.status === "Active";
                 return (
-                  <tr key={r.n} className={`border-b border-[var(--steel-line)] last:border-b-0 ${active ? "bg-[rgba(232,161,60,0.06)]" : ""}`}>
+                  <tr key={r.n} className={`border-b border-[var(--steel-line)] last:border-b-0 ${active ? "bg-[color-mix(in_srgb,var(--amber)_6%,transparent)]" : ""}`}>
                     <td className={`py-3 pl-6 pr-3 ${DISPLAY} text-[16px] font-semibold ${active ? "text-[var(--amber)]" : ""}`}>
                       Round {r.n}
                       {r.extended_days > 0 && (

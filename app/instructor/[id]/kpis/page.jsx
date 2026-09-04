@@ -9,6 +9,7 @@ import { ViewHeader, MiniInfo, Avatar, Pill } from "../_components/ui";
 import { IconBack } from "../_components/icons";
 import DetailSidebar from "../_components/DetailSidebar";
 import { choiceLabel } from "../_lib/choiceLabels";
+import ThemeToggle from "../../../ThemeToggle";
 
 /* ================================================================== *
  * Firm dashboards: /instructor/[id]/kpis
@@ -29,22 +30,6 @@ import { choiceLabel } from "../_lib/choiceLabels";
 
 const FIRM_TONES = ["#7FB08A", "#E8A13C", "#5BA3C4", "#9B8AC4", "#D2564B", "#5FB0A0"];
 
-const THEME = {
-  "--graphite": "#16191D",
-  "--graphite-raised": "#1E2228",
-  "--graphite-high": "#252B32",
-  "--steel-line": "#2C323A",
-  "--steel-soft": "#363E48",
-  "--paper": "#ECEFF2",
-  "--muted": "#8A94A0",
-  "--muted-dim": "#5C6672",
-  "--amber": "#E8A13C",
-  "--amber-deep": "#C4791F",
-  "--signal-red": "#D2564B",
-  "--blueprint": "#5BA3C4",
-  "--blueprint-deep": "#3B7E9C",
-  "--ok": "#7FB08A",
-};
 
 const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
 const DISPLAY = "font-['Saira_Condensed',sans-serif]";
@@ -106,7 +91,7 @@ function ValueChip({ label, value }) {
   let tone = "border-[var(--steel-line)] text-[var(--muted)]";
   let display = String(value);
   if (value === true) {
-    tone = "border-[#3f5e46] text-[var(--ok)]";
+    tone = "border-[var(--ok-line)] text-[var(--ok)]";
     display = "yes";
   } else if (value === false) {
     display = "no";
@@ -174,7 +159,7 @@ function Gates({ blob }) {
                 )}
                 <span
                   className={`inline-flex items-center gap-1.5 rounded-[2px] border px-2.5 py-0.5 ${MONO} text-[9px] font-semibold uppercase tracking-[0.06em] ${
-                    detonated ? "border-[#7a3b35] text-[var(--signal-red)]" : "border-[#3f5e46] text-[var(--ok)]"
+                    detonated ? "border-[var(--red-line)] text-[var(--signal-red)]" : "border-[var(--ok-line)] text-[var(--ok)]"
                   }`}
                 >
                   <span
@@ -219,7 +204,7 @@ function DecisionCard({ decision }) {
         </span>
         <span className={`${DISPLAY} text-[16px] font-semibold capitalize`}>{human(decision.decision_key ?? "decision")}</span>
         {traps.map((t) => (
-          <span key={t} className={`rounded-[2px] border border-[#7a3b35] px-2 py-0.5 ${MONO} text-[8.5px] uppercase tracking-[0.06em] text-[var(--signal-red)]`}>
+          <span key={t} className={`rounded-[2px] border border-[var(--red-line)] px-2 py-0.5 ${MONO} text-[8.5px] uppercase tracking-[0.06em] text-[var(--signal-red)]`}>
             trap: {human(t)}
           </span>
         ))}
@@ -305,7 +290,7 @@ export default function FirmDashboardsPage() {
 
   if (phase !== "ready") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#16191D] px-6 text-[#ECEFF2]" style={THEME}>
+      <div className="flex min-h-screen items-center justify-center bg-[var(--graphite)] px-6 text-[var(--paper)]">
         <p className={`${MONO} text-[12px] uppercase tracking-[0.16em] text-[var(--muted,#8A94A0)]`}>
           {phase === "error" ? `Couldn't load this cohort. ${error ?? ""}` : "Loading firm dashboards…"}
         </p>
@@ -324,10 +309,9 @@ export default function FirmDashboardsPage() {
 
   return (
     <div
-      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased [color-scheme:dark] selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
-      style={THEME}
+      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
     >
-      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[var(--steel-line)] bg-[rgba(22,25,29,0.85)] px-7 py-4 backdrop-blur">
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[var(--steel-line)] bg-[var(--scrim)] px-7 py-4 backdrop-blur">
         <div className="flex min-w-0 items-center gap-3">
           <button
             onClick={() => router.push(`/instructor/${gameId}`)}
@@ -356,6 +340,7 @@ export default function FirmDashboardsPage() {
           <span className={`hidden ${MONO} text-[10.5px] uppercase tracking-[0.16em] text-[var(--muted)] sm:inline`}>
             {me.first_name || me.username}
           </span>
+          <ThemeToggle />
           <button
             onClick={() => {
               logout();
@@ -509,7 +494,7 @@ export default function FirmDashboardsPage() {
                           </span>
                         )}
                         {(w.trap_flags?.length ?? 0) > 0 && (
-                          <span className={`rounded-[2px] border border-[#7a3b35] px-2.5 py-0.5 ${MONO} text-[8.5px] uppercase tracking-[0.06em] text-[var(--signal-red)]`}>
+                          <span className={`rounded-[2px] border border-[var(--red-line)] px-2.5 py-0.5 ${MONO} text-[8.5px] uppercase tracking-[0.06em] text-[var(--signal-red)]`}>
                             {w.trap_flags.length} trap{w.trap_flags.length === 1 ? "" : "s"}: {w.trap_flags.map(human).join(", ")}
                           </span>
                         )}

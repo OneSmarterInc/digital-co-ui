@@ -72,7 +72,7 @@ function SpreadBar({ avg, min, max, scale }) {
       <div className="absolute inset-y-0 left-1/2 w-px bg-[var(--steel-soft,#363E48)]" />
       {(min !== 0 || max !== 0) && (
         <div
-          className="absolute inset-y-0 bg-[rgba(59,126,156,0.22)]"
+          className="absolute inset-y-0 bg-[color-mix(in_srgb,var(--blueprint-deep)_22%,transparent)]"
           style={{ left: `${50 - pct(lo)}%`, width: `${pct(lo) + pct(hi)}%` }}
         />
       )}
@@ -199,7 +199,7 @@ export default function InsightsView({ gameId, detail, rounds }) {
               </span>
               <span className="flex flex-none items-center gap-2">
                 {f.trap_flags > 0 && (
-                  <span className={`rounded-[2px] border border-[#7a3b35] px-2 py-0.5 ${MONO} text-[8.5px] font-semibold uppercase tracking-[0.06em] text-[var(--signal-red,#D2564B)]`}>
+                  <span className={`rounded-[2px] border border-[var(--red-line)] px-2 py-0.5 ${MONO} text-[8.5px] font-semibold uppercase tracking-[0.06em] text-[var(--signal-red,#D2564B)]`}>
                     {f.trap_flags} trap{f.trap_flags === 1 ? "" : "s"}
                   </span>
                 )}
@@ -413,7 +413,7 @@ export default function InsightsView({ gameId, detail, rounds }) {
           that played badly. Without naming who is outstanding, that hold is
           indistinguishable from a broken checkpoint. */}
       {(data.benchmark_status?.pending_firms?.length ?? 0) > 0 && (
-        <div className="rounded-[3px] border border-[var(--amber-deep,#C4791F)] bg-[rgba(232,161,60,0.07)] p-4">
+        <div className="rounded-[3px] border border-[var(--amber-deep,#C4791F)] bg-[color-mix(in_srgb,var(--amber)_7%,transparent)] p-4">
           <p className={`${MONO} text-[9px] uppercase tracking-[0.14em] text-[var(--amber,#E8A13C)]`}>
             Week {data.benchmark_status.after_week} standings on hold
           </p>

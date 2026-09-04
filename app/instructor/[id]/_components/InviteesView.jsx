@@ -20,7 +20,7 @@ const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
 const DISPLAY = "font-['Saira_Condensed',sans-serif]";
 const PANEL =
   "rounded-[3px] border border-[var(--steel-line,#2C323A)] bg-[var(--graphite-raised,#1E2228)] shadow-[0_1px_0_rgba(0,0,0,0.4),0_8px_24px_-12px_rgba(0,0,0,0.6)]";
-const COMMIT = `flex items-center gap-2 rounded-[2px] bg-[var(--amber,#E8A13C)] px-4 py-2 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.04em] text-[var(--graphite,#16191D)] transition duration-150 hover:bg-[#F0B052] disabled:opacity-50`;
+const COMMIT = `flex items-center gap-2 rounded-[2px] bg-[var(--amber,#E8A13C)] px-4 py-2 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.04em] text-[var(--graphite,#16191D)] transition duration-150 hover:bg-[var(--amber-hover)] disabled:opacity-50`;
 const GHOST_SM = `rounded-[2px] border border-[var(--steel-line,#2C323A)] px-3 py-1.5 ${MONO} text-[9px] font-semibold uppercase tracking-[0.1em] text-[var(--paper,#ECEFF2)] transition hover:border-[var(--steel-soft,#363E48)] hover:bg-[var(--graphite-high,#252B32)] disabled:opacity-50`;
 const INPUT =
   "rounded-[2px] border border-[var(--steel-line,#2C323A)] bg-[var(--graphite,#16191D)] text-[var(--paper,#ECEFF2)] outline-none transition duration-150 placeholder:text-[var(--muted-dim,#5C6672)] focus:border-[var(--blueprint,#5BA3C4)] focus:bg-[var(--graphite-high,#252B32)]";
@@ -325,7 +325,7 @@ export default function InviteesView({ gameId, detail, reload, notify }) {
 
         <div className={`p-6 ${PANEL}`}>
           <div className="flex items-start gap-3">
-            <span className="grid h-9 w-9 flex-none place-items-center rounded-[2px] border border-[#3f5e46] bg-[var(--graphite,#16191D)] text-[var(--ok,#7FB08A)]">
+            <span className="grid h-9 w-9 flex-none place-items-center rounded-[2px] border border-[var(--ok-line)] bg-[var(--graphite,#16191D)] text-[var(--ok,#7FB08A)]">
               <IconLink size={18} />
             </span>
             <div>
@@ -386,7 +386,7 @@ export default function InviteesView({ gameId, detail, reload, notify }) {
               aria-label="Search invitations"
             />
             <select
-              className={`h-9 px-2.5 text-[0.8rem] [color-scheme:dark] ${INPUT}`}
+              className={`h-9 px-2.5 text-[0.8rem] ${INPUT}`}
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               aria-label="Filter by status"

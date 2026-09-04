@@ -26,22 +26,6 @@ import { IconBack } from "../../_components/icons";
 
 const FIRM_TONES = ["#7FB08A", "#E8A13C", "#5BA3C4", "#9B8AC4", "#D2564B", "#5FB0A0"];
 
-const THEME = {
-  "--graphite": "#16191D",
-  "--graphite-raised": "#1E2228",
-  "--graphite-high": "#252B32",
-  "--steel-line": "#2C323A",
-  "--steel-soft": "#363E48",
-  "--paper": "#ECEFF2",
-  "--muted": "#8A94A0",
-  "--muted-dim": "#5C6672",
-  "--amber": "#E8A13C",
-  "--amber-deep": "#C4791F",
-  "--signal-red": "#D2564B",
-  "--blueprint": "#5BA3C4",
-  "--blueprint-deep": "#3B7E9C",
-  "--ok": "#7FB08A",
-};
 
 const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
 const DISPLAY = "font-['Saira_Condensed',sans-serif]";
@@ -125,7 +109,7 @@ export default function StudentDetailPage() {
 
   if (phase !== "ready" || !student || !detail) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#16191D] px-6 text-[#ECEFF2]" style={THEME}>
+      <div className="flex min-h-screen items-center justify-center bg-[var(--graphite)] px-6 text-[var(--paper)]">
         <p className={`${MONO} text-[12px] uppercase tracking-[0.16em] text-[var(--muted,#8A94A0)]`}>
           {phase === "error" ? `Couldn't load this student. ${error ?? ""}` : "Loading student…"}
         </p>
@@ -194,10 +178,9 @@ export default function StudentDetailPage() {
 
   return (
     <div
-      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased [color-scheme:dark] selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
-      style={THEME}
+      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
     >
-      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[var(--steel-line)] bg-[rgba(22,25,29,0.85)] px-7 py-4 backdrop-blur">
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[var(--steel-line)] bg-[var(--scrim)] px-7 py-4 backdrop-blur">
         <div className="flex min-w-0 items-center gap-3">
           <button
             onClick={() => router.push(`/instructor/${gameId}?section=students`)}
@@ -242,8 +225,8 @@ export default function StudentDetailPage() {
                   disabled={busy}
                   className={`rounded-[2px] border px-3.5 py-2 ${MONO} text-[9.5px] font-bold uppercase tracking-[0.1em] transition disabled:opacity-50 ${
                     enr.blocked
-                      ? "border-[#3f5e46] text-[var(--ok)] hover:bg-[rgba(127,176,138,0.1)]"
-                      : "border-[#7a3b35] text-[var(--signal-red)] hover:bg-[rgba(210,86,75,0.1)]"
+                      ? "border-[var(--ok-line)] text-[var(--ok)] hover:bg-[color-mix(in_srgb,var(--ok)_10%,transparent)]"
+                      : "border-[var(--red-line)] text-[var(--signal-red)] hover:bg-[color-mix(in_srgb,var(--signal-red)_10%,transparent)]"
                   }`}
                 >
                   {enr.blocked ? "Unblock student" : "Block student"}
@@ -253,7 +236,7 @@ export default function StudentDetailPage() {
           />
 
           {enr.blocked && (
-            <div className="flex items-center gap-2.5 rounded-[3px] border border-[#7a3b35] bg-[var(--graphite-raised)] px-4 py-3">
+            <div className="flex items-center gap-2.5 rounded-[3px] border border-[var(--red-line)] bg-[var(--graphite-raised)] px-4 py-3">
               <span className="h-1.5 w-1.5 flex-none rounded-full bg-[var(--signal-red)] shadow-[0_0_8px_-1px_var(--signal-red)]" />
               <span className="text-[0.85rem] text-[var(--muted)]">
                 This student is blocked{enr.blocked_at ? ` since ${fmtDate(enr.blocked_at)}` : ""} — their portal shows the access-paused
@@ -342,7 +325,7 @@ export default function StudentDetailPage() {
             <p className="mt-1 text-sm text-[var(--muted)]">Firm placement and payment, managed right here.</p>
             <div className="mt-4 flex flex-wrap items-center gap-3">
               <select
-                className="h-10 w-[180px] rounded-[2px] border border-[var(--steel-line)] bg-[var(--graphite)] px-2.5 text-[0.85rem] text-[var(--paper)] outline-none transition duration-150 [color-scheme:dark] focus:border-[var(--blueprint)]"
+                className="h-10 w-[180px] rounded-[2px] border border-[var(--steel-line)] bg-[var(--graphite)] px-2.5 text-[0.85rem] text-[var(--paper)] outline-none transition duration-150 focus:border-[var(--blueprint)]"
                 value={enr.firm_number ?? 0}
                 onChange={(e) => doMove(Number(e.target.value), firms.find((f) => f.number === Number(e.target.value))?.name)}
                 disabled={busy}
@@ -359,7 +342,7 @@ export default function StudentDetailPage() {
                 onClick={() => doPaid(!enr.paid)}
                 disabled={busy}
                 title={enr.paid ? "Click to mark unpaid" : "Click to mark paid"}
-                className="rounded-[2px] transition hover:ring-2 hover:ring-[rgba(127,176,138,0.3)] disabled:opacity-50"
+                className="rounded-[2px] transition hover:ring-2 hover:ring-[color-mix(in_srgb,var(--ok)_30%,transparent)] disabled:opacity-50"
               >
                 <Pill tone={enr.paid ? "good" : "muted"}>{enr.paid ? "Paid" : "Unpaid"}</Pill>
               </button>
@@ -467,7 +450,7 @@ export default function StudentDetailPage() {
               </button>
               <button
                 onClick={doResetPassword}
-                className={`rounded-[2px] bg-[var(--amber)] px-4 py-2 ${DISPLAY} text-[13px] font-bold uppercase tracking-[0.04em] text-[var(--graphite)] transition duration-150 hover:bg-[#F0B052]`}
+                className={`rounded-[2px] bg-[var(--amber)] px-4 py-2 ${DISPLAY} text-[13px] font-bold uppercase tracking-[0.04em] text-[var(--graphite)] transition duration-150 hover:bg-[var(--amber-hover)]`}
               >
                 Reset password
               </button>

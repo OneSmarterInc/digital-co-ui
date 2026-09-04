@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 // Adjust to wherever your api client lives.
 import { fetchMe, api, logout } from "../../lib/api";
 import HelpButton from "../_help/HelpButton";
+import ThemeToggle from "../ThemeToggle";
 
 /* ================================================================== *
  * Student home: /student
@@ -31,28 +32,12 @@ const LIST_PATH = "/student/simulations/";
 const PROFILE_PATH = "/me/profile/";
 const playPath = (id) => `/student/${id}`;
 
-const THEME = {
-  "--graphite": "#16191D",
-  "--graphite-raised": "#1E2228",
-  "--graphite-high": "#252B32",
-  "--steel-line": "#2C323A",
-  "--steel-soft": "#363E48",
-  "--paper": "#ECEFF2",
-  "--muted": "#8A94A0",
-  "--muted-dim": "#5C6672",
-  "--amber": "#E8A13C",
-  "--amber-deep": "#C4791F",
-  "--signal-red": "#D2564B",
-  "--blueprint": "#5BA3C4",
-  "--blueprint-deep": "#3B7E9C",
-  "--ok": "#7FB08A",
-};
 
 const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
 const DISPLAY = "font-['Saira_Condensed',sans-serif]";
 const PANEL =
   "rounded-[3px] border border-[var(--steel-line)] bg-[var(--graphite-raised)] shadow-[0_1px_0_rgba(0,0,0,0.4),0_8px_24px_-12px_rgba(0,0,0,0.6)]";
-const COMMIT = `flex items-center gap-2 rounded-[2px] bg-[var(--amber)] font-['Saira_Condensed',sans-serif] font-bold uppercase tracking-[0.04em] text-[var(--graphite)] transition duration-150 hover:bg-[#F0B052] disabled:opacity-50 disabled:hover:bg-[var(--amber)]`;
+const COMMIT = `flex items-center gap-2 rounded-[2px] bg-[var(--amber)] font-['Saira_Condensed',sans-serif] font-bold uppercase tracking-[0.04em] text-[var(--graphite)] transition duration-150 hover:bg-[var(--amber-hover)] disabled:opacity-50 disabled:hover:bg-[var(--amber)]`;
 const GHOST = `rounded-[2px] border border-[var(--steel-line)] font-['IBM_Plex_Mono',ui-monospace,monospace] uppercase text-[var(--muted)] transition hover:border-[var(--steel-soft)] hover:bg-[var(--graphite-high)] hover:text-[var(--paper)]`;
 const INPUT =
   "w-full rounded-[2px] border border-[var(--steel-line)] bg-[var(--graphite)] px-3.5 py-2 text-[0.9rem] text-[var(--paper)] outline-none transition duration-150 placeholder:text-[var(--muted-dim)] focus:border-[var(--blueprint)] focus:shadow-[0_0_0_3px_rgba(91,163,196,0.15)]";
@@ -360,7 +345,7 @@ export default function StudentHomePage() {
 
   if (phase === "loading" || phase === "redirect" || phase === "error") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#16191D] px-6 text-[#ECEFF2]" style={THEME}>
+      <div className="flex min-h-screen items-center justify-center bg-[var(--graphite)] px-6 text-[var(--paper)]">
         <p className={`${MONO} text-[12px] uppercase tracking-[0.16em] text-[var(--muted,#8A94A0)]`}>
           {phase === "error"
             ? `Couldn't load your cohorts. ${error ?? ""}`
@@ -378,10 +363,9 @@ export default function StudentHomePage() {
 
   return (
     <div
-      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased [color-scheme:dark] selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
-      style={THEME}
+      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
     >
-      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[var(--steel-line)] bg-gradient-to-b from-[#1B1F25] to-[#15181C] px-7 py-4">
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[var(--steel-line)] bg-gradient-to-b from-[var(--surface-inset)] to-[var(--surface-rail)] px-7 py-4">
         <div className="flex min-w-0 items-center gap-3">
           <img src="/logo-1x.svg" alt="FLEXEE · DigitalCo" className="h-[26px] w-[26px] flex-shrink-0" />
           {/* Primary lockup — the same platform · sim treatment the opening tour uses. */}
@@ -401,6 +385,7 @@ export default function StudentHomePage() {
             {headerName}
           </span>
           <HelpButton />
+          <ThemeToggle />
           <button onClick={signOut} className={`px-4 py-2 text-[10.5px] font-semibold tracking-[0.14em] ${GHOST}`}>
             Sign out
           </button>
@@ -504,7 +489,7 @@ export default function StudentHomePage() {
                       {(sim.blocked || sim.paid === false) && (
                         <div
                           className={`flex items-center gap-2.5 border-t px-6 py-3 ${
-                            sim.blocked ? "border-[#7a3b35]" : "border-[var(--amber-deep)]"
+                            sim.blocked ? "border-[var(--red-line)]" : "border-[var(--amber-deep)]"
                           } bg-[var(--graphite)]`}
                         >
                           <span

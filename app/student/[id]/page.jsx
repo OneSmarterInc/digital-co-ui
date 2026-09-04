@@ -11,6 +11,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 // Adjust to wherever your api client lives.
 import { fetchMe, api, logout } from "../../../lib/api";
 import HelpButton from "../../_help/HelpButton";
+import ThemeToggle from "../../ThemeToggle";
 
 /* ================================================================== *
  * Student cohort area: /student/[id]
@@ -43,22 +44,6 @@ import HelpButton from "../../_help/HelpButton";
  * logic, and the one-time intro handling are unchanged.
  * ================================================================== */
 
-const THEME = {
-  "--graphite": "#16191D",
-  "--graphite-raised": "#1E2228",
-  "--graphite-high": "#252B32",
-  "--steel-line": "#2C323A",
-  "--steel-soft": "#363E48",
-  "--paper": "#ECEFF2",
-  "--muted": "#8A94A0",
-  "--muted-dim": "#5C6672",
-  "--amber": "#E8A13C",
-  "--amber-deep": "#C4791F",
-  "--signal-red": "#D2564B",
-  "--blueprint": "#5BA3C4",
-  "--blueprint-deep": "#3B7E9C",
-  "--ok": "#7FB08A",
-};
 
 const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
 const DISPLAY = "font-['Saira_Condensed',sans-serif]";
@@ -383,7 +368,7 @@ export default function StudentCohortPage() {
 
   if (phase !== "ready" || !sim) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#16191D] px-6 text-[#ECEFF2]" style={THEME}>
+      <div className="flex min-h-screen items-center justify-center bg-[var(--graphite)] px-6 text-[var(--paper)]">
         <p className={`${MONO} text-[12px] uppercase tracking-[0.16em] text-[var(--muted,#8A94A0)]`}>
           {phase === "error" ? `Couldn't open this cohort. ${error ?? ""}` : phase === "redirect" ? "Redirecting…" : "Loading cohort…"}
         </p>
@@ -428,10 +413,9 @@ export default function StudentCohortPage() {
 
   return (
     <div
-      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased [color-scheme:dark] selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
-      style={THEME}
+      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
     >
-      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[var(--steel-line)] bg-gradient-to-b from-[#1B1F25] to-[#15181C] px-7 py-4">
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[var(--steel-line)] bg-gradient-to-b from-[var(--surface-inset)] to-[var(--surface-rail)] px-7 py-4">
         <div className="flex min-w-0 items-center gap-3">
           <button
             onClick={() => router.push("/student")}
@@ -469,6 +453,7 @@ export default function StudentCohortPage() {
             {headerName}
           </span>
           <HelpButton exitLabel={displaySection === "advisors" ? "Back to the war room" : "Close"} />
+          <ThemeToggle />
           <button onClick={signOut} className={`px-4 py-2 text-[10.5px] font-semibold tracking-[0.14em] ${GHOST}`}>
             Sign out
           </button>
@@ -476,7 +461,7 @@ export default function StudentCohortPage() {
       </header>
 
       <div className="flex">
-        <aside className="w-[220px] shrink-0 border-r border-[var(--steel-line)] bg-[#14171B] px-5 py-8">
+        <aside className="w-[220px] shrink-0 border-r border-[var(--steel-line)] bg-[var(--surface-deep)] px-5 py-8">
           <p className={`mb-4 px-3 ${MONO} text-[9.5px] uppercase tracking-[0.2em] text-[var(--muted-dim)]`}>Cohort</p>
           <nav className="flex flex-col gap-1">
             {SECTIONS.filter(([key]) => {
@@ -613,7 +598,7 @@ function DashboardView({ sim, game, rounds, current, status, playable, gated, se
           </p>
           <button
             onClick={onRevisitTour}
-            className={`mt-4 inline-flex items-center gap-2 rounded-[2px] bg-[var(--amber)] px-5 py-2.5 ${DISPLAY} text-[15px] font-bold uppercase tracking-[0.05em] text-[var(--graphite)] transition hover:bg-[#F0B052]`}
+            className={`mt-4 inline-flex items-center gap-2 rounded-[2px] bg-[var(--amber)] px-5 py-2.5 ${DISPLAY} text-[15px] font-bold uppercase tracking-[0.05em] text-[var(--graphite)] transition hover:bg-[var(--amber-hover)]`}
           >
             Watch the tour
           </button>
@@ -824,7 +809,7 @@ function PerformanceView({ game, cohortId }) {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <span
-                      className={`flex h-9 w-9 flex-none items-center justify-center rounded-[2px] border border-[#3f5e46] bg-[var(--graphite)] ${MONO} text-[10.5px] font-bold text-[var(--ok)]`}
+                      className={`flex h-9 w-9 flex-none items-center justify-center rounded-[2px] border border-[var(--ok-line)] bg-[var(--graphite)] ${MONO} text-[10.5px] font-bold text-[var(--ok)]`}
                     >
                       R{w.week_number}
                     </span>
@@ -950,7 +935,7 @@ function FirmView({ cohortId, sim }) {
             key={m.id}
             className={`flex items-center gap-3 px-6 py-4 ${
               i > 0 ? "border-t border-[var(--steel-line)]" : ""
-            } ${m.is_you ? "bg-[rgba(232,161,60,0.06)]" : ""}`}
+            } ${m.is_you ? "bg-[color-mix(in_srgb,var(--amber)_6%,transparent)]" : ""}`}
           >
             <span
               className={`flex h-9 w-9 flex-none items-center justify-center rounded-full border ${MONO} text-[11px] font-bold ${
@@ -1086,7 +1071,7 @@ function StandingsView({ game, cohortId }) {
                         <tr
                           key={row.rank}
                           className={`border-b border-[var(--steel-line)] last:border-b-0 ${
-                            mine ? "bg-[rgba(232,161,60,0.07)]" : ""
+                            mine ? "bg-[color-mix(in_srgb,var(--amber)_7%,transparent)]" : ""
                           }`}
                         >
                           <td className="py-3 pl-6 pr-3">
@@ -1114,7 +1099,7 @@ function StandingsView({ game, cohortId }) {
                               {(row.visible_strengths ?? []).map((v, i) => (
                                 <span
                                   key={`s${i}`}
-                                  className={`rounded-[2px] border border-[#3f5e46] px-1.5 py-0.5 ${MONO} text-[8.5px] uppercase tracking-[0.06em] text-[var(--ok)]`}
+                                  className={`rounded-[2px] border border-[var(--ok-line)] px-1.5 py-0.5 ${MONO} text-[8.5px] uppercase tracking-[0.06em] text-[var(--ok)]`}
                                 >
                                   {v}
                                 </span>
@@ -1187,7 +1172,7 @@ function ScheduleView({ sim, rounds, current }) {
                 return (
                   <tr
                     key={r.n}
-                    className={`border-b border-[var(--steel-line)] last:border-b-0 ${active ? "bg-[rgba(232,161,60,0.06)]" : ""}`}
+                    className={`border-b border-[var(--steel-line)] last:border-b-0 ${active ? "bg-[color-mix(in_srgb,var(--amber)_6%,transparent)]" : ""}`}
                   >
                     <td className={`py-3 pl-6 pr-3 ${DISPLAY} text-[16px] font-semibold ${active ? "text-[var(--amber)]" : ""}`}>
                       Round {r.n}

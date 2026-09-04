@@ -16,7 +16,7 @@ import { choiceLabel } from "../_lib/choiceLabels";
 
 const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
 const DISPLAY = "font-['Saira_Condensed',sans-serif]";
-const COMMIT = `rounded-[2px] bg-[var(--amber,#E8A13C)] px-4 py-2 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.04em] text-[var(--graphite,#16191D)] transition duration-150 hover:bg-[#F0B052] disabled:opacity-50`;
+const COMMIT = `rounded-[2px] bg-[var(--amber,#E8A13C)] px-4 py-2 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.04em] text-[var(--graphite,#16191D)] transition duration-150 hover:bg-[var(--amber-hover)] disabled:opacity-50`;
 const GHOST = `rounded-[2px] border border-[var(--steel-line,#2C323A)] px-4 py-2 text-sm text-[var(--muted,#8A94A0)] transition hover:border-[var(--steel-soft,#363E48)] hover:bg-[var(--graphite-high,#252B32)] hover:text-[var(--paper,#ECEFF2)] disabled:opacity-50`;
 const INPUT =
   "rounded-[2px] border border-[var(--steel-line,#2C323A)] bg-[var(--graphite,#16191D)] text-[var(--paper,#ECEFF2)] outline-none transition duration-150 placeholder:text-[var(--muted-dim,#5C6672)] focus:border-[var(--blueprint,#5BA3C4)] focus:bg-[var(--graphite-high,#252B32)]";
@@ -274,7 +274,7 @@ export function GradingModal({ score, gameId, onClose, onGraded }) {
       </div>
       <div className="max-h-[60vh] space-y-4 overflow-y-auto px-6 py-5">
         {isWeek1 && (
-          <div className="rounded-[3px] border border-[var(--amber-deep,#C4791F)] bg-[rgba(232,161,60,0.07)] p-3.5">
+          <div className="rounded-[3px] border border-[var(--amber-deep,#C4791F)] bg-[color-mix(in_srgb,var(--amber)_7%,transparent)] p-3.5">
             <label className={`mb-2 block ${DISPLAY} text-[15px] font-semibold`}>
               Anchor strength <span className="text-[var(--amber,#E8A13C)]">(required)</span>
             </label>
@@ -410,7 +410,7 @@ export function GradingModal({ score, gameId, onClose, onGraded }) {
         </div>
         {/* Deliberately unlike the rows above: full width, prose, its own
             panel. The boxes add to a number; this replaces a paragraph. */}
-        <div className="rounded-[3px] border border-[var(--steel-soft,#363E48)] bg-[rgba(255,255,255,0.02)] p-3.5">
+        <div className="rounded-[3px] border border-[var(--steel-soft,#363E48)] bg-[var(--graphite-high)] p-3.5">
           <div className="mb-2 flex items-baseline justify-between gap-3">
             <label htmlFor="grade-feedback" className={`${DISPLAY} text-[15px] font-semibold`}>
               Written feedback
@@ -454,7 +454,7 @@ export function GradingModal({ score, gameId, onClose, onGraded }) {
               with no feedback without noticing. A failure is now as visible as
               the box it failed to fill, and offers the retry directly. */}
           {draftNote && (
-            <div className="mt-2 flex flex-wrap items-center justify-between gap-3 rounded-[2px] border border-[var(--amber-deep,#C4791F)] bg-[rgba(232,161,60,0.08)] px-3 py-2">
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-3 rounded-[2px] border border-[var(--amber-deep,#C4791F)] bg-[color-mix(in_srgb,var(--amber)_8%,transparent)] px-3 py-2">
               <span className="text-[0.8rem] leading-[1.5] text-[var(--paper,#ECEFF2)]">
                 No draft was written — {draftNote}. Write your own, or try again.
               </span>

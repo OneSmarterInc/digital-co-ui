@@ -18,28 +18,10 @@
   }
 }
 
+/* Tokens come from :root in globals.css so this page follows the global
+   light/dark switch. A copy here would pin it dark. --r is layout, not
+   colour, so it stays local. */
 .dcConsole {
-  --graphite: #16191d;
-  --graphite-raised: #1e2228;
-  --graphite-high: #252b32;
-  --steel-line: #2c323a;
-  --steel-soft: #363e48;
-  --paper: #eceff2;
-  --paper-tint: #e1e6eb;
-  --paper-deep: #d6dce2;
-  --ink: #14171b;
-  --ink-soft: #3a424c;
-  --ink-faint: #6b7580;
-  --muted: #8a94a0;
-  --muted-dim: #5c6672;
-  --amber: #e8a13c;
-  --amber-deep: #c4791f;
-  --signal-red: #d2564b;
-  --red-deep: #a93e34;
-  --blueprint: #5ba3c4;
-  --blueprint-deep: #3b7e9c;
-  --ok: #7fb08a;
-  --shadow: 0 1px 0 rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
   --r: 3px;
 }
 
@@ -124,7 +106,7 @@
   font-family: "Saira Condensed", sans-serif;
   font-weight: 700;
   font-size: 44px;
-  color: #eceff2;
+  color: var(--paper);
   line-height: 1;
 }
 
@@ -133,7 +115,7 @@
   font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #8a94a0;
+  color: var(--muted);
   margin-top: 8px;
 }
 
@@ -145,17 +127,17 @@
   font-family: "Saira Condensed", sans-serif;
   font-weight: 600;
   font-size: 26px;
-  color: #e8a13c;
+  color: var(--amber);
   line-height: 1.1;
 }
 
 .reviewIntent {
   font-size: 13.5px;
-  color: #8a94a0;
+  color: var(--muted);
   line-height: 1.55;
   margin: 8px 0 16px;
   max-width: 760px;
-  border-left: 2px solid #363e48;
+  border-left: 2px solid var(--steel-soft);
   padding-left: 12px;
 }
 
@@ -165,22 +147,39 @@
   padding: 20px 0 6px;
 }
 
+/* On this page the provenance line sits ABOVE the sheet, on the page ground —
+   not inside the document the way it does in the week console. So it takes
+   chrome tokens, not document ink. It carried document ink before, which put
+   near-black bold on the dark ground and made those words invisible. */
 .provenance {
   font-size: 13px;
-  color: var(--ink-soft);
+  color: var(--muted);
   line-height: 1.6;
   margin-bottom: 14px;
 }
 
 .provenance b {
-  color: var(--ink);
+  color: var(--paper);
+}
+
+/* The Week 1 reference files are shared components that also render in the
+   week console, where they sit inside the white dossier and so carry the
+   global .provenance class with document ink. On this page there is no
+   dossier — they sit on the page ground — so the intro line is re-pointed at
+   chrome tokens. Scoped to this page; the week console is untouched. */
+.dcConsole :global(.provenance) {
+  color: var(--muted);
+}
+
+.dcConsole :global(.provenance b) {
+  color: var(--paper);
 }
 
 /* Sheet & Tables */
 .sheet {
-  background: var(--paper);
-  color: var(--ink);
-  border: 1px solid #cbd3da;
+  background: var(--doc-bg);
+  color: var(--doc-ink);
+  border: 1px solid var(--doc-line);
   border-radius: var(--r);
   overflow: hidden;
   margin-top: 14px;
@@ -196,8 +195,8 @@
   align-items: center;
   gap: 10px;
   padding: 11px 18px;
-  background: var(--paper-tint);
-  border-bottom: 1px solid #cbd3da;
+  background: var(--doc-bg-tint);
+  border-bottom: 1px solid var(--doc-line);
   flex-wrap: wrap;
 }
 
@@ -206,7 +205,7 @@
   font-size: 10.5px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ink-soft);
+  color: var(--doc-ink-soft);
   font-weight: 600;
 }
 
@@ -247,35 +246,35 @@
   font-size: 9px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--ink-faint);
+  color: var(--doc-ink-faint);
   font-weight: 600;
   text-align: left;
   padding: 9px 11px;
-  border-bottom: 2px solid var(--ink);
-  background: var(--paper);
+  border-bottom: 2px solid var(--doc-ink);
+  background: var(--doc-bg);
 }
 
 .tbl td {
   padding: 9px 11px;
-  border-bottom: 1px solid #d8dee4;
+  border-bottom: 1px solid var(--doc-line-soft);
   font-size: 12.5px;
   line-height: 1.45;
   vertical-align: top;
 }
 
 .tbl tr:nth-child(even) td {
-  background: #e7ebef;
+  background: var(--doc-row);
 }
 
 .sysName {
   font-weight: 700;
-  color: var(--ink);
+  color: var(--doc-ink);
 }
 
 .sysPlatform {
   font-family: "IBM Plex Mono", monospace;
   font-size: 10.5px;
-  color: var(--ink-faint);
+  color: var(--doc-ink-faint);
   display: block;
   margin-top: 1px;
 }
@@ -289,13 +288,13 @@
 .tblNote {
   padding: 12px 18px 16px;
   font-size: 12px;
-  color: var(--ink-soft);
+  color: var(--doc-ink-soft);
   line-height: 1.6;
-  border-top: 1px solid #d8dee4;
+  border-top: 1px solid var(--doc-line-soft);
 }
 
 .tblNote b {
-  color: var(--ink);
+  color: var(--doc-ink);
 }
 
 .varNeg {
@@ -306,9 +305,9 @@
 .tblNote {
   padding: 12px 18px 16px;
   font-size: 12px;
-  color: var(--ink-soft);
+  color: var(--doc-ink-soft);
   line-height: 1.6;
-  border-top: 1px solid #d8dee4;
+  border-top: 1px solid var(--doc-line-soft);
 }
 
 @media (max-width: 760px) {

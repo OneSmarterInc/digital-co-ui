@@ -9,6 +9,7 @@ import { runAction, jsonPost } from "../_lib/actions";
 import { Avatar, Pill, FillBar } from "../_components/ui";
 import { IconBack, IconSend, IconUpload, IconDownload, IconLink, IconUsers, IconCheck, IconClipboard, IconPlay } from "../_components/icons";
 import { BulkResultModal } from "../_components/modals";
+import ThemeToggle from "../../../ThemeToggle";
 
 /* ================================================================== *
  * Cohort setup wizard: /instructor/[id]/setup
@@ -28,28 +29,12 @@ import { BulkResultModal } from "../_components/modals";
 
 const FIRM_TONES = ["#7FB08A", "#E8A13C", "#5BA3C4", "#9B8AC4", "#D2564B", "#5FB0A0"];
 
-const THEME = {
-  "--graphite": "#16191D",
-  "--graphite-raised": "#1E2228",
-  "--graphite-high": "#252B32",
-  "--steel-line": "#2C323A",
-  "--steel-soft": "#363E48",
-  "--paper": "#ECEFF2",
-  "--muted": "#8A94A0",
-  "--muted-dim": "#5C6672",
-  "--amber": "#E8A13C",
-  "--amber-deep": "#C4791F",
-  "--signal-red": "#D2564B",
-  "--blueprint": "#5BA3C4",
-  "--blueprint-deep": "#3B7E9C",
-  "--ok": "#7FB08A",
-};
 
 const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
 const DISPLAY = "font-['Saira_Condensed',sans-serif]";
 const PANEL =
   "rounded-[3px] border border-[var(--steel-line)] bg-[var(--graphite-raised)] shadow-[0_1px_0_rgba(0,0,0,0.4),0_8px_24px_-12px_rgba(0,0,0,0.6)]";
-const COMMIT = `flex items-center gap-2 rounded-[2px] bg-[var(--amber)] px-4 py-2 font-['Saira_Condensed',sans-serif] text-[13px] font-bold uppercase tracking-[0.04em] text-[var(--graphite)] transition duration-150 hover:bg-[#F0B052] disabled:opacity-50 disabled:hover:bg-[var(--amber)]`;
+const COMMIT = `flex items-center gap-2 rounded-[2px] bg-[var(--amber)] px-4 py-2 font-['Saira_Condensed',sans-serif] text-[13px] font-bold uppercase tracking-[0.04em] text-[var(--graphite)] transition duration-150 hover:bg-[var(--amber-hover)] disabled:opacity-50 disabled:hover:bg-[var(--amber)]`;
 const GHOST = `rounded-[2px] border border-[var(--steel-line)] font-['IBM_Plex_Mono',ui-monospace,monospace] uppercase text-[var(--muted)] transition hover:border-[var(--steel-soft)] hover:bg-[var(--graphite-high)] hover:text-[var(--paper)] disabled:opacity-50`;
 
 export default function CohortSetupPage() {
@@ -126,7 +111,7 @@ export default function CohortSetupPage() {
 
   if (phase !== "ready" || !detail) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#16191D] px-6 text-[#ECEFF2]" style={THEME}>
+      <div className="flex min-h-screen items-center justify-center bg-[var(--graphite)] px-6 text-[var(--paper)]">
         <p className={`${MONO} text-[12px] uppercase tracking-[0.16em] text-[var(--muted,#8A94A0)]`}>
           {phase === "error"
             ? `Couldn't load this cohort. ${error ?? ""}`
@@ -140,10 +125,9 @@ export default function CohortSetupPage() {
 
   return (
     <div
-      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased [color-scheme:dark] selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
-      style={THEME}
+      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
     >
-      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[var(--steel-line)] bg-[rgba(22,25,29,0.85)] px-7 py-4 backdrop-blur">
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[var(--steel-line)] bg-[var(--scrim)] px-7 py-4 backdrop-blur">
         <div className="flex min-w-0 items-center gap-3">
           <button
             onClick={() => router.push(`/instructor/${gameId}`)}
@@ -171,6 +155,7 @@ export default function CohortSetupPage() {
           <span className={`hidden ${MONO} text-[10.5px] uppercase tracking-[0.16em] text-[var(--muted)] sm:inline`}>
             {me.first_name || me.username}
           </span>
+          <ThemeToggle />
           <button onClick={signOut} className={`px-4 py-2 text-[10.5px] font-semibold tracking-[0.14em] ${GHOST}`}>
             Sign out
           </button>
@@ -319,7 +304,7 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
           </span>
           <span
             className={`inline-flex items-center gap-1.5 rounded-[2px] border px-3 py-1 ${MONO} text-[9px] uppercase tracking-[0.1em] ${
-              deployed ? "border-[#3f5e46] text-[var(--ok)]" : "border-[var(--amber-deep)] text-[var(--amber)]"
+              deployed ? "border-[var(--ok-line)] text-[var(--ok)]" : "border-[var(--amber-deep)] text-[var(--amber)]"
             }`}
           >
             <span
@@ -379,7 +364,7 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
         <InvitePanel gameId={gameId} detail={detail} reload={reload} notify={notify} busy={busy} setBusy={setBusy} />
 
         {!mailLive && (
-          <div className="mt-5 rounded-[3px] border border-[var(--signal-red)] bg-[rgba(210,86,75,0.07)] px-4 py-3">
+          <div className="mt-5 rounded-[3px] border border-[var(--signal-red)] bg-[color-mix(in_srgb,var(--signal-red)_7%,transparent)] px-4 py-3">
             <p className={`${MONO} text-[9px] uppercase tracking-[0.14em] text-[var(--signal-red)]`}>
               Email is not configured on this server
             </p>
@@ -393,7 +378,7 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
         )}
 
         {mailLive && undelivered.length > 0 && (
-          <div className="mt-5 rounded-[3px] border border-[var(--signal-red)] bg-[rgba(210,86,75,0.07)] px-4 py-3">
+          <div className="mt-5 rounded-[3px] border border-[var(--signal-red)] bg-[color-mix(in_srgb,var(--signal-red)_7%,transparent)] px-4 py-3">
             <p className={`${MONO} text-[9px] uppercase tracking-[0.14em] text-[var(--signal-red)]`}>
               {undelivered.length} invitation{undelivered.length === 1 ? "" : "s"} not delivered
             </p>
@@ -513,7 +498,7 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
                 <button
                   onClick={doCreateFirm}
                   disabled={busy}
-                  className={`rounded-[2px] bg-[var(--amber)] px-3 py-1.5 ${MONO} text-[9.5px] font-bold uppercase tracking-[0.1em] text-[var(--graphite)] transition hover:bg-[#F0B052] disabled:opacity-50`}
+                  className={`rounded-[2px] bg-[var(--amber)] px-3 py-1.5 ${MONO} text-[9.5px] font-bold uppercase tracking-[0.1em] text-[var(--graphite)] transition hover:bg-[var(--amber-hover)] disabled:opacity-50`}
                 >
                   {busy ? "Adding…" : "Add firm"}
                 </button>
@@ -601,7 +586,7 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
                         className={`rounded-[2px] border px-2.5 py-1 ${MONO} text-[9px] font-semibold uppercase tracking-[0.1em] transition ${
                           f.members.length > 0
                             ? "cursor-not-allowed border-[var(--steel-line)] text-[var(--muted-dim)]"
-                            : "border-[#7a3b35] text-[var(--signal-red)] hover:bg-[rgba(210,86,75,0.1)]"
+                            : "border-[var(--red-line)] text-[var(--signal-red)] hover:bg-[color-mix(in_srgb,var(--signal-red)_10%,transparent)]"
                         }`}
                       >
                         Delete
@@ -689,7 +674,7 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
         <button
           onClick={doDeploy}
           disabled={!canDeploy || busy}
-          className={`mt-4 flex w-full items-center justify-center gap-2 rounded-[2px] bg-[var(--amber)] px-4 py-3.5 ${DISPLAY} text-[16px] font-bold uppercase tracking-[0.04em] text-[var(--graphite)] transition duration-150 hover:bg-[#F0B052] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[var(--amber)]`}
+          className={`mt-4 flex w-full items-center justify-center gap-2 rounded-[2px] bg-[var(--amber)] px-4 py-3.5 ${DISPLAY} text-[16px] font-bold uppercase tracking-[0.04em] text-[var(--graphite)] transition duration-150 hover:bg-[var(--amber-hover)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[var(--amber)]`}
         >
           <IconPlay size={15} />
           {deployed ? "Already deployed" : busy ? "Deploying…" : `Deploy for ${enrolled} student${enrolled === 1 ? "" : "s"}`}
@@ -705,7 +690,7 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
 
       {confirmDeleteFirm && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-[rgba(10,12,14,0.72)] px-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--modal-scrim)] px-4"
           role="dialog"
           aria-modal="true"
           onMouseDown={(e) => e.target === e.currentTarget && setConfirmDeleteFirm(null)}
@@ -728,7 +713,7 @@ function Wizard({ gameId, detail, invites, reload, notify, router }) {
               <button
                 onClick={() => doDeleteFirm(confirmDeleteFirm)}
                 disabled={busy}
-                className={`rounded-[2px] bg-[var(--signal-red)] px-4 py-2 ${MONO} text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--paper)] transition hover:bg-[#E0655A] disabled:opacity-50`}
+                className={`rounded-[2px] bg-[var(--signal-red)] px-4 py-2 ${MONO} text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--paper)] transition hover:bg-[var(--signal-red)] disabled:opacity-50`}
               >
                 {busy ? "Deleting…" : "Delete firm"}
               </button>
@@ -1027,7 +1012,7 @@ function TestTeamCard({ gameId, firmCount, reload, notify }) {
       </div>
 
       {result && (
-        <div className="mt-4 rounded-[3px] border border-[#3f5e46] bg-[var(--graphite-raised)] p-4">
+        <div className="mt-4 rounded-[3px] border border-[var(--ok-line)] bg-[var(--graphite-raised)] p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-[var(--ok)]">
               <strong>{result.total}</strong> total · <strong>{result.created}</strong> created · <strong>{result.reused}</strong> reused ·{" "}
@@ -1120,14 +1105,14 @@ function StepCard({ n, title, subtitle, meta, done, open, onToggle, children }) 
       <button
         onClick={onToggle}
         className={`flex w-full items-center justify-between gap-4 rounded-t-[3px] px-6 py-4 text-left transition ${
-          open ? "bg-[rgba(232,161,60,0.04)]" : ""
+          open ? "bg-[color-mix(in_srgb,var(--amber)_4%,transparent)]" : ""
         } hover:bg-[var(--graphite-high)]`}
       >
         <div className="flex min-w-0 items-center gap-3">
           <span
             className={`flex h-9 w-9 flex-none items-center justify-center rounded-[2px] border ${DISPLAY} text-[16px] font-bold ${
               done
-                ? "border-[#3f5e46] bg-[var(--graphite)] text-[var(--ok)]"
+                ? "border-[var(--ok-line)] bg-[var(--graphite)] text-[var(--ok)]"
                 : "border-[var(--amber-deep)] bg-[var(--amber)] text-[var(--graphite)]"
             }`}
           >
@@ -1168,7 +1153,7 @@ function Check({ ok, title, detail }) {
     <div className="flex items-start gap-3 py-2">
       <span
         className={`mt-0.5 flex h-[22px] w-[22px] flex-none items-center justify-center rounded-[2px] ${
-          ok ? "border border-[#3f5e46] bg-[var(--graphite-raised)] text-[var(--ok)]" : "border-[1.5px] border-[var(--steel-soft)] bg-transparent"
+          ok ? "border border-[var(--ok-line)] bg-[var(--graphite-raised)] text-[var(--ok)]" : "border-[1.5px] border-[var(--steel-soft)] bg-transparent"
         }`}
       >
         {ok && <IconCheck size={14} />}

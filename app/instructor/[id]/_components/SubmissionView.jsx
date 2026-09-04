@@ -42,7 +42,7 @@ export function SubmissionView({ row, onClose, onRevise }) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-[rgba(10,12,14,0.72)] px-4 py-10"
+      className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto bg-[var(--modal-scrim)] px-4 py-10"
       role="dialog"
       aria-modal="true"
       aria-label={`${row.team_name} — Round ${row.week_number}`}

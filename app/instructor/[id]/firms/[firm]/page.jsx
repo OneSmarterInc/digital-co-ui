@@ -27,22 +27,6 @@ import { IconBack } from "../../_components/icons";
 
 const FIRM_TONES = ["#7FB08A", "#E8A13C", "#5BA3C4", "#9B8AC4", "#D2564B", "#5FB0A0"];
 
-const THEME = {
-  "--graphite": "#16191D",
-  "--graphite-raised": "#1E2228",
-  "--graphite-high": "#252B32",
-  "--steel-line": "#2C323A",
-  "--steel-soft": "#363E48",
-  "--paper": "#ECEFF2",
-  "--muted": "#8A94A0",
-  "--muted-dim": "#5C6672",
-  "--amber": "#E8A13C",
-  "--amber-deep": "#C4791F",
-  "--signal-red": "#D2564B",
-  "--blueprint": "#5BA3C4",
-  "--blueprint-deep": "#3B7E9C",
-  "--ok": "#7FB08A",
-};
 
 const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
 const DISPLAY = "font-['Saira_Condensed',sans-serif]";
@@ -169,7 +153,7 @@ export default function FirmPage() {
 
   if (phase !== "ready" || !firm || !detail) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#16191D] px-6 text-[#ECEFF2]" style={THEME}>
+      <div className="flex min-h-screen items-center justify-center bg-[var(--graphite)] px-6 text-[var(--paper)]">
         <p className={`${MONO} text-[12px] uppercase tracking-[0.16em] text-[var(--muted,#8A94A0)]`}>
           {phase === "error" ? `Couldn't load this firm. ${error ?? ""}` : "Loading firm…"}
         </p>
@@ -214,10 +198,9 @@ export default function FirmPage() {
 
   return (
     <div
-      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased [color-scheme:dark] selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
-      style={THEME}
+      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
     >
-      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[var(--steel-line)] bg-[rgba(22,25,29,0.85)] px-7 py-4 backdrop-blur">
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[var(--steel-line)] bg-[var(--scrim)] px-7 py-4 backdrop-blur">
         <div className="flex min-w-0 items-center gap-3">
           <button
             onClick={() => router.push(`/instructor/${gameId}?section=firms`)}
@@ -269,7 +252,7 @@ export default function FirmPage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => router.push(`/instructor/${gameId}/mimic/${firmNo}`)}
-                  className={`rounded-[2px] border border-[var(--amber-deep)] px-3.5 py-2 ${MONO} text-[9.5px] font-semibold uppercase tracking-[0.1em] text-[var(--amber)] transition hover:bg-[rgba(232,161,60,0.1)]`}
+                  className={`rounded-[2px] border border-[var(--amber-deep)] px-3.5 py-2 ${MONO} text-[9.5px] font-semibold uppercase tracking-[0.1em] text-[var(--amber)] transition hover:bg-[color-mix(in_srgb,var(--amber)_10%,transparent)]`}
                 >
                   Mimic
                 </button>
@@ -281,7 +264,7 @@ export default function FirmPage() {
                 </button>
                 <button
                   onClick={() => router.push(`/instructor/${gameId}?section=grading`)}
-                  className={`rounded-[2px] bg-[var(--amber)] px-3.5 py-2 ${DISPLAY} text-[13px] font-bold uppercase tracking-[0.04em] text-[var(--graphite)] transition duration-150 hover:bg-[#F0B052]`}
+                  className={`rounded-[2px] bg-[var(--amber)] px-3.5 py-2 ${DISPLAY} text-[13px] font-bold uppercase tracking-[0.04em] text-[var(--graphite)] transition duration-150 hover:bg-[var(--amber-hover)]`}
                 >
                   Grading
                 </button>
@@ -331,7 +314,7 @@ export default function FirmPage() {
                     </div>
                     <div className="flex flex-none items-center gap-3">
                       <select
-                        className="h-8 w-[132px] rounded-[2px] border border-[var(--steel-line)] bg-[var(--graphite)] px-2 text-[0.75rem] text-[var(--paper)] outline-none transition duration-150 [color-scheme:dark] focus:border-[var(--blueprint)]"
+                        className="h-8 w-[132px] rounded-[2px] border border-[var(--steel-line)] bg-[var(--graphite)] px-2 text-[0.75rem] text-[var(--paper)] outline-none transition duration-150 focus:border-[var(--blueprint)]"
                         value={firmNo}
                         onChange={(e) => doMove(s.enrollment_id, Number(e.target.value), firms.find((f) => f.number === Number(e.target.value))?.name)}
                         disabled={busy}
@@ -348,7 +331,7 @@ export default function FirmPage() {
                         onClick={() => doPaid(s.enrollment_id, !s.paid)}
                         disabled={busy}
                         title={s.paid ? "Click to mark unpaid" : "Click to mark paid"}
-                        className="rounded-[2px] transition hover:ring-2 hover:ring-[rgba(127,176,138,0.3)] disabled:opacity-50"
+                        className="rounded-[2px] transition hover:ring-2 hover:ring-[color-mix(in_srgb,var(--ok)_30%,transparent)] disabled:opacity-50"
                       >
                         <Pill tone={s.paid ? "good" : "muted"}>{s.paid ? "Paid" : "Unpaid"}</Pill>
                       </button>
@@ -386,7 +369,7 @@ export default function FirmPage() {
                     </span>
                   )}
                   {(w.trap_flags?.length ?? 0) > 0 && (
-                    <span className={`rounded-[2px] border border-[#7a3b35] px-2.5 py-0.5 ${MONO} text-[8.5px] uppercase tracking-[0.06em] text-[var(--signal-red)]`}>
+                    <span className={`rounded-[2px] border border-[var(--red-line)] px-2.5 py-0.5 ${MONO} text-[8.5px] uppercase tracking-[0.06em] text-[var(--signal-red)]`}>
                       {w.trap_flags.length} trap{w.trap_flags.length === 1 ? "" : "s"}: {w.trap_flags.map(human).join(", ")}
                     </span>
                   )}

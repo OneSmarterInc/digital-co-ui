@@ -7,6 +7,7 @@ import { fetchMe, api, logout } from "../../../../lib/api";
 import { ViewHeader, MiniInfo, Th, StatusPill, EmptyState } from "../_components/ui";
 import { IconBack, IconChart } from "../_components/icons";
 import DetailSidebar from "../_components/DetailSidebar";
+import ThemeToggle from "../../../ThemeToggle";
 
 /* ================================================================== *
  * Benchmarks: /instructor/[id]/benchmarks
@@ -23,22 +24,6 @@ import DetailSidebar from "../_components/DetailSidebar";
  * signal red.
  * ================================================================== */
 
-const THEME = {
-  "--graphite": "#16191D",
-  "--graphite-raised": "#1E2228",
-  "--graphite-high": "#252B32",
-  "--steel-line": "#2C323A",
-  "--steel-soft": "#363E48",
-  "--paper": "#ECEFF2",
-  "--muted": "#8A94A0",
-  "--muted-dim": "#5C6672",
-  "--amber": "#E8A13C",
-  "--amber-deep": "#C4791F",
-  "--signal-red": "#D2564B",
-  "--blueprint": "#5BA3C4",
-  "--blueprint-deep": "#3B7E9C",
-  "--ok": "#7FB08A",
-};
 
 const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
 
@@ -124,7 +109,7 @@ export default function BenchmarksPage() {
 
   if (phase !== "ready") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--graphite)] px-6 text-[var(--paper)]" style={THEME}>
+      <div className="flex min-h-screen items-center justify-center bg-[var(--graphite)] px-6 text-[var(--paper)]">
         <p className={`${MONO} text-[12px] uppercase tracking-[0.16em] text-[var(--muted)]`}>
           {phase === "error" ? `Couldn't load benchmarks. ${error ?? ""}` : "Loading benchmarks…"}
         </p>
@@ -134,10 +119,9 @@ export default function BenchmarksPage() {
 
   return (
     <div
-      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased [color-scheme:dark] selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
-      style={THEME}
+      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
     >
-      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[var(--steel-line)] bg-[rgba(22,25,29,0.85)] px-7 py-4 backdrop-blur">
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[var(--steel-line)] bg-[var(--scrim)] px-7 py-4 backdrop-blur">
         <div className="flex min-w-0 items-center gap-3">
           <button
             onClick={() => router.push(`/instructor/${gameId}`)}
@@ -166,6 +150,7 @@ export default function BenchmarksPage() {
           <span className={`hidden ${MONO} text-[10.5px] uppercase tracking-[0.16em] text-[var(--muted)] sm:inline`}>
             {me.first_name || me.username}
           </span>
+          <ThemeToggle />
           <button
             onClick={() => {
               logout();
@@ -312,7 +297,7 @@ export default function BenchmarksPage() {
                             <td className={`px-3 py-3 ${b.after_week === 14 ? "" : "pr-6"}`}>
                               <div className="flex flex-wrap gap-1.5">
                                 {(row.visible_strengths ?? []).map((s, i) => (
-                                  <span key={`s${i}`} className={`${FLAG} border-[#3f5e46] text-[var(--ok)]`}>
+                                  <span key={`s${i}`} className={`${FLAG} border-[var(--ok-line)] text-[var(--ok)]`}>
                                     {s}
                                   </span>
                                 ))}

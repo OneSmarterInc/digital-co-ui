@@ -15,21 +15,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { API_BASE, login } from "../../../lib/api";
 
-const THEME = {
-  "--graphite": "#16191D",
-  "--graphite-raised": "#1E2228",
-  "--graphite-high": "#252B32",
-  "--steel-line": "#2C323A",
-  "--steel-soft": "#363E48",
-  "--paper": "#ECEFF2",
-  "--muted": "#8A94A0",
-  "--muted-dim": "#5C6672",
-  "--amber": "#E8A13C",
-  "--amber-deep": "#C4791F",
-  "--signal-red": "#D2564B",
-  "--blueprint": "#5BA3C4",
-  "--ok": "#7FB08A",
-};
 
 const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
 const DISPLAY = "font-['Saira_Condensed',sans-serif]";
@@ -122,8 +107,7 @@ export default function RegisterPage() {
 
   const shell = (children) => (
     <div
-      className="flex min-h-screen items-center justify-center bg-[var(--graphite)] px-5 py-12 font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased [color-scheme:dark]"
-      style={THEME}
+      className="flex min-h-screen items-center justify-center bg-[var(--graphite)] px-5 py-12 font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased"
     >
       <div className="w-full max-w-[440px]">{children}</div>
     </div>
@@ -250,7 +234,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={busy}
-            className={`w-full rounded-[2px] bg-[var(--amber)] px-5 py-3 ${DISPLAY} text-[16px] font-bold uppercase tracking-[0.06em] text-[var(--graphite)] transition hover:bg-[#F0B052] disabled:opacity-50`}
+            className={`w-full rounded-[2px] bg-[var(--amber)] px-5 py-3 ${DISPLAY} text-[16px] font-bold uppercase tracking-[0.06em] text-[var(--graphite)] transition hover:bg-[var(--amber-hover)] disabled:opacity-50`}
           >
             {busy ? "Joining…" : "Join this simulation"}
           </button>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchMe, logout } from "../lib/api";
+import ThemeToggle from "./ThemeToggle";
 
 // Wraps a role dashboard: fetches the signed-in user, redirects to /login if
 // there's no valid session, and draws the header. `children` is a function
@@ -61,6 +62,7 @@ export default function Dashboard({ role, children }) {
         </div>
         <div className="flex items-center gap-4">
           <span className="font-mono text-[0.72rem] text-muted">{me.username}</span>
+          <ThemeToggle />
           <button
             onClick={signOut}
             className="rounded-sm border border-line px-3 py-1.5 font-mono text-[0.68rem] uppercase tracking-[0.14em] text-muted transition-colors hover:border-linestrong hover:text-ink"

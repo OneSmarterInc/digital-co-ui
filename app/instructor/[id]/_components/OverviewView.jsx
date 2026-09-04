@@ -159,7 +159,7 @@ export default function OverviewView({ detail, queue, gameId, rounds, reload, no
         <button
           onClick={() => setConfirmAdvance(true)}
           disabled={busy || runComplete}
-          className={`flex flex-none items-center gap-2 rounded-[2px] bg-[var(--amber,#E8A13C)] px-5 py-2.5 ${DISPLAY} text-[15px] font-bold uppercase tracking-[0.04em] text-[var(--graphite,#16191D)] transition duration-150 hover:bg-[#F0B052] disabled:opacity-50`}
+          className={`flex flex-none items-center gap-2 rounded-[2px] bg-[var(--amber,#E8A13C)] px-5 py-2.5 ${DISPLAY} text-[15px] font-bold uppercase tracking-[0.04em] text-[var(--graphite,#16191D)] transition duration-150 hover:bg-[var(--amber-hover)] disabled:opacity-50`}
         >
           <IconPlay size={14} /> {runComplete ? "Simulation complete" : finalizing ? "Complete simulation" : "Advance round"}
         </button>
@@ -262,7 +262,7 @@ export default function OverviewView({ detail, queue, gameId, rounds, reload, no
             <div className="space-y-3 border-t border-[var(--steel-line,#2C323A)] px-6 py-5">
               {waiting.length === 0 && unpaid === 0 ? (
                 <div className="flex items-center gap-2.5 text-sm text-[var(--muted,#8A94A0)]">
-                  <span className="grid h-6 w-6 flex-none place-items-center rounded-[2px] border border-[#3f5e46] bg-[var(--graphite,#16191D)] text-[var(--ok,#7FB08A)]">
+                  <span className="grid h-6 w-6 flex-none place-items-center rounded-[2px] border border-[var(--ok-line)] bg-[var(--graphite,#16191D)] text-[var(--ok,#7FB08A)]">
                     <IconCheck size={14} />
                   </span>
                   Nothing needs you right now.
@@ -330,7 +330,7 @@ export default function OverviewView({ detail, queue, gameId, rounds, reload, no
                     className={`flex-none rounded-[2px] border px-2.5 py-1 ${MONO} text-[9px] uppercase tracking-[0.1em] transition ${
                       teachers.length <= 1
                         ? "cursor-not-allowed border-[var(--steel-line,#2C323A)] text-[var(--muted-dim,#5C6672)]"
-                        : "border-[#7a3b35] text-[var(--signal-red,#D2564B)] hover:bg-[rgba(210,86,75,0.1)]"
+                        : "border-[var(--red-line)] text-[var(--signal-red,#D2564B)] hover:bg-[color-mix(in_srgb,var(--signal-red)_10%,transparent)]"
                     }`}
                   >
                     Remove
@@ -380,7 +380,7 @@ export default function OverviewView({ detail, queue, gameId, rounds, reload, no
                     <button
                       onClick={addCoFaculty}
                       disabled={facBusy}
-                      className={`rounded-[2px] bg-[var(--amber,#E8A13C)] px-3 py-1.5 ${MONO} text-[9.5px] font-bold uppercase tracking-[0.1em] text-[var(--graphite,#16191D)] transition hover:bg-[#F0B052] disabled:opacity-50`}
+                      className={`rounded-[2px] bg-[var(--amber,#E8A13C)] px-3 py-1.5 ${MONO} text-[9.5px] font-bold uppercase tracking-[0.1em] text-[var(--graphite,#16191D)] transition hover:bg-[var(--amber-hover)] disabled:opacity-50`}
                     >
                       {facBusy ? "Adding…" : "Add"}
                     </button>
@@ -396,7 +396,7 @@ export default function OverviewView({ detail, queue, gameId, rounds, reload, no
 
               {/* Only when the invite email failed — otherwise nobody sees a link. */}
               {facLink && (
-                <div className="border-b border-[var(--amber-deep,#C4791F)] bg-[rgba(232,161,60,0.07)] px-6 py-3 last:border-b-0">
+                <div className="border-b border-[var(--amber-deep,#C4791F)] bg-[color-mix(in_srgb,var(--amber)_7%,transparent)] px-6 py-3 last:border-b-0">
                   <p className={`${MONO} text-[9px] uppercase tracking-[0.12em] text-[var(--amber,#E8A13C)]`}>
                     Added, but the email didn&rsquo;t send
                   </p>

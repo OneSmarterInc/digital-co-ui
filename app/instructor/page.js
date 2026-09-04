@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchMe, api, logout } from "../../lib/api";
+import ThemeToggle from "../ThemeToggle";
 
 /* Instructor console in the dark console theme (matches .dc-console in
  * app/console.css) and the restyled AdminConsole / AdminSimulationDetail.
@@ -11,22 +12,6 @@ import { fetchMe, api, logout } from "../../lib/api";
  * All data flow and handlers unchanged.
  */
 
-const THEME = {
-  "--graphite": "#16191D",
-  "--graphite-raised": "#1E2228",
-  "--graphite-high": "#252B32",
-  "--steel-line": "#2C323A",
-  "--steel-soft": "#363E48",
-  "--paper": "#ECEFF2",
-  "--muted": "#8A94A0",
-  "--muted-dim": "#5C6672",
-  "--amber": "#E8A13C",
-  "--amber-deep": "#C4791F",
-  "--signal-red": "#D2564B",
-  "--blueprint": "#5BA3C4",
-  "--blueprint-deep": "#3B7E9C",
-  "--ok": "#7FB08A",
-};
 
 const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
 const DISPLAY = "font-['Saira_Condensed',sans-serif]";
@@ -86,7 +71,7 @@ function StatCard({ label, value, color }) {
 function RunBadge({ status }) {
   const map = {
     ready: "border-[var(--blueprint-deep)] text-[var(--blueprint)]",
-    in_progress: "border-[#3f5e46] text-[var(--ok)]",
+    in_progress: "border-[var(--ok-line)] text-[var(--ok)]",
     completed: "border-[var(--steel-line)] text-[var(--muted)]",
   };
   const dot = {
@@ -106,7 +91,7 @@ const fmtMoney = (n) => `$${(Number(n) || 0).toLocaleString("en-US")}`;
 
 function PaidPill({ paid }) {
   return (
-    <span className={`${FLAG} ${paid ? "border-[#3f5e46] text-[var(--ok)]" : "border-[var(--steel-line)] text-[var(--muted)]"}`}>
+    <span className={`${FLAG} ${paid ? "border-[var(--ok-line)] text-[var(--ok)]" : "border-[var(--steel-line)] text-[var(--muted)]"}`}>
       {paid ? "Paid" : "Unpaid"}
     </span>
   );
@@ -272,7 +257,7 @@ export default function InstructorConsole() {
 
   if (phase !== "ready") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--graphite)] text-[var(--paper)]" style={THEME}>
+      <div className="flex min-h-screen items-center justify-center bg-[var(--graphite)] text-[var(--paper)]">
         <p className={`${MONO} text-[12px] uppercase tracking-[0.16em] text-[var(--muted)]`}>
           {phase === "redirect" ? "Redirecting…" : "Loading console…"}
         </p>
@@ -282,10 +267,9 @@ export default function InstructorConsole() {
 
   return (
     <div
-      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased [color-scheme:dark] selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
-      style={THEME}
+      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
     >
-      <header className="flex items-center justify-between border-b border-[var(--steel-line)] bg-gradient-to-b from-[#1B1F25] to-[#15181C] px-8 py-4">
+      <header className="flex items-center justify-between border-b border-[var(--steel-line)] bg-gradient-to-b from-[var(--surface-inset)] to-[var(--surface-rail)] px-8 py-4">
         <div className="flex items-center gap-3">
           <img src="/logo-1x.svg" alt="FLEXEE · DigitalCo" className="h-[30px] w-[30px] flex-shrink-0" />
           {/* Primary lockup — the same platform · sim treatment the opening tour uses. */}
@@ -300,6 +284,7 @@ export default function InstructorConsole() {
         </div>
         <div className="flex items-center gap-5">
           <span className={`${MONO} text-[11px] uppercase tracking-[0.16em] text-[var(--muted)]`}>{me.username}</span>
+          <ThemeToggle />
           <button
             onClick={signOut}
             className={`rounded-[2px] border border-[var(--steel-line)] px-4 py-2 ${MONO} text-[11px] uppercase tracking-[0.14em] text-[var(--muted)] transition-colors hover:border-[var(--steel-soft)] hover:bg-[var(--graphite-raised)] hover:text-[var(--paper)]`}
@@ -310,7 +295,7 @@ export default function InstructorConsole() {
       </header>
 
       <div className="flex">
-        <aside className="w-[230px] shrink-0 border-r border-[var(--steel-line)] bg-[#14171B] px-5 py-7">
+        <aside className="w-[230px] shrink-0 border-r border-[var(--steel-line)] bg-[var(--surface-deep)] px-5 py-7">
           <p className={`mb-4 px-3 ${MONO} text-[9.5px] uppercase tracking-[0.2em] text-[var(--muted-dim)]`}>Workspace</p>
           <nav className="flex flex-col gap-1">
             {NAV.map((item) => (
@@ -481,7 +466,7 @@ export default function InstructorConsole() {
                         {sim.needs_setup ? (
                           <button
                             onClick={() => router.push(`/instructor/${sim.id}/setup`)}
-                            className={`rounded-[2px] bg-[var(--amber)] px-4 py-2 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.04em] text-[var(--graphite)] transition duration-150 hover:bg-[#F0B052]`}
+                            className={`rounded-[2px] bg-[var(--amber)] px-4 py-2 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.04em] text-[var(--graphite)] transition duration-150 hover:bg-[var(--amber-hover)]`}
                           >
                             Set up
                           </button>

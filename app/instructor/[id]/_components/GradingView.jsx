@@ -114,7 +114,7 @@ export default function GradingView({ gameId, queue, reload, notify }) {
                   ) : (
                     <button
                       onClick={() => setGradeScore(row)}
-                      className={`flex-none rounded-[2px] bg-[var(--amber,#E8A13C)] px-4 py-2 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.04em] text-[var(--graphite,#16191D)] transition duration-150 hover:bg-[#F0B052]`}
+                      className={`flex-none rounded-[2px] bg-[var(--amber,#E8A13C)] px-4 py-2 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.04em] text-[var(--graphite,#16191D)] transition duration-150 hover:bg-[var(--amber-hover)]`}
                     >
                       Grade
                     </button>
@@ -141,7 +141,7 @@ export default function GradingView({ gameId, queue, reload, notify }) {
                     {rowFlags.map((f, i) => (
                       <span
                         key={i}
-                        className={`${FLAG} border-[#7a3b35] text-[var(--signal-red,#D2564B)]`}
+                        className={`${FLAG} border-[var(--red-line)] text-[var(--signal-red,#D2564B)]`}
                       >
                         {flagText(f)}
                       </span>

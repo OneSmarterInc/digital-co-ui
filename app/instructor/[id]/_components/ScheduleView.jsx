@@ -92,12 +92,12 @@ export default function ScheduleView({ gameId, detail, rounds, reload, notify })
                 if (e.key === "Escape") setEditingStart(false);
               }}
               autoFocus
-              className="h-8 rounded-[2px] border border-[var(--steel-line,#2C323A)] bg-[var(--graphite,#16191D)] px-2.5 text-[0.85rem] text-[var(--paper,#ECEFF2)] outline-none [color-scheme:dark] focus:border-[var(--blueprint,#5BA3C4)]"
+              className="h-8 rounded-[2px] border border-[var(--steel-line,#2C323A)] bg-[var(--graphite,#16191D)] px-2.5 text-[0.85rem] text-[var(--paper,#ECEFF2)] outline-none focus:border-[var(--blueprint,#5BA3C4)]"
             />
             <button
               onClick={saveStart}
               disabled={busy}
-              className={`rounded-[2px] bg-[var(--amber,#E8A13C)] px-3 py-1.5 ${MONO} text-[9.5px] font-bold uppercase tracking-[0.1em] text-[var(--graphite,#16191D)] transition hover:bg-[#F0B052] disabled:opacity-50`}
+              className={`rounded-[2px] bg-[var(--amber,#E8A13C)] px-3 py-1.5 ${MONO} text-[9.5px] font-bold uppercase tracking-[0.1em] text-[var(--graphite,#16191D)] transition hover:bg-[var(--amber-hover)] disabled:opacity-50`}
             >
               {busy ? "Rebuilding…" : "Rebuild schedule"}
             </button>
@@ -164,7 +164,7 @@ export default function ScheduleView({ gameId, detail, rounds, reload, notify })
                   )}
                   {r.extended_days > 0 && (
                     <span
-                      className="absolute left-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[var(--paper,#ECEFF2)]"
+                      className="absolute left-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[var(--doc-bg)]"
                       title={`Extended by ${r.extended_days} day${r.extended_days === 1 ? "" : "s"}`}
                     />
                   )}
@@ -203,7 +203,7 @@ export default function ScheduleView({ gameId, detail, rounds, reload, notify })
                 return (
                   <tr
                     key={r.n}
-                    className={`border-b border-[var(--steel-line,#2C323A)] ${active ? "bg-[rgba(232,161,60,0.06)]" : ""}`}
+                    className={`border-b border-[var(--steel-line,#2C323A)] ${active ? "bg-[color-mix(in_srgb,var(--amber)_6%,transparent)]" : ""}`}
                   >
                     <td className={`py-3 pl-6 pr-3 ${DISPLAY} text-[16px] font-semibold ${active ? "text-[var(--amber,#E8A13C)]" : ""}`}>
                       Round {r.n}

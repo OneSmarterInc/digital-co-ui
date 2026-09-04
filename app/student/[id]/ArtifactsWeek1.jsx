@@ -319,7 +319,7 @@ export function F4() {
             <div className="ganttrow"><span className="ganttrow__l">Services go-to-market</span><span className="ganttrow__bar" style={{ marginLeft: "10%", marginRight: "8%" }} /></div>
             <div className="ganttrow"><span className="ganttrow__l">Legacy retirement</span><span className="ganttrow__bar" style={{ marginLeft: "6%" }} /></div>
           </div>
-          <p style={{ fontSize: "clamp(10px,1.3vw,13px)", color: "#6B7580" }}>All workstreams launch in parallel to compress time-to-value.</p>
+          <p style={{ fontSize: "clamp(10px,1.3vw,13px)", color: "var(--doc-ink-faint)" }}>All workstreams launch in parallel to compress time-to-value.</p>
         </Slide>
         <Slide n={5} at={at}>
           <h3>Investment ask</h3><div className="accentline" />

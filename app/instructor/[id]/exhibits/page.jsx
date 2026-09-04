@@ -9,21 +9,6 @@ import ExhibitsPage from "../../../student/[id]/exhibits/page";
  * notes that name each trap. This is the only route that passes
  * showDesignNotes — the student route must never do so. */
 
-const THEME = {
-  "--graphite": "#16191D",
-  "--graphite-raised": "#1E2228",
-  "--graphite-high": "#252B32",
-  "--steel-line": "#2C323A",
-  "--steel-soft": "#363E48",
-  "--paper": "#ECEFF2",
-  "--muted": "#8A94A0",
-  "--muted-dim": "#5C6672",
-  "--amber": "#E8A13C",
-  "--amber-deep": "#C4791F",
-  "--signal-red": "#D2564B",
-  "--blueprint": "#5BA3C4",
-  "--ok": "#7FB08A",
-};
 
 const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
 const DISPLAY = "font-['Saira_Condensed',sans-serif]";
@@ -48,14 +33,14 @@ export default function InstructorExhibitsPage() {
 
   if (!ok) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#16191D] px-6 text-[#ECEFF2]" style={THEME}>
+      <div className="flex min-h-screen items-center justify-center bg-[var(--graphite)] px-6 text-[var(--paper)]">
         <p className={`${MONO} text-[12px] uppercase tracking-[0.16em] text-[var(--muted)]`}>Loading exhibits…</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[var(--graphite)] text-[var(--paper)] [color-scheme:dark]" style={THEME}>
+    <div className="min-h-screen bg-[var(--graphite)] text-[var(--paper)]">
       <header className="flex items-center justify-between border-b border-[var(--steel-line)] px-7 py-4">
         <div className="flex min-w-0 items-center gap-3">
           <button

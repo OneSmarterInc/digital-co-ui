@@ -121,7 +121,7 @@ export default function FirmsView({ gameId, detail, reload, notify }) {
                 <button
                   onClick={doCreateFirm}
                   disabled={busy}
-                  className={`rounded-[2px] bg-[var(--amber,#E8A13C)] px-3 py-1.5 ${MONO} text-[9.5px] font-bold uppercase tracking-[0.1em] text-[var(--graphite,#16191D)] transition hover:bg-[#F0B052] disabled:opacity-50`}
+                  className={`rounded-[2px] bg-[var(--amber,#E8A13C)] px-3 py-1.5 ${MONO} text-[9.5px] font-bold uppercase tracking-[0.1em] text-[var(--graphite,#16191D)] transition hover:bg-[var(--amber-hover)] disabled:opacity-50`}
                 >
                   {busy ? "Adding…" : "Add firm"}
                 </button>
@@ -209,7 +209,7 @@ export default function FirmsView({ gameId, detail, reload, notify }) {
                       <button
                         onClick={() => router.push(`/instructor/${gameId}/mimic/${grp.index + 1}`)}
                         title={`See exactly what ${grp.name} students see right now — read-only`}
-                        className={`flex items-center gap-1.5 rounded-[2px] border border-[var(--amber-deep,#C4791F)] px-3 py-1.5 ${MONO} text-[9.5px] font-semibold uppercase tracking-[0.1em] text-[var(--amber,#E8A13C)] transition hover:bg-[rgba(232,161,60,0.1)]`}
+                        className={`flex items-center gap-1.5 rounded-[2px] border border-[var(--amber-deep,#C4791F)] px-3 py-1.5 ${MONO} text-[9.5px] font-semibold uppercase tracking-[0.1em] text-[var(--amber,#E8A13C)] transition hover:bg-[color-mix(in_srgb,var(--amber)_10%,transparent)]`}
                       >
                         <IconEye size={13} /> Mimic
                       </button>
@@ -230,7 +230,7 @@ export default function FirmsView({ gameId, detail, reload, notify }) {
                         className={`rounded-[2px] border px-3 py-1.5 ${MONO} text-[9.5px] font-semibold uppercase tracking-[0.1em] transition ${
                           grp.members.length > 0
                             ? "cursor-not-allowed border-[var(--steel-line,#2C323A)] text-[var(--muted-dim,#5C6672)]"
-                            : "border-[#7a3b35] text-[var(--signal-red,#D2564B)] hover:bg-[rgba(210,86,75,0.1)]"
+                            : "border-[var(--red-line)] text-[var(--signal-red,#D2564B)] hover:bg-[color-mix(in_srgb,var(--signal-red)_10%,transparent)]"
                         }`}
                       >
                         Delete
@@ -257,7 +257,7 @@ export default function FirmsView({ gameId, detail, reload, notify }) {
                     <div className="flex flex-none items-center gap-4">
                       <span className={`hidden ${MONO} text-[11px] text-[var(--muted-dim,#5C6672)] md:inline`}>{s.email}</span>
                       <select
-                        className="h-8 w-[138px] rounded-[2px] border border-[var(--steel-line,#2C323A)] bg-[var(--graphite,#16191D)] px-2 text-[0.75rem] text-[var(--paper,#ECEFF2)] outline-none transition duration-150 [color-scheme:dark] focus:border-[var(--blueprint,#5BA3C4)]"
+                        className="h-8 w-[138px] rounded-[2px] border border-[var(--steel-line,#2C323A)] bg-[var(--graphite,#16191D)] px-2 text-[0.75rem] text-[var(--paper,#ECEFF2)] outline-none transition duration-150 focus:border-[var(--blueprint,#5BA3C4)]"
                         value={s.firm_index == null ? 0 : s.firm_index + 1}
                         onChange={(e) => doMove(s.enrollment_id, Number(e.target.value), firms.find((f) => f.number === Number(e.target.value))?.name)}
                         disabled={busy}
@@ -282,7 +282,7 @@ export default function FirmsView({ gameId, detail, reload, notify }) {
 
       {confirmDelete && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-[rgba(10,12,14,0.72)] px-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--modal-scrim)] px-4"
           role="dialog"
           aria-modal="true"
           onMouseDown={(e) => e.target === e.currentTarget && setConfirmDelete(null)}
@@ -305,7 +305,7 @@ export default function FirmsView({ gameId, detail, reload, notify }) {
               <button
                 onClick={() => doDeleteFirm(confirmDelete)}
                 disabled={busy}
-                className={`rounded-[2px] bg-[var(--signal-red,#D2564B)] px-4 py-2 ${MONO} text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--paper,#ECEFF2)] transition hover:bg-[#E0655A] disabled:opacity-50`}
+                className={`rounded-[2px] bg-[var(--signal-red,#D2564B)] px-4 py-2 ${MONO} text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--paper,#ECEFF2)] transition hover:bg-[var(--signal-red)] disabled:opacity-50`}
               >
                 {busy ? "Deleting…" : "Delete firm"}
               </button>

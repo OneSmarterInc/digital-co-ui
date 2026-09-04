@@ -3,29 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchMe, api, logout } from "../../lib/api";
+import ThemeToggle from "../ThemeToggle";
 
 /* Admin console in the dark console theme (matches .dc-console in app/console.css).
- * Palette exposed as CSS vars on the page wrapper; [color-scheme:dark] makes
+ * Palette exposed as CSS vars on the page wrapper; makes
  * native selects, date pickers, and scrollbars render dark. All data flow,
  * modals, and handlers are unchanged from the light version.
  */
 
-const THEME = {
-  "--graphite": "#16191D",
-  "--graphite-raised": "#1E2228",
-  "--graphite-high": "#252B32",
-  "--steel-line": "#2C323A",
-  "--steel-soft": "#363E48",
-  "--paper": "#ECEFF2",
-  "--muted": "#8A94A0",
-  "--muted-dim": "#5C6672",
-  "--amber": "#E8A13C",
-  "--amber-deep": "#C4791F",
-  "--signal-red": "#D2564B",
-  "--blueprint": "#5BA3C4",
-  "--blueprint-deep": "#3B7E9C",
-  "--ok": "#7FB08A",
-};
 
 const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
 const DISPLAY = "font-['Saira_Condensed',sans-serif]";
@@ -99,7 +84,7 @@ function StatusPill({ status }) {
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-[2px] border px-2.5 py-1 ${MONO} text-[9px] font-semibold uppercase tracking-[0.1em] ${
-        active ? "border-[#3f5e46] text-[var(--ok)]" : "border-[var(--steel-line)] text-[var(--muted)]"
+        active ? "border-[var(--ok-line)] text-[var(--ok)]" : "border-[var(--steel-line)] text-[var(--muted)]"
       }`}
     >
       <span
@@ -653,7 +638,6 @@ export default function AdminConsole() {
     return (
       <div
         className="flex min-h-screen items-center justify-center bg-[var(--graphite)] text-[var(--paper)]"
-        style={THEME}
       >
         <p className={`${MONO} text-[12px] uppercase tracking-[0.16em] text-[var(--muted)]`}>
           {phase === "redirect" ? "Redirecting\u2026" : "Loading console\u2026"}
@@ -675,10 +659,9 @@ export default function AdminConsole() {
 
   return (
     <div
-      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased [color-scheme:dark] selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
-      style={THEME}
+      className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
     >
-      <header className="flex items-center justify-between border-b border-[var(--steel-line)] bg-gradient-to-b from-[#1B1F25] to-[#15181C] px-8 py-4">
+      <header className="flex items-center justify-between border-b border-[var(--steel-line)] bg-gradient-to-b from-[var(--surface-inset)] to-[var(--surface-rail)] px-8 py-4">
         <div className="flex items-center gap-3">
           <img src="/logo-1x.svg" alt="FLEXEE · DigitalCo" className="h-[30px] w-[30px] flex-shrink-0" />
           {/* Primary lockup — the same platform · sim treatment the opening tour uses. */}
@@ -693,6 +676,7 @@ export default function AdminConsole() {
         </div>
         <div className="flex items-center gap-5">
           <span className={`${MONO} text-[11px] uppercase tracking-[0.16em] text-[var(--muted)]`}>{me.username}</span>
+          <ThemeToggle />
           <button
             onClick={signOut}
             className={`rounded-[2px] border border-[var(--steel-line)] px-4 py-2 ${MONO} text-[11px] uppercase tracking-[0.14em] text-[var(--muted)] transition-colors hover:border-[var(--steel-soft)] hover:bg-[var(--graphite-raised)] hover:text-[var(--paper)]`}
@@ -703,7 +687,7 @@ export default function AdminConsole() {
       </header>
 
       <div className="flex">
-        <aside className="w-[230px] shrink-0 border-r border-[var(--steel-line)] bg-[#14171B] px-5 py-7">
+        <aside className="w-[230px] shrink-0 border-r border-[var(--steel-line)] bg-[var(--surface-deep)] px-5 py-7">
           <p className={`mb-4 px-3 ${MONO} text-[9.5px] uppercase tracking-[0.2em] text-[var(--muted-dim)]`}>Workspace</p>
           <nav className="flex flex-col gap-1">
             {NAV.map((item) => (
@@ -734,7 +718,7 @@ export default function AdminConsole() {
                   setCreateError("");
                   setModalOpen(true);
                 }}
-                className={`inline-flex shrink-0 items-center gap-2 rounded-[2px] bg-[var(--amber)] px-5 py-3 ${DISPLAY} text-[15px] font-bold uppercase tracking-[0.04em] text-[var(--graphite)] transition duration-150 hover:bg-[#F0B052]`}
+                className={`inline-flex shrink-0 items-center gap-2 rounded-[2px] bg-[var(--amber)] px-5 py-3 ${DISPLAY} text-[15px] font-bold uppercase tracking-[0.04em] text-[var(--graphite)] transition duration-150 hover:bg-[var(--amber-hover)]`}
               >
                 <span className="text-[1.15em] leading-none">+</span> New simulation
               </button>
@@ -965,8 +949,8 @@ export default function AdminConsole() {
                   <div
                     className={`mb-2 rounded-[2px] border px-3.5 py-3 ${
                       facCreated.invite_sent
-                        ? "border-[var(--ok)] bg-[rgba(127,176,138,0.07)]"
-                        : "border-[var(--amber-deep)] bg-[rgba(232,161,60,0.07)]"
+                        ? "border-[var(--ok)] bg-[color-mix(in_srgb,var(--ok)_7%,transparent)]"
+                        : "border-[var(--amber-deep)] bg-[color-mix(in_srgb,var(--amber)_7%,transparent)]"
                     }`}
                   >
                     <p
@@ -1051,7 +1035,7 @@ export default function AdminConsole() {
                         type="button"
                         onClick={createFaculty}
                         disabled={facBusy}
-                        className={`rounded-[2px] bg-[var(--amber)] px-3 py-1.5 ${MONO} text-[9.5px] font-bold uppercase tracking-[0.1em] text-[var(--graphite)] transition hover:bg-[#F0B052] disabled:opacity-50`}
+                        className={`rounded-[2px] bg-[var(--amber)] px-3 py-1.5 ${MONO} text-[9.5px] font-bold uppercase tracking-[0.1em] text-[var(--graphite)] transition hover:bg-[var(--amber-hover)] disabled:opacity-50`}
                       >
                         {facBusy ? "Adding…" : "Add instructor"}
                       </button>
@@ -1075,14 +1059,14 @@ export default function AdminConsole() {
                         <label
                           key={i.id}
                           className={`flex cursor-pointer items-center gap-2.5 border-b border-[var(--steel-line)] px-3.5 py-2 transition-colors last:border-b-0 ${
-                            checked ? "bg-[rgba(232,161,60,0.08)]" : "hover:bg-[var(--graphite-high)]"
+                            checked ? "bg-[color-mix(in_srgb,var(--amber)_8%,transparent)]" : "hover:bg-[var(--graphite-high)]"
                           }`}
                         >
                           <input
                             type="checkbox"
                             checked={checked}
                             onChange={() => toggleFaculty(i.id)}
-                            className="h-3.5 w-3.5 accent-[#E8A13C]"
+                            className="h-3.5 w-3.5 accent-[var(--amber)]"
                           />
                           <span className="min-w-0">
                             <span
@@ -1173,7 +1157,7 @@ export default function AdminConsole() {
                 </span>
               </label>
               {createError ? (
-                <p className="rounded-[2px] border border-[var(--signal-red)] bg-[rgba(210,86,75,0.12)] px-3 py-2.5 text-[0.85rem] text-[var(--paper)]">
+                <p className="rounded-[2px] border border-[var(--signal-red)] bg-[color-mix(in_srgb,var(--signal-red)_12%,transparent)] px-3 py-2.5 text-[0.85rem] text-[var(--paper)]">
                   {createError}
                 </p>
               ) : null}
@@ -1184,7 +1168,7 @@ export default function AdminConsole() {
                 <button
                   type="submit"
                   disabled={creating}
-                  className={`rounded-[2px] bg-[var(--amber)] px-5 py-2.5 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.04em] text-[var(--graphite)] transition duration-150 hover:bg-[#F0B052] disabled:opacity-60`}
+                  className={`rounded-[2px] bg-[var(--amber)] px-5 py-2.5 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.04em] text-[var(--graphite)] transition duration-150 hover:bg-[var(--amber-hover)] disabled:opacity-60`}
                 >
                   {creating ? "Creating\u2026" : "Create"}
                 </button>
@@ -1221,7 +1205,7 @@ export default function AdminConsole() {
                 type="button"
                 onClick={confirmDelete}
                 disabled={deleting}
-                className={`rounded-[2px] bg-[var(--signal-red)] px-5 py-2.5 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.04em] text-white transition duration-150 hover:bg-[#DD685E] disabled:opacity-60`}
+                className={`rounded-[2px] bg-[var(--signal-red)] px-5 py-2.5 ${DISPLAY} text-[14px] font-bold uppercase tracking-[0.04em] text-white transition duration-150 hover:bg-[var(--signal-red)] disabled:opacity-60`}
               >
                 {deleting ? "Deleting\u2026" : "Delete"}
               </button>

@@ -16,6 +16,7 @@ import ScheduleView from "./_components/ScheduleView";
 import InsightsView from "./_components/InsightsView";
 import TeachingNoteView from "./_components/TeachingNoteView";
 import { IconBack } from "./_components/icons";
+import ThemeToggle from "../../ThemeToggle";
 
 /* ================================================================== *
  * Instructor simulation detail — dark console theme shell + adapter.
@@ -42,39 +43,6 @@ import { IconBack } from "./_components/icons";
  * All data flow, URL-driven section state, and handlers unchanged.
  * ================================================================== */
 
-const THEME = {
-  /* console palette */
-  "--graphite": "#16191D",
-  "--graphite-raised": "#1E2228",
-  "--graphite-high": "#252B32",
-  "--steel-line": "#2C323A",
-  "--steel-soft": "#363E48",
-  "--paper": "#ECEFF2",
-  "--muted": "#8A94A0",
-  "--muted-dim": "#5C6672",
-  "--amber": "#E8A13C",
-  "--amber-deep": "#C4791F",
-  "--signal-red": "#D2564B",
-  "--blueprint": "#5BA3C4",
-  "--blueprint-deep": "#3B7E9C",
-  "--ok": "#7FB08A",
-
-  /* ---- adapter: remap the light theme's Tailwind v4 tokens ---- */
-  "--color-panel": "#1E2228",
-  "--color-panel2": "#252B32",
-  "--color-ink": "#ECEFF2",
-  "--color-muted": "#8A94A0",
-  "--color-faint": "#5C6672",
-  "--color-line": "#2C323A",
-  "--color-linestrong": "#363E48",
-  "--color-go": "#7FB08A",
-  "--color-caution": "#E8A13C",
-  "--color-alarm": "#D2564B",
-  "--color-neutral": "#8A94A0",
-  "--font-display": "'Saira Condensed', sans-serif",
-  "--font-mono": "'IBM Plex Mono', ui-monospace, monospace",
-  "--font-sans": "'IBM Plex Sans', system-ui, sans-serif",
-};
 
 const MONO = "font-['IBM_Plex_Mono',ui-monospace,monospace]";
 const DISPLAY = "font-['Saira_Condensed',sans-serif]";
@@ -185,7 +153,6 @@ export default function SimulationDetailPage() {
     return (
       <div
         className="flex min-h-screen items-center justify-center bg-[var(--graphite)] px-6 text-[var(--paper)]"
-        style={THEME}
       >
         <p className={`${MONO} text-[12px] uppercase tracking-[0.16em] text-[var(--muted)]`}>
           {phase === "error"
@@ -204,8 +171,7 @@ export default function SimulationDetailPage() {
 
   return (
     <div
-      className="dc-scope min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased [color-scheme:dark] selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
-      style={THEME}
+      className="dc-scope min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
     >
       {/* Structural overrides the token remap can't express:
           bg-white = a surface in the light theme → graphite here;
@@ -214,11 +180,11 @@ export default function SimulationDetailPage() {
       <style>{`
         .dc-scope .bg-white { background-color: var(--graphite); }
         .dc-scope .bg-ink { background-color: var(--amber); color: var(--graphite); }
-        .dc-scope .bg-ink:hover { background-color: #F0B052; }
+        .dc-scope .bg-ink:hover { background-color: var(--amber-hover); }
         .dc-scope ::selection { background: var(--amber); color: var(--graphite); }
       `}</style>
 
-      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[var(--steel-line)] bg-[rgba(22,25,29,0.85)] px-7 py-4 backdrop-blur">
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[var(--steel-line)] bg-[var(--scrim)] px-7 py-4 backdrop-blur">
         <div className="flex min-w-0 items-center gap-3">
           <button
             onClick={() => router.push("/instructor")}
@@ -252,6 +218,7 @@ export default function SimulationDetailPage() {
           <span className={`hidden ${MONO} text-[10.5px] uppercase tracking-[0.16em] text-[var(--muted)] sm:inline`}>
             {me.first_name || me.username}
           </span>
+          <ThemeToggle />
           <button
             onClick={signOut}
             className={`rounded-[2px] border border-[var(--steel-line)] px-4 py-2 ${MONO} text-[10.5px] uppercase tracking-[0.14em] text-[var(--muted)] transition-colors hover:border-[var(--steel-soft)] hover:bg-[var(--graphite-raised)] hover:text-[var(--paper)]`}

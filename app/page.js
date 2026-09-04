@@ -1,5 +1,6 @@
 import Reveal from "./Reveal";
 import ArcDiagram from "./ArcDiagram";
+import ThemeToggle from "./ThemeToggle";
 
 /* Landing page in the dark console theme (matches .dc-console in app/console.css).
  * Palette is exposed as CSS vars on the page wrapper so ArcDiagram's
@@ -9,26 +10,6 @@ import ArcDiagram from "./ArcDiagram";
  * already loaded by the console app.
  */
 
-const THEME = {
-  "--graphite": "#16191D",
-  "--graphite-raised": "#1E2228",
-  "--graphite-high": "#252B32",
-  "--steel-line": "#2C323A",
-  "--steel-soft": "#363E48",
-  "--paper": "#ECEFF2",
-  "--muted": "#8A94A0",
-  "--muted-dim": "#5C6672",
-  "--amber": "#E8A13C",
-  "--amber-deep": "#C4791F",
-  "--signal-red": "#D2564B",
-  "--blueprint": "#5BA3C4",
-  "--ok": "#7FB08A",
-  /* remaps for ArcDiagram + risk legend */
-  "--color-go": "#7FB08A",
-  "--color-caution": "#E8A13C",
-  "--color-alarm": "#D2564B",
-  "--color-neutral": "#8A94A0",
-};
 
 const ENDINGS = [
   { tier: "Triumph", color: "var(--amber)", desc: "You held one direction the whole way, and nothing came back to bite you. The board believes you." },
@@ -70,7 +51,6 @@ export default function Home() {
   return (
     <div
       className="min-h-screen bg-[var(--graphite)] font-['IBM_Plex_Sans',system-ui,sans-serif] text-[var(--paper)] antialiased selection:bg-[var(--amber)] selection:text-[var(--graphite)]"
-      style={THEME}
     >
       <header className="mx-auto flex h-[72px] max-w-[1080px] items-center justify-between border-b border-[var(--steel-line)] px-6">
         <div className="flex items-center gap-3">
@@ -88,6 +68,7 @@ export default function Home() {
         >
           Enter simulation
         </a>
+        <ThemeToggle className="ml-3" />
       </header>
 
       <main>
@@ -113,7 +94,7 @@ export default function Home() {
             <div className="flex flex-wrap gap-3.5">
               <a
                 href="/login"
-                className={`rounded-[2px] bg-[var(--amber)] px-[30px] py-3.5 ${DISPLAY} text-[16px] font-bold uppercase tracking-[0.06em] text-[var(--graphite)] transition duration-150 hover:-translate-y-px hover:bg-[#F0B052] ${FOCUS}`}
+                className={`rounded-[2px] bg-[var(--amber)] px-[30px] py-3.5 ${DISPLAY} text-[16px] font-bold uppercase tracking-[0.06em] text-[var(--graphite)] transition duration-150 hover:-translate-y-px hover:bg-[var(--amber-hover)] ${FOCUS}`}
               >
                 Take the CIO seat
               </a>

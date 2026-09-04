@@ -308,7 +308,7 @@ export default function StudentsView({ gameId, detail, reload, notify }) {
           aria-label="Search students"
         />
         <select
-          className={`h-10 px-2.5 text-[0.8rem] [color-scheme:dark] ${INPUT}`}
+          className={`h-10 px-2.5 text-[0.8rem] ${INPUT}`}
           value={payFilter}
           onChange={(e) => setPayFilter(e.target.value)}
           aria-label="Filter by payment"
@@ -318,7 +318,7 @@ export default function StudentsView({ gameId, detail, reload, notify }) {
           <option value="unpaid">Unpaid only</option>
         </select>
         <select
-          className={`h-10 px-2.5 text-[0.8rem] [color-scheme:dark] ${INPUT}`}
+          className={`h-10 px-2.5 text-[0.8rem] ${INPUT}`}
           value={firmFilter}
           onChange={(e) => setFirmFilter(e.target.value)}
           aria-label="Filter by firm"
@@ -349,7 +349,7 @@ export default function StudentsView({ gameId, detail, reload, notify }) {
         <button
           onClick={() => doBulkPaid(true)}
           disabled={busy || filtered.length === 0}
-          className={`rounded-[2px] border border-[#3f5e46] px-3.5 py-2 ${MONO} text-[9.5px] font-semibold uppercase tracking-[0.1em] text-[var(--ok,#7FB08A)] transition hover:bg-[rgba(127,176,138,0.1)] disabled:opacity-50`}
+          className={`rounded-[2px] border border-[var(--ok-line)] px-3.5 py-2 ${MONO} text-[9.5px] font-semibold uppercase tracking-[0.1em] text-[var(--ok,#7FB08A)] transition hover:bg-[color-mix(in_srgb,var(--ok)_10%,transparent)] disabled:opacity-50`}
         >
           Mark {filtersActive ? "shown" : "all"} paid
         </button>
@@ -418,7 +418,7 @@ export default function StudentsView({ gameId, detail, reload, notify }) {
                         <div className="flex items-center gap-2">
                           <span className="h-2 w-2 flex-none rounded-full" style={{ background: color }} />
                           <select
-                            className={`h-8 w-[138px] px-2 text-[0.75rem] [color-scheme:dark] ${INPUT}`}
+                            className={`h-8 w-[138px] px-2 text-[0.75rem] ${INPUT}`}
                             value={s.firm_index == null ? 0 : s.firm_index + 1}
                             onChange={(e) =>
                               doMove(
@@ -457,7 +457,7 @@ export default function StudentsView({ gameId, detail, reload, notify }) {
                           onClick={() => doPaid(s.enrollment_id, !s.paid)}
                           disabled={busy}
                           title={s.paid ? "Click to mark unpaid" : "Click to mark paid"}
-                          className="group rounded-[2px] transition hover:ring-2 hover:ring-[rgba(127,176,138,0.3)] disabled:opacity-50"
+                          className="group rounded-[2px] transition hover:ring-2 hover:ring-[color-mix(in_srgb,var(--ok)_30%,transparent)] disabled:opacity-50"
                         >
                           <Pill tone={s.paid ? "good" : "muted"}>
                             {s.paid ? "Paid" : "Unpaid"}

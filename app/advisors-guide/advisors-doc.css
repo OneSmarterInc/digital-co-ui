@@ -1,11 +1,9 @@
 /* Your Advisors, lifted from the authored standalone HTML. Every rule is scoped
  * under .advisors-doc — the source uses generic class names that would otherwise
  * collide with the console stylesheet in app/console.css. */
-.advisors-doc{
-    --graphite:#16191D; --graphite-raised:#1E2228; --steel-line:#2C323A; --steel-soft:#363E48;
-    --paper:#ECEFF2; --muted:#8A94A0; --muted-dim:#5C6672;
-    --amber:#E8A13C; --amber-deep:#C4791F; --signal-red:#D2564B; --ok:#7FB08A; --blueprint:#5BA3C4; --r:4px;
-  }
+/* Tokens come from :root in globals.css so this page follows the global
+   light/dark switch. A local copy here would win over the light palette. */
+.advisors-doc{--r:4px}
 .advisors-doc *{box-sizing:border-box;margin:0;padding:0}
 .advisors-doc{background:var(--graphite);color:var(--paper);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;padding:0 0 60px}
 .advisors-doc .wrap{max-width:880px;margin:0 auto;padding:0 26px}

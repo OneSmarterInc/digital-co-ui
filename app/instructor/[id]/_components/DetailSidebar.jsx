@@ -97,7 +97,7 @@ export default function DetailSidebar({ section, setSection, queueCount, deploym
   const deployGlow = deploymentStatus === "students" ? "0 0 6px -1px var(--ok, #7FB08A)" : "none";
 
   return (
-    <aside className="w-[230px] shrink-0 border-r border-[var(--steel-line,#2C323A)] bg-[#14171B] px-5 py-8 font-['IBM_Plex_Sans',system-ui,sans-serif]">
+    <aside className="w-[230px] shrink-0 border-r border-[var(--steel-line,#2C323A)] bg-[var(--surface-deep)] px-5 py-8 font-['IBM_Plex_Sans',system-ui,sans-serif]">
       <p className={`mb-4 px-3 ${MONO} text-[9.5px] uppercase tracking-[0.2em] text-[var(--muted-dim,#5C6672)]`}>
         Manage
       </p>
